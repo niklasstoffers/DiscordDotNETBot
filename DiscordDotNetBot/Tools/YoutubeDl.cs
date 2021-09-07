@@ -75,6 +75,29 @@ namespace DiscordDotNetBot.Tools
             }
         }
 
+        public static async Task<string> GetBestOpusAudio(string url)
+        {
+            try
+            {
+                string arguments = $"--get-url -f \"bestaudio/opus\" --extract-audio --audio-format \"opus\" {url}";
+                string dump;
+
+                using (var worker = InitWorker(arguments))
+                {
+                    using (var output = worker.StandardOutput)
+                    {
+                        dump = await output.ReadToEndAsync();
+                    }
+                }
+
+                return dump;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         private static Process InitWorker(string arguments)
         {
             return Process.Start(new ProcessStartInfo()

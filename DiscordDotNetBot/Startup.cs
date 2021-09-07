@@ -33,6 +33,7 @@ namespace DiscordDotNetBot
             try
             {
                 await client.LoginAsync(TokenType.Bot, config.Token);
+                await client.SetGameAsync("dir etwas vor. !play");
             }
             catch
             {

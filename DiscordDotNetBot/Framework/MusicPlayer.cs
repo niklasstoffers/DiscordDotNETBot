@@ -79,9 +79,10 @@ namespace DiscordDotNetBot.Framework
 
             using (var response = await request.GetResponseAsync())
             {
+                int audioBufferMS = 2000;
                 _networkInStream = response.GetResponseStream();
                 _ffmpeg = CreateFFMPEG();
-                _discordAudioStream ??= _client.CreatePCMStream(AudioApplication.Music);
+                _discordAudioStream ??= _client.CreatePCMStream(AudioApplication.Music, bufferMillis: audioBufferMS);
                 bool isReading = true;
 
                 var reader = Task.Run(async () =>
@@ -100,21 +101,29 @@ namespace DiscordDotNetBot.Framework
 
                 var writer = Task.Run(async () =>
                 {
-                    int wrote = 1;
+                    int wroteBytes = 1;
                     byte[] buffer = new byte[8192];
-                    while(isReading || wrote > 0)
+                    while(isReading || wroteBytes > 0)
                     {
-                        wrote = await _ffmpeg.StandardOutput.BaseStream.ReadAsync(buffer, 0, buffer.Length);
+                        var waitTask = Task.Delay(1000);
+                        var readTask = _ffmpeg.StandardOutput.BaseStream.ReadAsync(buffer, 0, buffer.Length);
+                        await Task.WhenAny(waitTask, readTask);
+                        
+                        if (!isReading && waitTask.IsCompleted)
+                            break;
+                        wroteBytes = await readTask;
+
                         while (State == MusicPlayerState.Paused)
                             await Task.Delay(20);
-                        if (wrote <= 0) break;
-                        await _discordAudioStream.WriteAsync(buffer, 0, wrote);
+                        if (!isReading && wroteBytes <= 0) break;
+                        await _discordAudioStream.WriteAsync(buffer, 0, wroteBytes);
                     }
                 });
 
                 await Task.WhenAll(reader, writer);
                 await _networkInStream.DisposeAsync();
                 _ffmpeg.Dispose();
+                await Task.Delay(audioBufferMS); // wait one full buffer
             }
 
             await _stateLock.WaitAsync();
@@ -144,7 +153,7 @@ namespace DiscordDotNetBot.Framework
             return Process.Start(new ProcessStartInfo()
             {
                 FileName = "ffmpeg",
-                Arguments = "-hide_banner -loglevel quiet -f webm -i - -c:a pcm_s16le -f s16le -ac 2 -ar 48k pipe:1",
+                Arguments = "-hide_banner -loglevel quiet -i - -c:a pcm_s16le -f s16le -ac 2 -ar 48k pipe:1",
                 UseShellExecute = false,
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
@@ -201,6 +210,21 @@ namespace DiscordDotNetBot.Framework
             _playQueue.Enqueue(music);
         }
 
+        public async Task<bool> HasMusic()
+        {
+            await _stateLock.WaitAsync();
+            bool result = false;
+            try
+            {
+                result = _currentMusic != null || _playQueue.Count > 0;
+            }
+            finally
+            {
+                _stateLock.Release();
+            }
+            return result;
+        }
+
         public async Task Skip()
         {
             await _stateLock.WaitAsync();
@@ -211,6 +235,20 @@ namespace DiscordDotNetBot.Framework
 
                 await StopInternal();
                 PlayInternal();
+            }
+            finally
+            {
+                _stateLock.Release();
+            }
+        }
+
+        public async Task Clear()
+        {
+            await _stateLock.WaitAsync();
+            try
+            {
+                _currentMusic = null;
+                _playQueue.Clear();
             }
             finally
             {
