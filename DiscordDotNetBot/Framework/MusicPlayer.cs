@@ -19,7 +19,9 @@ namespace DiscordDotNetBot.Framework
         {
             if (audioClient == null)
                 return _current;
-            return _current ??= new MusicPlayer(audioClient);
+            _current ??= new MusicPlayer(audioClient);
+            _current.SetAudioClient(audioClient);
+            return _current;
         }
 
         private ConcurrentQueue<Music> _playQueue;
@@ -39,6 +41,11 @@ namespace DiscordDotNetBot.Framework
             _playQueue = new ConcurrentQueue<Music>();
             _client = client;
             State = MusicPlayerState.Stopped;
+        }
+
+        public void SetAudioClient(IAudioClient client)
+        {
+            _client = client;
         }
 
         public async Task Play()
@@ -82,7 +89,7 @@ namespace DiscordDotNetBot.Framework
                 int audioBufferMS = 2000;
                 _networkInStream = response.GetResponseStream();
                 _ffmpeg = CreateFFMPEG();
-                _discordAudioStream ??= _client.CreatePCMStream(AudioApplication.Music, bufferMillis: audioBufferMS);
+                _discordAudioStream = _client.CreatePCMStream(AudioApplication.Music, bufferMillis: audioBufferMS);
                 bool isReading = true;
 
                 var reader = Task.Run(async () =>
@@ -122,6 +129,7 @@ namespace DiscordDotNetBot.Framework
 
                 await Task.WhenAll(reader, writer);
                 await _networkInStream.DisposeAsync();
+                await _discordAudioStream.DisposeAsync();
                 _ffmpeg.Dispose();
                 await Task.Delay(audioBufferMS); // wait one full buffer
             }

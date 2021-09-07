@@ -113,15 +113,11 @@ namespace DiscordDotNetBot.Commands.Modules
                     await musicPlayer.Stop();
                     await musicPlayer.Clear();
                 }
-
+                
                 if (_client != null) await _client.StopAsync();
-                if (_vc != null) await _vc.DisconnectAsync();
             }
             finally
             {
-                _client?.Dispose();
-
-                _client = null;
                 _vc = null;
             }
         }
