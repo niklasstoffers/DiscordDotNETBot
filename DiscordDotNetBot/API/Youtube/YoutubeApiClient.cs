@@ -34,13 +34,19 @@ namespace DiscordDotNetBot.API.Youtube
                                                  {
                                                      new QueryParameter("q", search),
                                                      new QueryParameter("part", "snippet"),
-                                                     new QueryParameter("order", "relevance")
+                                                     new QueryParameter("order", "relevance"),
+                                                     new QueryParameter("type", "video")
                                                  });
 
                 if (response.items.Count == 0)
                     return null;
 
-                return $"{_endpoints[YTEndpoint.VideoUrl].Url}?v={response.items[0].id.videoId}";
+                for(int i = 0; i < response.items.Count; i++)
+                {
+                    if (response.items[i].snippet.liveBroadcastContent == "none")
+                        return $"{_endpoints[YTEndpoint.VideoUrl].Url}?v={response.items[i].id.videoId}";
+                }
+                return null;
             }
             catch (Exception ex)
             {
@@ -51,12 +57,12 @@ namespace DiscordDotNetBot.API.Youtube
 
         private async Task<object> MakeRequest(Endpoint endpoint, QueryParameter[] parameters)
         {
-            endpoint.Url += $"?key={HttpUtility.UrlEncode(_apiKey)}&";
+            string url = $"{endpoint.Url}?key={HttpUtility.UrlEncode(_apiKey)}&";
             foreach (var param in parameters)
-                endpoint.Url += $"{HttpUtility.UrlEncode(param.Name)}={HttpUtility.UrlEncode(param.Value)}&";
-            endpoint.Url = endpoint.Url.TrimEnd('&');
+                url += $"{HttpUtility.UrlEncode(param.Name)}={HttpUtility.UrlEncode(param.Value)}&";
+            url = url.TrimEnd('&');
 
-            var httpRequest = WebRequest.CreateHttp(endpoint.Url);
+            var httpRequest = WebRequest.CreateHttp(url);
             httpRequest.Method = endpoint.Method;
 
             string resultJson;

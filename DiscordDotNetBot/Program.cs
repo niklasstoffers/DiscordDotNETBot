@@ -9,6 +9,7 @@ using DiscordDotNetBot.Config;
 using DiscordDotNetBot.Util;
 using System.Diagnostics;
 using DiscordDotNetBot.Commands.Modules;
+using DiscordDotNetBot.Framework;
 
 namespace DiscordDotNetBot
 {
@@ -21,15 +22,16 @@ namespace DiscordDotNetBot
             AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
 
             DiscordSocketClient client = null;
+            Exception error = null;
             try
             {
                 client = await Startup.Run();
                 _client = client;
             }
-            catch { }
+            catch (Exception ex){ error = ex; }
             if (client == null)
             {
-                Console.WriteLine("Initialization error occured!");
+                Console.WriteLine($"Initialization error occured! {error?.Message ?? ""}");
                 return;
             }
 
@@ -66,6 +68,7 @@ namespace DiscordDotNetBot
                 try
                 {
                     await client.StopAsync();
+                    MusicPlayer.GetCurrent(null)?.Dispose();
                 }
                 catch (AggregateException ex)
                 {
@@ -83,6 +86,7 @@ namespace DiscordDotNetBot
         private static void CurrentDomain_ProcessExit(object sender, EventArgs e)
         {
             _client?.Dispose();
+            MusicPlayer.GetCurrent(null)?.Dispose();
         }
     }
 }
