@@ -1,0 +1,7 @@
+﻿- opus
+- libsodium
+- youtube-dl
+- ffmpeg
+- YoutubeDlServiceReceiver
+- YoutubeDlServiceWorker
+- python v3.2+
