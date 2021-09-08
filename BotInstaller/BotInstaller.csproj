@@ -5,13 +5,14 @@
     <TargetFramework>net5.0</TargetFramework>
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <PlatformTarget>x64</PlatformTarget>
+    <RuntimeIdentifier>linux-arm64</RuntimeIdentifier>
+    <PlatformTarget>arm64</PlatformTarget>
     <PublishTrimmed>true</PublishTrimmed>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Mono.Posix.NETStandard" Version="1.0.0" />
     <PackageReference Include="System.Security.Principal.Windows" Version="5.0.0" />
   </ItemGroup>
 

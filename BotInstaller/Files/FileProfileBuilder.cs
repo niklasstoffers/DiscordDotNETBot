@@ -13,6 +13,7 @@ namespace BotInstaller.Files
             return os switch
             {
                 { Architecture: Architecture.X64, OS: OS.Windows } => WinX64(),
+                //{ Architecture: Architecture.Arm64, OS: OS.Linux } => LinuxArm64(),
                 _ => null
             };
         }
@@ -30,6 +31,14 @@ namespace BotInstaller.Files
                 YoutubeDlServiceWorker = new File("https://onedrive.live.com/download?cid=578888175A5B2B6F&resid=578888175A5B2B6F%21727&authkey=AI65HlJVYwCyxvU", "YoutubeDlServiceWorker.exe")
             };
         }
+
+        //private static FileProfile LinuxArm64()
+        //{
+        //    return new FileProfile()
+        //    {
+
+        //    }
+        //}
 
     }
 }
