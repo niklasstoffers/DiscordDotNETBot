@@ -45,7 +45,7 @@ namespace Hainz.Commands.Modules
             }
             else
             {
-                _ytClient ??= new YoutubeApiClient(BotConfig.Current.YoutubeAPIKey);
+                //_ytClient ??= new YoutubeApiClient(BotConfig.Current.YoutubeAPIKey);
                 var musicUrlGetterTask = Task.Run(async () => await GetMusicUrl(search));
                 await Task.WhenAll(changeVCTask, musicUrlGetterTask);
                 string musicUrl = musicUrlGetterTask.Result;
