@@ -9,6 +9,6 @@ namespace Hainz.IO
 {
     public interface IInput
     {
-        string ReceiveNext(CancellationToken ct);
+        Task<string> ReceiveNext(CancellationToken ct);
     }
 }

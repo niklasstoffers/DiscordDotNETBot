@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Hainz.Framework;
 using Hainz.InterfaceCommands;
 using Hainz.Log;
 using System;
@@ -13,36 +14,45 @@ namespace Hainz
         private Bot _bot;
         private Logger _logger;
         private CommandManager _commandManager;
-        private IContainer _container;
+        private ContainerManager _containerManager;
+        private ILifetimeScope _container;
         private CancellationTokenSource _shutdownCTS;
         private bool _restartRequested;
 
         public Application()
         {
-            Initializer init = new Initializer();
-            _container = init.BuildDIContainer();
+            _containerManager = new ContainerManager();   
+            _container = _containerManager.Resolver;
             _shutdownCTS = new CancellationTokenSource();
         }
 
         public async Task Run()
         {
-            using (_container.BeginLifetimeScope())
+            try 
             {
-                _logger = _container.Resolve<Logger>();
-                _bot = _container.Resolve<Bot>();
+                using (_container.BeginLifetimeScope())
+                {
+                    _logger = _container.Resolve<Logger>();
+                    _bot = _container.Resolve<Bot>();
+                    
+                    if (!await TryStartBot()) return;
 
-                if (!await TryStartBot()) return;
+                    _commandManager = _container.Resolve<CommandManager>();
+                    
+                    _commandManager.HookHandler(CommandType.Quit, () => Quit(false));
+                    _commandManager.HookHandler(CommandType.Restart, () => Quit(true));
 
-                _commandManager = _container.Resolve<CommandManager>();
-                
-                _commandManager.HookHandler(CommandType.Quit, () => Quit(false));
-                _commandManager.HookHandler(CommandType.Restart, () => Quit(true));
+                    await _commandManager.Listen(_shutdownCTS.Token);
 
-                await _commandManager.Listen(_shutdownCTS.Token);
+                    await TryStopBot();
 
-                await TryStopBot();
-
-                if (_restartRequested) Restart();
+                    if (_restartRequested) 
+                        await Restart();
+                }
+            }
+            catch (AggregateException ex) 
+            {
+                await _logger?.LogExceptionAsync(ex, LogLevel.Critical);
             }
         }
 
@@ -52,15 +62,23 @@ namespace Hainz
             _shutdownCTS.Cancel();
         }
 
-        private void Restart()
+        private async Task Restart()
         {
-            Process.Start(new ProcessStartInfo()
+            try 
             {
-                FileName = Process.GetCurrentProcess().MainModule.FileName,
-                UseShellExecute = true,
-                CreateNoWindow = false,
-                WindowStyle = ProcessWindowStyle.Normal
-            });
+                Process.Start(new ProcessStartInfo()
+                {
+                    FileName = Process.GetCurrentProcess().MainModule.FileName,
+                    UseShellExecute = true,
+                    CreateNoWindow = false,
+                    WindowStyle = ProcessWindowStyle.Normal
+                });
+            }
+            catch (Exception ex) 
+            {
+                await _logger.LogMessageAsync("Exception while trying to restart bot.", LogLevel.Critical);
+                await _logger.LogExceptionAsync(ex);
+            }
         }
 
         private async Task<bool> TryStartBot()
@@ -95,7 +113,9 @@ namespace Hainz
 
         public void Dispose()
         {
-            _container.Dispose();
+            _container?.Dispose();
+            _containerManager?.Dispose();
+            _bot?.Dispose();
         }
     }
 }

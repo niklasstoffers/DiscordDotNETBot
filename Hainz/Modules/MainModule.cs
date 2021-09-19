@@ -1,4 +1,6 @@
 ﻿using Autofac;
+using Autofac.Core.Lifetime;
+using Autofac.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -13,6 +13,7 @@ namespace Hainz.InterfaceCommands
         private CommandParser _parser;
         private IInput _input;
         private Dictionary<CommandType, List<CommandHandler>> _handlers;
+        private SemaphoreSlim _handlerLock = new SemaphoreSlim(1, 1);
 
         public CommandManager(CommandDispatcher dispatcher,
                                      CommandHandlerLocator locator,
@@ -29,20 +30,32 @@ namespace Hainz.InterfaceCommands
         public void HookHandler(CommandType type, Action handler)
         {
             EnsureInit(type);
-            _handlers[type].Add(new CommandHandler(null, (m, p) => handler()));
+            _handlerLock.Wait();
+            try {
+                _handlers[type].Add(new CommandHandler(null, (m, p) => handler()));
+            }
+            finally {
+                _handlerLock.Release();
+            }
         }
 
         private void EnsureInit(CommandType type)
         {
-            if (!_handlers.ContainsKey(type))
-                _handlers.Add(type, _locator.GetCommandHandlers(type));
+            _handlerLock.Wait();
+            try {
+                if (!_handlers.ContainsKey(type))
+                    _handlers.Add(type, _locator.GetCommandHandlers(type));
+            }
+            finally {
+                _handlerLock.Release();
+            }
         }
 
         public async Task Listen(CancellationToken cancelToken)
         {
             while(!cancelToken.IsCancellationRequested)
             {
-                string input = _input.ReceiveNext(cancelToken);
+                string input = await _input.ReceiveNext(cancelToken);
                 if (cancelToken.IsCancellationRequested)
                     break;
 
@@ -53,6 +66,13 @@ namespace Hainz.InterfaceCommands
                 foreach (var handler in _handlers[command.Type])
                     await _dispatcher.Dispatch(handler.ModuleType, handler.Handler, command);
             }
+        }
+
+        public async Task DispatchCommand(Command command) 
+        {
+            EnsureInit(command.Type);
+            foreach (var handler in _handlers[command.Type])
+                await _dispatcher.Dispatch(handler.ModuleType, handler.Handler, command);
         }
     }
 }

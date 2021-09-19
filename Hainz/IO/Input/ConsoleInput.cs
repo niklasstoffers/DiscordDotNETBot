@@ -9,13 +9,14 @@ namespace Hainz.IO.Input
 {
     public class ConsoleInput : IInput
     {
-        public string ReceiveNext(CancellationToken ct)
+        public Task<string> ReceiveNext(CancellationToken ct)
         {
             ct.Register(() =>
             {
                 Console.WriteLine();
             }, false);
-            return Console.ReadLine();
+            string result = Console.ReadLine();
+            return Task.FromResult<string>(result);
         }
     }
 }

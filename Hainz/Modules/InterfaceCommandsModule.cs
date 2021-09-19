@@ -9,13 +9,14 @@ using System.Threading.Tasks;
 
 namespace Hainz.Modules
 {
-    public class ConsoleCommandsModule : Module
+    public class InterfaceCommandsModule : Module
     {
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<CommandDispatcher>().AsSelf();
             builder.RegisterType<CommandHandlerLocator>().AsSelf();
             builder.RegisterType<CommandParser>().AsSelf();
+            builder.RegisterType<CommandBuilder>().AsSelf();
 
             builder.Register<CommandManager>(ctx => 
             {

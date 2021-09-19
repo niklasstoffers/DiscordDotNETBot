@@ -351,3 +351,7 @@ MigrationBackup/
 
 # Custom files
 !Hainz/Log
+Hainz/opus.*
+Hainz/libsodium.*
+*.vscode
+*.DS_Store
