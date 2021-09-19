@@ -18,8 +18,22 @@ namespace Hainz.IO.Input
                     await Task.Delay(10);
                 if (ct.IsCancellationRequested) return null;
                 var key = Console.ReadKey();
-                if (key.Key == ConsoleKey.Enter) break;
-                input.Add(key.KeyChar);
+                if (key.Key == ConsoleKey.Enter)
+                {
+                    Console.Write(Environment.NewLine);
+                    break;
+                }
+                else if (key.Key == ConsoleKey.Backspace)
+                {
+                    if (input.Count > 0)
+                    {
+                        input.RemoveAt(input.Count - 1);
+                        Console.SetCursorPosition(Console.CursorLeft + 1, Console.CursorTop);
+                        Console.Write("\b \b");
+                    }
+                }
+                else
+                    input.Add(key.KeyChar);
             }
             return new string(input.ToArray());
         }

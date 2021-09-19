@@ -9,7 +9,12 @@ namespace Hainz.Modules
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<CommandService>().AsSelf().InstancePerLifetimeScope();
+            builder.Register<CommandService>(ctx =>
+            {
+                var config = new CommandServiceConfig() { LogLevel = Discord.LogSeverity.Debug };
+                return new CommandService(config);
+            }).AsSelf().InstancePerLifetimeScope();
+
             builder.RegisterType<CommandHandler>().AsSelf().InstancePerLifetimeScope();
         }
     }

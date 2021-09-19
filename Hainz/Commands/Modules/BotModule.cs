@@ -6,6 +6,7 @@ using Hainz.IO;
 namespace Hainz.Commands.Modules 
 {
     [Group("bot")]
+    [RequireOwner]
     public class BotModule : ModuleBase<SocketCommandContext>
     {
         private Hainz.InterfaceCommands.CommandManager _commandManager;

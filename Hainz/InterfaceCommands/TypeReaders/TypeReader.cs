@@ -17,7 +17,9 @@ namespace Hainz.InterfaceCommands.TypeReaders
 
         public sealed override bool TryRead(string input, out object result)
         {
-            return TryRead(input, out result);
+            bool successfull = TryRead(input, out T tResult);
+            result = tResult;
+            return successfull;
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Hainz.InterfaceCommands;
+using Hainz.InterfaceCommands.CommandModules;
 using Hainz.IO.Input;
 using System;
 using System.Collections.Generic;
@@ -25,6 +26,8 @@ namespace Hainz.Modules
                                                  ctx.Resolve<CommandParser>(),
                                                  ctx.Resolve<ConsoleInput>());
             }).AsSelf().InstancePerLifetimeScope();
+
+            builder.RegisterType<ConfigCommandModule>().AsSelf();
         }
     }
 }
