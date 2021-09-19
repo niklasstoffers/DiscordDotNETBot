@@ -2,140 +2,125 @@
 using Discord.Audio;
 using Discord.Commands;
 using Hainz.API.Youtube;
-using Hainz.Config;
-using Hainz.Framework;
-using Hainz.Tools;
+using Hainz.Audio;
+using Hainz.Log;
 using System;
-using System.Diagnostics;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Hainz.Commands.Modules
 {
     public class AudioModule : ModuleBase<SocketCommandContext>
     {
-        private static IAudioClient _client;
-        private static IVoiceChannel _vc;
-        private static YoutubeApiClient _ytClient;
+        private VoiceChannelService _vcService;
+        private MusicService _musicService;
+        private MusicBuilder _musicBuilder;
+        private Logger _logger;
+
+        public AudioModule(VoiceChannelService vcService,
+                              MusicService musicService,
+                              MusicBuilder musicBuilder,
+                              Logger logger)
+        {
+            _vcService = vcService;
+            _musicService = musicService;
+            _musicBuilder = musicBuilder;
+            _logger = logger;
+        }
 
         [Command("play", RunMode = RunMode.Async)]
-        public async Task PlayAsync(params string[] searchInput)
+        public async Task PlayAsync()
         {
-            var stopwatch = Stopwatch.StartNew();
-            string search = string.Join(" ", searchInput);
-            IVoiceChannel vc = (Context.User as IGuildUser)?.VoiceChannel;
+            await JoinAsync();
 
-            if (vc == null)
+            if (!_vcService.IsConnected)
+                return;
+
+            if (_musicService.CanPlay)
+                await _musicService.Play();
+            else
+                await Context.Channel.SendMessageAsync("Was soll gespielt werden?");
+        }
+
+        [Command("play", RunMode = RunMode.Async)]
+        public async Task PlayAsync(params string[] search)
+        {
+            await JoinAsync();
+
+            if (!_vcService.IsConnected)
+                return;
+
+            string searchQuery = string.Join(" ", search);
+            Music music = await _musicBuilder.WithQuery(searchQuery)
+                                             .WithPlatform(MusicPlatform.Youtube)
+                                             .BuildAsync();
+
+            if (music == null)
             {
-                await Context.Channel.SendMessageAsync("Rosen sind rot, Veilchen sind blau, ohne VC, ist mir das zu ungenau.");
+                await Context.Channel.SendMessageAsync("Fehler beim Abruf der Audiodateien");
                 return;
             }
 
-            var changeVCTask = Task.Run(async () => await ChangeVoiceChannel(vc));
+            string message = $"Spielt nun {music.Title} [{music.Length}:c]";
+            if (_musicService.CanPlay)
+                message = $"{music.Title} wurde zur Warteschlange hinzugefügt";
 
-            if (string.IsNullOrEmpty(search))
-            {
-                var musicPlayer = MusicPlayer.GetCurrent(_client);
-                if (musicPlayer != null && await musicPlayer.HasMusic())
-                {
-                    await changeVCTask;
-                    await musicPlayer.Play();
-                }
-                else
-                    await Context.Channel.SendMessageAsync("Soll ich mir ausdenken was du hören möchtest? Schreibs dahinter, du Kek.");
-            }
+            _musicService.AddToQueue(music);
+            await _musicService.Play();
+            
+            await Context.Channel.SendMessageAsync(message);
+        }
+
+        [Command("join", RunMode = RunMode.Async)]
+        public async Task JoinAsync()
+        {
+            var user = Context.User as IGuildUser;
+            if (user == null)
+                return;
+
+            IVoiceChannel vc = user.VoiceChannel;
+            if (vc == null)
+                await Context.Channel.SendMessageAsync("Du musst in einem VC sein um diesen Command zu benutzen.");
             else
-            {
-                //_ytClient ??= new YoutubeApiClient(BotConfig.Current.YoutubeAPIKey);
-                var musicUrlGetterTask = Task.Run(async () => await GetMusicUrl(search));
-                await Task.WhenAll(changeVCTask, musicUrlGetterTask);
-                string musicUrl = musicUrlGetterTask.Result;
+                await _vcService.ConnectAsync(vc);
 
-                if (musicUrl == null)
-                    await Context.Channel.SendMessageAsync("Fehler beim Extrahieren der Audio Daten. So nen Mist. Jetzt bin ich wütend. Wenn du wissen willst wie wütend ich bin, hier: https://www.youtube.com/watch?v=hveBIv4DB7g");
-                else
-                {
-                    Console.WriteLine($"Getting url execution time: {stopwatch.Elapsed}");
-                    var musicPlayer = MusicPlayer.GetCurrent(_client);
-                    musicPlayer.AddToQueue(new Music() { Url = musicUrl });
-                    await musicPlayer.Play();
-                    stopwatch.Stop();
-                    Console.WriteLine($"Play command execution time: {stopwatch.Elapsed}");
-                }
-            }
-        }
-
-        private async Task ChangeVoiceChannel(IVoiceChannel vc)
-        {
-            if (_vc == null || _vc.Id != vc.Id)
-            {
-                await DCAsync();
-                _vc = vc;
-                _client = await _vc.ConnectAsync();
-            }
-        }
-
-        private async Task<string> GetMusicUrl(string search)
-        {
-            if (!Uri.TryCreate(search, UriKind.Absolute, out _))
-                search = await _ytClient.GetMostRelevantForSearch(search);
-            if (!string.IsNullOrEmpty(search))
-                return await YoutubeDl.GetBestOpusAudio(search);
-            return string.Empty;
-        }
-
-        [Command("pause", RunMode = RunMode.Async)]
-        public async Task PauseAsync()
-        {
-            var musicPlayer = MusicPlayer.GetCurrent(_client);
-            if (musicPlayer != null)
-                await musicPlayer.Pause();
+            if (!_vcService.IsConnected)
+                await Context.Channel.SendMessageAsync("Fehler beim Beitreten zum VC. Möglicherweise fehlen Berechtigungen zum Zutritt.");
         }
 
         [Command("skip", RunMode = RunMode.Async)]
         public async Task SkipAsync()
         {
-            var musicPlayer = MusicPlayer.GetCurrent(_client);
-            if (musicPlayer != null)
-                await musicPlayer.Skip();
+            await _musicService.Skip();
+        }
+
+        [Command("pause", RunMode = RunMode.Async)]
+        public async Task PauseAsync()
+        {
+            await _musicService.Pause();
         }
 
         [Command("stop", RunMode = RunMode.Async)]
         public async Task StopAsync()
         {
-            var musicPlayer = MusicPlayer.GetCurrent(_client);
-            if (musicPlayer != null)
-                await musicPlayer.Stop();
+            await _musicService.Stop();
         }
 
         [Command("clear", RunMode = RunMode.Async)]
         public async Task ClearAsync()
         {
-            var musicPlayer = MusicPlayer.GetCurrent(_client);
-            if (musicPlayer != null)
-            {
-                await musicPlayer.Stop();
-                await musicPlayer.Clear();
-            }
+            await _musicService.Stop();
+            await _musicService.Reset();
         }
 
         [Command("dc", RunMode = RunMode.Async)]
         public async Task DCAsync()
         {
-            try
-            {
-                var musicPlayer = MusicPlayer.GetCurrent(_client);
-                if (musicPlayer != null)
-                {
-                    await musicPlayer.Stop();
-                    await musicPlayer.Clear();
-                }
-                
-                if (_client != null) await _client.StopAsync();
-            }
-            finally
-            {
-                _vc = null;
-            }
+            await _musicService.Stop();
+            await _musicService.Reset();
+            await _vcService.DisconnectAsync();
         }
     }
 }

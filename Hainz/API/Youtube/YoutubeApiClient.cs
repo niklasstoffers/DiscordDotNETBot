@@ -25,7 +25,7 @@ namespace Hainz.API.Youtube
             _apiKey = apiKey;
         }
 
-        public async Task<string> GetMostRelevantForSearch(string search)
+        public async Task<YoutubeVideo> GetMostRelevantForSearch(string search)
         {
             try
             {
@@ -53,6 +53,11 @@ namespace Hainz.API.Youtube
                 Console.WriteLine("Youtube API request failed!");
                 return null;
             }
+        }
+
+        public async Task<YoutubeVideo> GetVideoInfo(string videoUrl)
+        {
+
         }
 
         private async Task<object> MakeRequest(Endpoint endpoint, QueryParameter[] parameters)

@@ -1,2 +1,7 @@
 ﻿- Rewrite ConfigManager
 - Rewrite ObjectDumper
+- Rewrite ConsoleInput
+- Rewrite ConsoleUtil
+- Rewrite YoutubeDl
+- Add config save and config set handlers
+- Rewrite API module
