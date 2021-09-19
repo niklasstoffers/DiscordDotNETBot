@@ -9,14 +9,19 @@ namespace Hainz.IO.Input
 {
     public class ConsoleInput : IInput
     {
-        public Task<string> ReceiveNext(CancellationToken ct)
+        public async Task<string> ReceiveNext(CancellationToken ct)
         {
-            ct.Register(() =>
+            List<char> input = new List<char>();
+            while(!ct.IsCancellationRequested)
             {
-                Console.WriteLine();
-            }, false);
-            string result = Console.ReadLine();
-            return Task.FromResult<string>(result);
+                while (!(Console.KeyAvailable || ct.IsCancellationRequested))
+                    await Task.Delay(10);
+                if (ct.IsCancellationRequested) return null;
+                var key = Console.ReadKey();
+                if (key.Key == ConsoleKey.Enter) break;
+                input.Add(key.KeyChar);
+            }
+            return new string(input.ToArray());
         }
     }
 }
