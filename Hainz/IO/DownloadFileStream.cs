@@ -1,21 +1,21 @@
-﻿using Hainz.IO;
-using Hainz.Tools;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Hainz.Audio
+namespace Hainz.IO
 {
-    public class MusicInStream : Stream
+    public class DownloadFileStream : Stream
     {
-        private string _url;
-        private bool _initialized;
-        private Stream _networkStream;
-        private Process _ffmpeg;
+        private string _downloadUrl;
+        private bool _initialized = false;
+        private HttpWebRequest _request;
+        private WebResponse _response;
+        private Stream _responseStream;
 
         public override bool CanRead => true;
         public override bool CanSeek => false;
@@ -24,50 +24,49 @@ namespace Hainz.Audio
         public override long Length => throw new NotSupportedException();
         public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
 
-
-        public MusicInStream(string musicUrl)
+        public DownloadFileStream(string url)
         {
-            _url = musicUrl;
+            _downloadUrl = url;
         }
 
         private void Init()
         {
             if (!_initialized)
             {
-                _networkStream = new DownloadFileStream(_url);
-                _ffmpeg = FFMPEG.CreateToPCMConverter();
+                _request = WebRequest.CreateHttp(_downloadUrl);
+                _request.Method = HttpMethod.Get.ToString();
+                _response = _request.GetResponse();
+                _responseStream = _response.GetResponseStream();
             }
-
             _initialized = true;
+        }
+
+        public override void Flush()
+        {
+            _responseStream?.Flush();
         }
 
         public override int Read(byte[] buffer, int offset, int count)
         {
             Init();
-
-            _networkStream.Read(buffer);
-            _ffmpeg.StandardInput.BaseStream.Write(buffer);
-            return _ffmpeg.StandardOutput.BaseStream.Read(buffer, offset, count);
+            return _responseStream.Read(buffer, offset, count);
         }
 
         public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
         public override void SetLength(long value) => throw new NotSupportedException();
         public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
 
-        public override void Flush()
-        {
-            _networkStream?.Flush();
-        }
-
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
-                _networkStream.Dispose();
-                _ffmpeg.WaitForExit();
-                _ffmpeg.Dispose();
-            }
+                _responseStream?.Dispose();
+                _response?.Dispose();
 
+                _request = null;
+                _responseStream = null;
+                _response = null;
+            }
             base.Dispose(disposing);
         }
     }

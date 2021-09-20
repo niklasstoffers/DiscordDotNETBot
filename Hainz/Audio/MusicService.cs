@@ -36,7 +36,7 @@ namespace Hainz.Audio
         public void AddToQueue(Music music) =>
             _musicQueue.Enqueue(music);
 
-        public async Task Play()
+        public void Play()
         {
             if (PlayerState == PlayerState.Playing)
                 return;
@@ -50,40 +50,40 @@ namespace Hainz.Audio
                 _player.Input = _inputStream;
             }
 
-            await _player.Start();
+            _player.Start();
             PlayerState = PlayerState.Playing;
         }
 
-        public async Task Stop()
+        public void Stop()
         {
             if (PlayerState == PlayerState.Stopped)
                 return;
 
-            await _player.Stop();
+            _player.Stop();
             _player.Input = null;
             _inputStream?.Dispose();
             
             PlayerState = PlayerState.Stopped;
         }
 
-        public async Task Pause()
+        public void Pause()
         {
             if (PlayerState != PlayerState.Playing)
                 return;
 
-            await _player.Stop();
+            _player.Stop();
             PlayerState = PlayerState.Paused;
         }
 
-        public async Task Skip()
+        public void Skip()
         {
-            await Stop();
-            await Play();
+            Stop();
+            Play();
         }
 
-        public async Task Reset()
+        public void Reset()
         {
-            await Stop();
+            Stop();
 
             _current = null;
             _musicQueue.Clear();
@@ -91,7 +91,7 @@ namespace Hainz.Audio
 
         public void Dispose()
         {
-            Reset().GetAwaiter().GetResult();
+            Reset();
             _player.Dispose();
         }
     }
