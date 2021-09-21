@@ -38,7 +38,7 @@ namespace Hainz.Log
 
         private string GetExceptionString(Exception ex) => $"Exception of type {ex.GetType().Name} thrown with message {ex.Message} inside {ex.StackTrace}";
 
-        public async Task LogMessageAsync(string message, LogLevel logLevel)
+        public async Task LogMessageAsync(string message, LogLevel logLevel = LogLevel.Debug)
         {
             string log = GetLogString(message, logLevel);
 

@@ -352,6 +352,7 @@ MigrationBackup/
 # Custom files
 !Hainz/Log
 Hainz/opus.*
+Hainz/libopus.*
 Hainz/libsodium.*
 *.vscode
 *.DS_Store
