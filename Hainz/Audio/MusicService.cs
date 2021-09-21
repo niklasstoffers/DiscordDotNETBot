@@ -17,20 +17,20 @@ namespace Hainz.Audio
         private MusicPlayer _player;
         private ConcurrentQueue<Music> _musicQueue;
         private Music _current;
-        
 
         public PlayerState PlayerState { get; private set; }
         public bool CanPlay => Current != null || _musicQueue.Count > 0;
         public Music Current => _current;
 
-        public MusicService(IAudioClient audioClient,
+        public MusicService(IAudioClient client,
                             Logger logger)
         {
-            _client = audioClient;
+            _client = client;
             _logger = logger;
 
-            _player = new MusicPlayer();
+            _player = new MusicPlayer(client, logger);
             _musicQueue = new ConcurrentQueue<Music>();
+            PlayerState = PlayerState.Stopped;
         }
 
         public void AddToQueue(Music music) =>
@@ -59,8 +59,12 @@ namespace Hainz.Audio
             if (PlayerState == PlayerState.Stopped)
                 return;
 
-            _player.Stop();
-            _player.Input = null;
+            if (_player != null)
+            {
+                _player.Stop();
+                _player.Input = null;
+            }
+
             _inputStream?.Dispose();
             
             PlayerState = PlayerState.Stopped;
@@ -71,7 +75,7 @@ namespace Hainz.Audio
             if (PlayerState != PlayerState.Playing)
                 return;
 
-            _player.Stop();
+            _player?.Stop();
             PlayerState = PlayerState.Paused;
         }
 
@@ -92,7 +96,7 @@ namespace Hainz.Audio
         public void Dispose()
         {
             Reset();
-            _player.Dispose();
+            _player?.Dispose();
         }
     }
 }

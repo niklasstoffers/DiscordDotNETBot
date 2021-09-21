@@ -26,7 +26,6 @@ namespace Hainz.Framework
             {
                 if (_signaled)
                 {
-                    _signaled = false;
                     return _completed;
                 }
                 else
@@ -59,5 +58,7 @@ namespace Hainz.Framework
         {
             _signaled = false;
         }
+
+        public bool IsSignaled => _signaled;
     }
 }

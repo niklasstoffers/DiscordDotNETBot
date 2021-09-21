@@ -75,12 +75,7 @@ namespace Hainz.Audio
             if (string.IsNullOrEmpty(internalUrl))
                 return null;
 
-            return new Music()
-            {
-                Title = video.Title,
-                Length = video.Length,
-                Url = internalUrl
-            };
+            return new Music(video.Title, video.Length, internalUrl, video.ChannelName);
         }
     }
 }

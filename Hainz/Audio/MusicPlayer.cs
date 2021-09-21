@@ -79,8 +79,9 @@ namespace Hainz.Audio
                 try
                 {
                     _playEvent.Wait(_cts.Token);
-                    byte[] writeBuffer = await _buffer.GetWriteSegment(_cts.Token);
+                    var writeBuffer = await _buffer.GetWriteSegment(_cts.Token);
                     read = await Input.ReadAsync(writeBuffer, _cts.Token);
+                    await _buffer.ReleaseWriteSegment(read);
                 }
                 catch (OperationCanceledException)
                 {
@@ -103,8 +104,8 @@ namespace Hainz.Audio
                 try
                 {
                     _playEvent.Wait(_cts.Token);
-                    byte[] readBuffer = await _buffer.GetReadSegment(_cts.Token);
-                    read = readBuffer.Length;
+                    var readBuffer = await _buffer.GetReadSegment(_cts.Token);
+                    read = readBuffer.Count;
                     await _output.WriteAsync(readBuffer);
                 }
                 catch (OperationCanceledException)
@@ -127,10 +128,10 @@ namespace Hainz.Audio
                 _cts.Cancel();
 
                 _playEvent.Reset();
-                _output.Dispose();
+                _output?.Dispose();
 
-                _inputReader.GetAwaiter().GetResult();
-                _outputWriter.GetAwaiter().GetResult();
+                _inputReader?.GetAwaiter().GetResult();
+                _outputWriter?.GetAwaiter().GetResult();
             }
             _disposed = true;
         }

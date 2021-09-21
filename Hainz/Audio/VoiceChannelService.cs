@@ -17,19 +17,19 @@ namespace Hainz.Audio
         private Logger _logger;
 
         public bool IsConnected => AudioClient?.ConnectionState == ConnectionState.Connected;
-        public IVoiceChannel Current => (_client.CurrentUser as IGuildUser)?.VoiceChannel;
+        public IVoiceChannel Current { get; private set; }
         public IAudioClient AudioClient { get; private set; }
+
+        public event EventHandler Disconnected;
 
         public VoiceChannelService(DiscordSocketClient client,
                                    Logger logger)
         {
             _client = client;
             _logger = logger;
-
-            Init();
         }
 
-        private void Init()
+        private void InitNewClient()
         {
             AudioClient.Disconnected += async ex =>
             {
@@ -40,6 +40,7 @@ namespace Hainz.Audio
                 }
 
                 await DisconnectAsync();
+                Disconnected?.Invoke(this, new EventArgs());
             };
         }
 
@@ -56,6 +57,8 @@ namespace Hainz.Audio
             try
             {
                 AudioClient = await voiceChannel.ConnectAsync();
+                Current = voiceChannel;
+                InitNewClient();
             }
             catch (AggregateException ex)
             {
@@ -73,9 +76,10 @@ namespace Hainz.Audio
             {
                 try
                 {
-                    await Current.DisconnectAsync();
-                    await AudioClient.StopAsync();
-                    AudioClient.Dispose();
+                    await (Current?.DisconnectAsync() ?? Task.CompletedTask);
+                    await (AudioClient?.StopAsync() ?? Task.CompletedTask);
+                    AudioClient?.Dispose();
+                    Current = null;
                 }
                 catch (AggregateException ex)
                 {

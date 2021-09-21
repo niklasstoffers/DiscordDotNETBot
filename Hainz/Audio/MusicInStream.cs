@@ -45,8 +45,9 @@ namespace Hainz.Audio
         {
             Init();
 
-            _networkStream.Read(buffer);
-            _ffmpeg.StandardInput.BaseStream.Write(buffer);
+            int read = _networkStream.Read(buffer, offset, count);
+            return read;
+            _ffmpeg.StandardInput.BaseStream.Write(buffer, offset, read);
             return _ffmpeg.StandardOutput.BaseStream.Read(buffer, offset, count);
         }
 
@@ -64,6 +65,8 @@ namespace Hainz.Audio
             if (disposing)
             {
                 _networkStream.Dispose();
+                _ffmpeg.StandardOutput.Close();
+                _ffmpeg.StandardInput.Close();
                 _ffmpeg.WaitForExit();
                 _ffmpeg.Dispose();
             }

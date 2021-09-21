@@ -11,5 +11,6 @@ namespace Hainz.API.Youtube
         public string Title { get; set; }
         public TimeSpan Length { get; set; }
         public string Url { get; set; }
+        public string ChannelName { get; set; }
     }
 }
