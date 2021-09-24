@@ -46,9 +46,9 @@ namespace Hainz.Audio
             Init();
 
             int read = _networkStream.Read(buffer, offset, count);
-            return read;
             _ffmpeg.StandardInput.BaseStream.Write(buffer, offset, read);
-            return _ffmpeg.StandardOutput.BaseStream.Read(buffer, offset, count);
+            read = _ffmpeg.StandardOutput.BaseStream.Read(buffer, offset, count);
+            return read;
         }
 
         public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();

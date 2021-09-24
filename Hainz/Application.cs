@@ -113,9 +113,9 @@ namespace Hainz
 
         public void Dispose()
         {
+            _bot?.Dispose();
             _container?.Dispose();
             _containerManager?.Dispose();
-            _bot?.Dispose();
         }
     }
 }

@@ -47,15 +47,19 @@ namespace Hainz.Commands.Modules
         [Command("play", RunMode = RunMode.Async)]
         public async Task PlayAsync(params string[] search)
         {
-            await JoinAsync();
+            var joinTask = JoinAsync();
+
+            string searchQuery = string.Join(" ", search);
+            var musicTask = _musicBuilder.WithQuery(searchQuery)
+                                         .WithPlatform(MusicPlatform.Youtube)
+                                         .BuildAsync();
+
+            await Task.WhenAll(joinTask, musicTask);
 
             if (!VCService.IsConnected)
                 return;
 
-            string searchQuery = string.Join(" ", search);
-            Music music = await _musicBuilder.WithQuery(searchQuery)
-                                             .WithPlatform(MusicPlatform.Youtube)
-                                             .BuildAsync();
+            Music music = await musicTask;
 
             if (music == null)
             {
@@ -124,6 +128,7 @@ namespace Hainz.Commands.Modules
         {
             MusicService?.Stop();
             MusicService?.Reset();
+            MusicService?.Dispose();
             await VCService.DisconnectAsync();
         }
     }
