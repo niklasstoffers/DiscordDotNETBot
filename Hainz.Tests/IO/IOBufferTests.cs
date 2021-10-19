@@ -66,39 +66,38 @@ namespace Hainz.Tests.IO
         [TestMethod]
         public async Task MessageQueueAsyncTest()
         {
-            int bufferSize = 4096, maxBufferSize = bufferSize * 32;
+            int bufferSize = 4096, maxBufferSize = bufferSize * 8;
             IOBuffer buffer = new IOBuffer(bufferSize, maxBufferSize);
-            byte[] data = GenerateData(maxBufferSize * 2);
-            byte[] read = new byte[maxBufferSize * 2];
+            byte[] data = GenerateData(maxBufferSize * 50);
+            byte[] read = new byte[maxBufferSize * 50];
 
             var writer = Task.Run(async () =>
             {
-                var random = new Random();
                 for(int i = 0; i < data.Length;)
                 {
-                    int delay = random.Next(0, 50);
-
                     var writeBuffer = await buffer.GetWriteSegment();
                     CopyBufferToSegment(data, i, writeBuffer);
                     await buffer.ReleaseWriteSegment(writeBuffer.Count);
                     i += writeBuffer.Count;
-
-                    await Task.Delay(delay);
                 }
             });
 
             var reader = Task.Run(async () =>
             {
+                var random = new Random();
                 for(int i = 0; i < read.Length;)
                 {
+                    var delay = random.Next(100, 500);
+
                     var readSegment = await buffer.GetReadSegment();
                     CopySegmentToBuffer(readSegment, read, i);
                     i += readSegment.Count;
+
+                    await Task.Delay(delay);
                 }
             });
 
             await Task.WhenAll(writer, reader);
-            int[] faultyIndices = data.Select((x, i) => (x, i)).Where(m => m.x != read[m.i]).Select(m => m.i).ToArray();
             Assert.IsTrue(AreEqual(data, read));
         }
 

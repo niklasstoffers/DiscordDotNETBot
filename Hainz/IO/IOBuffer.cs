@@ -24,10 +24,13 @@ namespace Hainz.IO
 
         public IOBuffer(int bufferSize, int maxBufferSize)
         {
-            if (maxBufferSize < bufferSize)
-                throw new ArgumentException(nameof(maxBufferSize), "Max buffer size must be greater or equal to buffer size");
-            if (maxBufferSize % bufferSize != 0)
-                throw new ArgumentException(nameof(maxBufferSize), "Max buffer size must be a whole-number multiple of buffer size");
+            if (maxBufferSize >= 0)
+            {
+                if (maxBufferSize < bufferSize)
+                    throw new ArgumentException(nameof(maxBufferSize), "Max buffer size must be greater or equal to buffer size");
+                if (maxBufferSize % bufferSize != 0)
+                    throw new ArgumentException(nameof(maxBufferSize), "Max buffer size must be a whole-number multiple of buffer size");
+            }
 
             _lock = new SemaphoreSlim(1, 1);
             _writeBufferAvailable = new AsyncManualResetEvent(true);
@@ -66,6 +69,7 @@ namespace Hainz.IO
                     EnlargeBuffer();
 
                 int segmentLength = Math.Min(_maxBufferSize - _writeBufferPosition, _bufferSize);
+                if (_maxBufferSize < 0) segmentLength = _bufferSize;
                 var segment = new ArraySegment<byte>(_buffer, _writeBufferPosition, segmentLength);
                 _hasWriteBuffer = true;
 
@@ -95,6 +99,7 @@ namespace Hainz.IO
 #pragma warning disable CS4014
                     _bufferReduced.Wait().ContinueWith(t =>
                     {
+                        _bufferReduced.Reset();
                         _writeBufferAvailable.Set();
                     });
 #pragma warning restore CS4014
@@ -146,6 +151,7 @@ namespace Hainz.IO
         private void EnlargeBuffer()
         {
             int newBufferLength = Math.Min(_buffer.Length * 2, _maxBufferSize);
+            if (_maxBufferSize < 0) newBufferLength = _buffer.Length * 2;
             if (newBufferLength == _buffer.Length)
                 return;
 
@@ -156,7 +162,7 @@ namespace Hainz.IO
 
         private void ReduceBuffer(int upTo)
         {
-            if (_buffer.Length < _maxBufferSize || upTo == 0)
+            if (_maxBufferSize < 0 || _buffer.Length < _maxBufferSize || upTo <= _maxBufferSize / 2)
                 return;
 
             byte[] newBuffer = new byte[_buffer.Length - upTo];

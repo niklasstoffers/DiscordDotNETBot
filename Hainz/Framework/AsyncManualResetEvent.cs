@@ -32,7 +32,12 @@ namespace Hainz.Framework
                 {
                     var tcs = new TaskCompletionSource();
                     _waitQueue.Enqueue(tcs);
-                    ct.Register(() => tcs.SetCanceled());
+                    ct.Register(obj => 
+                    {
+                        var completionSource = (TaskCompletionSource)obj;
+                        if (!completionSource.Task.IsCompleted)
+                            completionSource.SetCanceled();
+                    }, tcs);
                     return tcs.Task;
                 }
             }

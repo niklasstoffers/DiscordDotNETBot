@@ -1,19 +1,19 @@
 ﻿using Discord.Audio;
+using Hainz.Framework;
 using Hainz.IO;
 using Hainz.Log;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 
 namespace Hainz.Audio
 {
     public class MusicPlayer : IDisposable
     {
-        private const int DEFAULT_BUFFER_SIZE = 4096; // 4kb
-        private const int MAX_BUFFER_SIZE = 512_000; // 0.5 MB
+        private const int MAX_BUFFERS = 50;
 
         private AudioOutStream _output;
         private IAudioClient _client;
@@ -21,10 +21,11 @@ namespace Hainz.Audio
         private bool _initialized = false;
         private Task _inputReader;
         private Task _outputWriter;
+        private BufferBlock<ArraySegment<byte>> _bufferQueue;
         private CancellationTokenSource _cts;
         private ManualResetEventSlim _playEvent;
+        private AsyncManualResetEvent _canAppendBuffer;
         private bool _wasStarted = false;
-        private IOBuffer _buffer;
         private bool _disposed = false;
 
         public MusicInStream Input { get; set; }
@@ -36,9 +37,10 @@ namespace Hainz.Audio
             _client = client;
             _logger = logger;
 
+            _bufferQueue = new BufferBlock<ArraySegment<byte>>(new DataflowBlockOptions() { BoundedCapacity = MAX_BUFFERS, EnsureOrdered = true });
             _cts = new CancellationTokenSource();
-            _buffer = new IOBuffer(DEFAULT_BUFFER_SIZE, MAX_BUFFER_SIZE);
             _playEvent = new ManualResetEventSlim(false);
+            _canAppendBuffer = new AsyncManualResetEvent(true);
         }
 
         private void Init()
@@ -79,9 +81,12 @@ namespace Hainz.Audio
                 try
                 {
                     _playEvent.Wait(_cts.Token);
-                    var writeBuffer = await _buffer.GetWriteSegment(_cts.Token);
-                    read = await Input.ReadAsync(writeBuffer, _cts.Token);
-                    await _buffer.ReleaseWriteSegment(read);
+                    byte[] buffer = new byte[8192];
+                    read = await Input.ReadAsync(buffer, _cts.Token);
+                    await _canAppendBuffer.Wait();
+                    _bufferQueue.Post(new ArraySegment<byte>(buffer, 0, read));
+                    if (_bufferQueue.Count == MAX_BUFFERS)
+                        _canAppendBuffer.Reset();
                 }
                 catch (OperationCanceledException)
                 {
@@ -104,9 +109,11 @@ namespace Hainz.Audio
                 try
                 {
                     _playEvent.Wait(_cts.Token);
-                    var readBuffer = await _buffer.GetReadSegment(_cts.Token);
-                    read = readBuffer.Count;
-                    await _output.WriteAsync(readBuffer);
+                    var buffer = await _bufferQueue.ReceiveAsync();
+                    if (_bufferQueue.Count < MAX_BUFFERS)
+                        _canAppendBuffer.Set();
+                    read = buffer.Count;
+                    await _output.WriteAsync(buffer);
                 }
                 catch (OperationCanceledException)
                 {
@@ -130,8 +137,12 @@ namespace Hainz.Audio
                 _playEvent.Reset();
                 _output?.Dispose();
 
-                _inputReader?.GetAwaiter().GetResult();
-                _outputWriter?.GetAwaiter().GetResult();
+                _inputReader?.Wait();
+                _outputWriter?.Wait();
+                _inputReader?.Dispose();
+                _outputWriter?.Dispose();
+
+                _cts?.Dispose();
             }
             _disposed = true;
         }
