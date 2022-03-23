@@ -2,140 +2,134 @@
 using Discord.Audio;
 using Discord.Commands;
 using Hainz.API.Youtube;
-using Hainz.Config;
-using Hainz.Framework;
-using Hainz.Tools;
+using Hainz.Audio;
+using Hainz.Log;
 using System;
-using System.Diagnostics;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Hainz.Commands.Modules
 {
     public class AudioModule : ModuleBase<SocketCommandContext>
     {
-        private static IAudioClient _client;
-        private static IVoiceChannel _vc;
-        private static YoutubeApiClient _ytClient;
+        private AudioManager _audioManager;
+        private MusicBuilder _musicBuilder;
+        private Logger _logger;
+
+        private VoiceChannelService VCService => _audioManager.VCService;
+        private MusicService MusicService => _audioManager.MusicService;
+
+        public AudioModule(AudioManager audioManager,
+                           MusicBuilder musicBuilder,
+                           Logger logger)
+        {
+            _audioManager = audioManager;
+            _musicBuilder = musicBuilder;
+            _logger = logger;
+        }
 
         [Command("play", RunMode = RunMode.Async)]
-        public async Task PlayAsync(params string[] searchInput)
+        public async Task PlayAsync()
         {
-            var stopwatch = Stopwatch.StartNew();
-            string search = string.Join(" ", searchInput);
-            IVoiceChannel vc = (Context.User as IGuildUser)?.VoiceChannel;
+            await JoinAsync();
 
-            if (vc == null)
+            if (!VCService.IsConnected)
+                return;
+
+            if (MusicService.CanPlay)
+                MusicService.Play();
+            else
+                await Context.Channel.SendMessageAsync("Was soll gespielt werden?");
+        }
+
+        [Command("play", RunMode = RunMode.Async)]
+        public async Task PlayAsync(params string[] search)
+        {
+            var joinTask = JoinAsync();
+
+            string searchQuery = string.Join(" ", search);
+            var musicTask = _musicBuilder.WithQuery(searchQuery)
+                                         .WithPlatform(MusicPlatform.Youtube)
+                                         .BuildAsync();
+
+            await Task.WhenAll(joinTask, musicTask);
+
+            if (!VCService.IsConnected)
+                return;
+
+            Music music = await musicTask;
+
+            if (music == null)
             {
-                await Context.Channel.SendMessageAsync("Rosen sind rot, Veilchen sind blau, ohne VC, ist mir das zu ungenau.");
+                await Context.Channel.SendMessageAsync("Fehler beim Abruf der Audiodateien");
                 return;
             }
 
-            var changeVCTask = Task.Run(async () => await ChangeVoiceChannel(vc));
+            string message = $@"Spielt nun ""{music.Title}"" von ""{music.Artist}"" [{music.Length:c}]";
+            if (MusicService.CanPlay)
+                message = $"{music.Title} wurde zur Warteschlange hinzugefügt";
 
-            if (string.IsNullOrEmpty(search))
-            {
-                var musicPlayer = MusicPlayer.GetCurrent(_client);
-                if (musicPlayer != null && await musicPlayer.HasMusic())
-                {
-                    await changeVCTask;
-                    await musicPlayer.Play();
-                }
-                else
-                    await Context.Channel.SendMessageAsync("Soll ich mir ausdenken was du hören möchtest? Schreibs dahinter, du Kek.");
-            }
+            MusicService.AddToQueue(music);
+            MusicService.Play();
+            
+            await Context.Channel.SendMessageAsync(message);
+        }
+
+        [Command("join", RunMode = RunMode.Async)]
+        public async Task JoinAsync()
+        {
+            var user = Context.User as IGuildUser;
+            if (user == null)
+                return;
+
+            IVoiceChannel vc = user.VoiceChannel;
+            if (vc == null)
+                await Context.Channel.SendMessageAsync("Du musst in einem VC sein um diesen Command zu benutzen.");
             else
-            {
-                _ytClient ??= new YoutubeApiClient(BotConfig.Current.YoutubeAPIKey);
-                var musicUrlGetterTask = Task.Run(async () => await GetMusicUrl(search));
-                await Task.WhenAll(changeVCTask, musicUrlGetterTask);
-                string musicUrl = musicUrlGetterTask.Result;
+                await VCService.ConnectAsync(vc);
 
-                if (musicUrl == null)
-                    await Context.Channel.SendMessageAsync("Fehler beim Extrahieren der Audio Daten. So nen Mist. Jetzt bin ich wütend. Wenn du wissen willst wie wütend ich bin, hier: https://www.youtube.com/watch?v=hveBIv4DB7g");
-                else
-                {
-                    Console.WriteLine($"Getting url execution time: {stopwatch.Elapsed}");
-                    var musicPlayer = MusicPlayer.GetCurrent(_client);
-                    musicPlayer.AddToQueue(new Music() { Url = musicUrl });
-                    await musicPlayer.Play();
-                    stopwatch.Stop();
-                    Console.WriteLine($"Play command execution time: {stopwatch.Elapsed}");
-                }
-            }
-        }
-
-        private async Task ChangeVoiceChannel(IVoiceChannel vc)
-        {
-            if (_vc == null || _vc.Id != vc.Id)
-            {
-                await DCAsync();
-                _vc = vc;
-                _client = await _vc.ConnectAsync();
-            }
-        }
-
-        private async Task<string> GetMusicUrl(string search)
-        {
-            if (!Uri.TryCreate(search, UriKind.Absolute, out _))
-                search = await _ytClient.GetMostRelevantForSearch(search);
-            if (!string.IsNullOrEmpty(search))
-                return await YoutubeDl.GetBestOpusAudio(search);
-            return string.Empty;
-        }
-
-        [Command("pause", RunMode = RunMode.Async)]
-        public async Task PauseAsync()
-        {
-            var musicPlayer = MusicPlayer.GetCurrent(_client);
-            if (musicPlayer != null)
-                await musicPlayer.Pause();
+            if (!VCService.IsConnected)
+                await Context.Channel.SendMessageAsync("Fehler beim Beitreten zum VC. Möglicherweise fehlen Berechtigungen zum Zutritt.");
         }
 
         [Command("skip", RunMode = RunMode.Async)]
-        public async Task SkipAsync()
+        public Task SkipAsync()
         {
-            var musicPlayer = MusicPlayer.GetCurrent(_client);
-            if (musicPlayer != null)
-                await musicPlayer.Skip();
+            MusicService?.Skip();
+            return Task.CompletedTask;
+        }
+
+        [Command("pause", RunMode = RunMode.Async)]
+        public Task PauseAsync()
+        {
+            MusicService?.Pause();
+            return Task.CompletedTask;
         }
 
         [Command("stop", RunMode = RunMode.Async)]
-        public async Task StopAsync()
+        public Task StopAsync()
         {
-            var musicPlayer = MusicPlayer.GetCurrent(_client);
-            if (musicPlayer != null)
-                await musicPlayer.Stop();
+            MusicService?.Stop();
+            return Task.CompletedTask;
         }
 
         [Command("clear", RunMode = RunMode.Async)]
-        public async Task ClearAsync()
+        public Task ClearAsync()
         {
-            var musicPlayer = MusicPlayer.GetCurrent(_client);
-            if (musicPlayer != null)
-            {
-                await musicPlayer.Stop();
-                await musicPlayer.Clear();
-            }
+            MusicService?.Stop();
+            MusicService?.Reset();
+            return Task.CompletedTask;
         }
 
         [Command("dc", RunMode = RunMode.Async)]
         public async Task DCAsync()
         {
-            try
-            {
-                var musicPlayer = MusicPlayer.GetCurrent(_client);
-                if (musicPlayer != null)
-                {
-                    await musicPlayer.Stop();
-                    await musicPlayer.Clear();
-                }
-                
-                if (_client != null) await _client.StopAsync();
-            }
-            finally
-            {
-                _vc = null;
-            }
+            MusicService?.Stop();
+            MusicService?.Reset();
+            MusicService?.Dispose();
+            await VCService.DisconnectAsync();
         }
     }
 }

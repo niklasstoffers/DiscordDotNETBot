@@ -1,0 +1,9 @@
+﻿- Rewrite ConfigManager
+- Rewrite ObjectDumper
+- Rewrite ConsoleInput
+- Rewrite ConsoleUtil
+- Rewrite YoutubeDl
+- Add config save and config set handlers
+- Rewrite API module
+- Keep track of segments in IOBuffer. If a writer receives a write segment and only writes one byte to it the rest of the buffer should be used for subsequent writes.
+- Rewrite ReminderParser

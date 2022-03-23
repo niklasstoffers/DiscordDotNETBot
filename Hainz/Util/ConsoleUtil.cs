@@ -74,9 +74,13 @@ namespace Hainz.Util
                 if (hadResponse)
                     ClearAndRewrite();
 
-                input = Console.ReadLine();
+                var key = Console.ReadKey();
+                input = key.KeyChar.ToString();
                 if (input.ToUpper() == "Y") response = true;
                 else if (input.ToUpper() == "N") response = false;
+
+                if (key.Key != ConsoleKey.Enter)
+                    Console.Write(Environment.NewLine);
                 hadResponse = true;
             } while (response == null);
             _messageList.Add(input);

@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using System.Xml;
 
 namespace Hainz.API.Youtube
 {
@@ -15,6 +16,7 @@ namespace Hainz.API.Youtube
         private static readonly Dictionary<YTEndpoint, Endpoint> _endpoints = new Dictionary<YTEndpoint, Endpoint>()
         {
             { YTEndpoint.SearchList, new Endpoint("https://www.googleapis.com/youtube/v3/search", HttpMethod.Get.ToString()) },
+            { YTEndpoint.VideoDetails, new Endpoint("https://www.googleapis.com/youtube/v3/videos", HttpMethod.Get.ToString()) },
             { YTEndpoint.VideoUrl, new Endpoint("https://www.youtube.com/watch", HttpMethod.Get.ToString()) }
         };
 
@@ -25,7 +27,7 @@ namespace Hainz.API.Youtube
             _apiKey = apiKey;
         }
 
-        public async Task<string> GetMostRelevantForSearch(string search)
+        public async Task<YoutubeVideo> GetMostRelevantForSearch(string search)
         {
             try
             {
@@ -44,7 +46,11 @@ namespace Hainz.API.Youtube
                 for(int i = 0; i < response.items.Count; i++)
                 {
                     if (response.items[i].snippet.liveBroadcastContent == "none")
-                        return $"{_endpoints[YTEndpoint.VideoUrl].Url}?v={response.items[i].id.videoId}";
+                    {
+                        dynamic item = response.items[i];
+                        string videoUrl = $"{_endpoints[YTEndpoint.VideoUrl].Url}?v={item.id.videoId}";
+                        return await GetVideoInfo(videoUrl);
+                    }
                 }
                 return null;
             }
@@ -53,6 +59,50 @@ namespace Hainz.API.Youtube
                 Console.WriteLine("Youtube API request failed!");
                 return null;
             }
+        }
+
+        public async Task<YoutubeVideo> GetVideoInfo(string videoUrl)
+        {
+            try
+            {
+                dynamic response = await MakeRequest(_endpoints[YTEndpoint.VideoDetails],
+                                                     new QueryParameter[]
+                                                     {
+                                                         new QueryParameter("part", "contentDetails,snippet"),
+                                                         new QueryParameter("id", ExtractVideoId(videoUrl))
+                                                     });
+
+                dynamic item = response.items[0];
+
+                string duration = item.contentDetails.duration;
+                string channelName = item.snippet.channelTitle;
+                string title = item.snippet.title;
+
+                return new YoutubeVideo()
+                {
+                    Length = XmlConvert.ToTimeSpan(duration),
+                    Url = videoUrl,
+                    ChannelName = channelName,
+                    Title = title
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Youtube API request failed!");
+                return null;
+            }
+        }
+
+        private string ExtractVideoId(string videoUrl)
+        { 
+            if (Uri.TryCreate(videoUrl, UriKind.Absolute, out Uri url))
+            {
+                string query = url.Query;
+                var paramCollection = HttpUtility.ParseQueryString(query);
+                string videoId = paramCollection.Get("v");
+                return videoId;
+            }
+            return null;
         }
 
         private async Task<object> MakeRequest(Endpoint endpoint, QueryParameter[] parameters)

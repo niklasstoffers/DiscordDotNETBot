@@ -1,5 +1,6 @@
 ﻿using Discord.Commands;
 using Discord.WebSocket;
+using Hainz.Log;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -12,11 +13,18 @@ namespace Hainz.Commands
     {
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly DiscordLogger _discordLogger;
 
-        public CommandHandler(DiscordSocketClient client, CommandService commands)
+        public CommandHandler(DiscordSocketClient client, 
+                              CommandService commands,
+                              IServiceProvider serviceProvider,
+                              DiscordLogger discordLogger)
         {
             _commands = commands;
             _client = client;
+            _serviceProvider = serviceProvider;
+            _discordLogger = discordLogger;
         }
 
         public async Task InstallCommandsAsync()
@@ -24,7 +32,9 @@ namespace Hainz.Commands
             _client.MessageReceived += HandleCommandAsync;
 
             await _commands.AddModulesAsync(assembly: Assembly.GetEntryAssembly(),
-                                            services: null);
+                                            services: _serviceProvider);
+
+            _commands.Log += _discordLogger.Log;
         }
 
         private async Task HandleCommandAsync(SocketMessage messageParam)
@@ -44,7 +54,7 @@ namespace Hainz.Commands
             await _commands.ExecuteAsync(
                 context: context,
                 argPos: argPos,
-                services: null);
+                services: _serviceProvider);
         }
     }
 }

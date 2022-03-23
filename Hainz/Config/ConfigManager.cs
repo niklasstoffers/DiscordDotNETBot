@@ -8,6 +8,7 @@ using System.Text;
 
 namespace Hainz.Config
 {
+    // TODO: Rewrite
     public static class ConfigManager
     {
         private const string CONFIG_FILE = "config.json.encrypted";
@@ -21,17 +22,20 @@ namespace Hainz.Config
         public static BotConfig GetOrCreate()
         {
             InitPaths();
-            
+
+            BotConfig botConfig = null;
             if (HasConfigFile())
             {
                 bool useConfig = ConsoleUtil.ReadBoolYesNo("Found a config file! Do you want to load it? (y/n)");
                 ConsoleUtil.ClearAndEmptyMessageList();
 
                 if (useConfig)
-                    return LoadFromExistingConfig();
+                    botConfig = LoadFromExistingConfig();
             }
-
-            return CreateNewConfig();
+            botConfig ??= CreateNewConfig();
+            
+            DumpConfig(botConfig);
+            return botConfig;
         }
 
         public static bool Save(BotConfig config)
@@ -164,6 +168,8 @@ namespace Hainz.Config
             botConfig.YoutubeAPIKey = ConsoleUtil.ReadSecretNonEmpty("Enter youtube API key:");
             ConsoleUtil.ClearAndEmptyMessageList();
 
+            botConfig.LoadDefaults();
+
             if (!Save(botConfig))
                 ConsoleUtil.Write("Saving config failed! Will need to be reentered next time");
 
@@ -175,6 +181,18 @@ namespace Hainz.Config
             _baseDir ??= AppContext.BaseDirectory;
             _configPath ??= Path.Combine(_baseDir, CONFIG_FILE);
             _keyPath ??= Path.Combine(_baseDir, KEY_FILE);
+        }
+
+        private static void DumpConfig(BotConfig botConfig)
+        {
+            var propertyDump = ObjectDumper.DumpProperties(botConfig, p => p.Name != nameof(BotConfig.Checksum) && p.Name != nameof(BotConfig.Token) && p.Name != nameof(BotConfig.YoutubeAPIKey));
+            ConsoleUtil.Write("Current config:");
+            Console.WriteLine();
+            Console.WriteLine(propertyDump);
+            Console.WriteLine();
+            Console.WriteLine("To change config properties use: config set <name> <value>");
+            Console.WriteLine("To save changed properties use: config save");
+            Console.WriteLine();
         }
 
         private static string GetChecksum(BotConfig botConfig)

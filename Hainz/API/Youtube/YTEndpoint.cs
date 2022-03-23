@@ -7,6 +7,7 @@ namespace Hainz.API.Youtube
     public enum YTEndpoint
     {
         SearchList,
+        VideoDetails,
         VideoUrl
     }
 }

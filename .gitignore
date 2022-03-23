@@ -348,3 +348,11 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+
+# Custom files
+!Hainz/Log
+Hainz/opus.*
+Hainz/libopus.*
+Hainz/libsodium.*
+*.vscode
+*.DS_Store
