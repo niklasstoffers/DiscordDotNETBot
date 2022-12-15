@@ -3,6 +3,7 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Hainz;
 using Hainz.Config;
+using Hainz.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -26,6 +27,7 @@ void ConfigureApp(IConfigurationBuilder configBuilder)
 void ConfigureServices(IServiceCollection services) 
 {
     services.AddHostedService<Bot>();
+    services.AddHostedService<DiscordLogAdapterService>();
 }
 
 void ConfigureContainer(HostBuilderContext hostContext, ContainerBuilder builder) 
@@ -33,11 +35,8 @@ void ConfigureContainer(HostBuilderContext hostContext, ContainerBuilder builder
     var assembly = Assembly.GetExecutingAssembly();
     builder.RegisterAssemblyModules(assembly);
 
-    var botConfig = hostContext.Configuration.GetSection("Bot")
-                                             .Get<BotConfig>();
-
-    if (botConfig == null)
-        throw new Exception("Invalid bot configuration");
+    var botConfig = hostContext.Configuration.GetBotConfiguration() ??
+                        throw new Exception("Invalid bot configuration");
 
     builder.Register(ctx => botConfig)
            .AsSelf()
