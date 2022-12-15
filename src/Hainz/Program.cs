@@ -3,7 +3,8 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Hainz;
 using Hainz.Config;
-using Hainz.Services;
+using Hainz.Services.Commands;
+using Hainz.Services.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -28,6 +29,7 @@ void ConfigureServices(IServiceCollection services)
 {
     services.AddHostedService<Bot>();
     services.AddHostedService<DiscordLogAdapterService>();
+    services.AddHostedService<CommandHandler>();
 }
 
 void ConfigureContainer(HostBuilderContext hostContext, ContainerBuilder builder) 

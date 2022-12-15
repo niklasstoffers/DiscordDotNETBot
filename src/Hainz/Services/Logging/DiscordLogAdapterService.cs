@@ -3,7 +3,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Hainz.Services;
+namespace Hainz.Services.Logging;
 
 internal class DiscordLogAdapterService : IHostedService
 {
