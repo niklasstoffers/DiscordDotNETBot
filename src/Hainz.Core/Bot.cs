@@ -1,25 +1,29 @@
 using Discord;
 using Discord.WebSocket;
-using Hainz.Config;
+using Hainz.Core.Config;
+using Hainz.Core.Services.Discord;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Hainz;
+namespace Hainz.Core;
 
 internal sealed class Bot : IHostedService
 {
     private readonly DiscordSocketClient _client;
     private readonly BotConfig _config;
+    private readonly DiscordStatusService _statusService;
     private readonly IHostApplicationLifetime _appLifetime;
     private readonly ILogger<Bot> _logger;
 
     public Bot(DiscordSocketClient client, 
                BotConfig config,
+               DiscordStatusService statusService,
                IHostApplicationLifetime appLifetime,
                ILogger<Bot> logger) 
     {
         _client = client;
         _config = config;
+        _statusService = statusService;
         _appLifetime = appLifetime;
         _logger = logger;
     }
@@ -45,6 +49,8 @@ internal sealed class Bot : IHostedService
         {
             await _client.StartAsync();
             await _client.LoginAsync(TokenType.Bot, _config.Token);
+            await _client.SetGameAsync(_config.StatusGameName);
+            await _statusService.SetStatus(_config.Status);
         }
         catch (Exception ex) 
         {

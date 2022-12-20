@@ -1,6 +1,6 @@
-namespace Hainz.Config;
+namespace Hainz.Core.Config;
 
-internal static class SectionKey 
+public static class SectionKey 
 {
     public const string Hainz = "Hainz";
     public const string Bot = $"{Hainz}:Bot";

@@ -4,7 +4,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Hainz.Services.Commands;
+namespace Hainz.Commands;
 
 internal sealed class CommandHandler : IHostedService
 {

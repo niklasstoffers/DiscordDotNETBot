@@ -3,13 +3,13 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Hainz.Services.Logging;
+namespace Hainz.Core.Logging;
 
-internal class DiscordLogAdapterService : IHostedService
+public sealed class DiscordLogAdapterService : IHostedService
 {
-    private DiscordSocketClient _client;
-    private ILogger<DiscordLogAdapterService> _adapterLogger;
-    private ILogger<DiscordLogSource> _discordLogger;
+    private readonly DiscordSocketClient _client;
+    private readonly ILogger<DiscordLogAdapterService> _adapterLogger;
+    private readonly ILogger<DiscordLogSource> _discordLogger;
 
     public DiscordLogAdapterService(DiscordSocketClient client,
                                     ILogger<DiscordLogAdapterService> adapterLogger,

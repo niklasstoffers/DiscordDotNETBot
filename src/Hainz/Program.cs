@@ -2,6 +2,7 @@
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Hainz;
+using Hainz.Commands.Infrastructure;
 using Hainz.Config;
 using Hainz.Services.Commands;
 using Hainz.Services.Logging;
@@ -29,7 +30,7 @@ void ConfigureServices(IServiceCollection services)
 {
     services.AddHostedService<Bot>();
     services.AddHostedService<DiscordLogAdapterService>();
-    services.AddHostedService<CommandHandler>();
+    services.AddCommands();
 }
 
 void ConfigureContainer(HostBuilderContext hostContext, ContainerBuilder builder) 
@@ -43,6 +44,8 @@ void ConfigureContainer(HostBuilderContext hostContext, ContainerBuilder builder
     builder.Register(ctx => botConfig)
            .AsSelf()
            .SingleInstance();
+
+    builder.AddCommands();
 }
 
 void ConfigureLogging(HostBuilderContext hostContext, ILoggingBuilder loggingBuilder) 
