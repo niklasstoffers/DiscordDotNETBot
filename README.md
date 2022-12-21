@@ -2,7 +2,8 @@
     <img src="./Hainz.png" alt"Hainz" height="200px">
 </p>
 
-<h1 align="center" style="border-bottom:0">Hainz</h1>
+<h3 align="center">Hainz</h3>
+<br>
 
 <p align="center">
     <a href="https://github.com/niklasstoffers/Hainz/blob/main/LICENSE"><img src="https://img.shields.io/github/license/niklasstoffers/Hainz?color=informational" alt="license"></a>
