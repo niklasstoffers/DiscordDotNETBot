@@ -1,10 +1,11 @@
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /Hainz
 
-COPY ./src .
+COPY ./src ./src
+COPY ./Hainz.sln .
 
-RUN dotnet restore ./Hainz/Hainz.csproj
-RUN dotnet publish ./Hainz/Hainz.csproj -c Debug -o out
+RUN dotnet restore
+RUN dotnet publish ./src/Hainz/Hainz.csproj -c Debug -o out
 
 FROM mcr.microsoft.com/dotnet/runtime:6.0
 WORKDIR /Hainz

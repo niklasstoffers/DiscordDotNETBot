@@ -1,0 +1,41 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7709F47A-ECB8-4B15-B8F3-B4A3CF2F0F37}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hainz", "src\Hainz\Hainz.csproj", "{3850FF26-92A4-4671-9610-43960AA94952}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hainz.Core", "src\Hainz.Core\Hainz.Core.csproj", "{0777D890-3D21-41E1-A628-1BB72191FAC2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hainz.Commands", "src\Hainz.Commands\Hainz.Commands.csproj", "{60CD7F24-0169-4B93-9F63-5EF63329781B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3850FF26-92A4-4671-9610-43960AA94952}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3850FF26-92A4-4671-9610-43960AA94952}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3850FF26-92A4-4671-9610-43960AA94952}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3850FF26-92A4-4671-9610-43960AA94952}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0777D890-3D21-41E1-A628-1BB72191FAC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0777D890-3D21-41E1-A628-1BB72191FAC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0777D890-3D21-41E1-A628-1BB72191FAC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0777D890-3D21-41E1-A628-1BB72191FAC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60CD7F24-0169-4B93-9F63-5EF63329781B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60CD7F24-0169-4B93-9F63-5EF63329781B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60CD7F24-0169-4B93-9F63-5EF63329781B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60CD7F24-0169-4B93-9F63-5EF63329781B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3850FF26-92A4-4671-9610-43960AA94952} = {7709F47A-ECB8-4B15-B8F3-B4A3CF2F0F37}
+		{0777D890-3D21-41E1-A628-1BB72191FAC2} = {7709F47A-ECB8-4B15-B8F3-B4A3CF2F0F37}
+		{60CD7F24-0169-4B93-9F63-5EF63329781B} = {7709F47A-ECB8-4B15-B8F3-B4A3CF2F0F37}
+	EndGlobalSection
+EndGlobal
