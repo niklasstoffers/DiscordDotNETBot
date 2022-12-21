@@ -40,7 +40,7 @@ internal sealed class CommandHandler : IHostedService
 
     private async Task InstallCommandsAsync()
     {
-        await _commands.AddModulesAsync(assembly: Assembly.GetEntryAssembly(), 
+        await _commands.AddModulesAsync(assembly: Assembly.GetExecutingAssembly(), 
                                         services: _serviceProvider);
     }
 
@@ -57,7 +57,7 @@ internal sealed class CommandHandler : IHostedService
             userMessage.Author.IsBot)
             return;
 
-        _logger.LogInformation($"Received \"{message.Content}\" from \"{message.Author.Username}\"");
+        _logger.LogInformation($"Received command \"{message.Content}\" from \"{message.Author.Username}\"");
         var context = new SocketCommandContext(_client, userMessage);
 
         await _commands.ExecuteAsync(

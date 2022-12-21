@@ -32,8 +32,9 @@ public sealed class DiscordStatusService
         {
             _logger.LogInformation($"Setting status to \"{status}\"");
             await _client.SetStatusAsync(userStatus.Value);
+            return true;
         }
 
-        return userStatus != null;
+        return false;
     }
 }

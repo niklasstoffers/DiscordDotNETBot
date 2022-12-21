@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Hainz.Core;
 
-internal sealed class Bot : IHostedService
+public sealed class Bot : IHostedService
 {
     private readonly DiscordSocketClient _client;
     private readonly BotConfig _config;
