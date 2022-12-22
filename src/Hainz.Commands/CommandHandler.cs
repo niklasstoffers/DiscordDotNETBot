@@ -46,8 +46,7 @@ internal sealed class CommandHandler : IHostedService
 
     private async Task HandleCommandAsync(SocketMessage message)
     {
-        var userMessage = message as SocketUserMessage;
-        if (userMessage == null) 
+        if (message is not SocketUserMessage userMessage)
             return;
 
         int argPos = 0;
@@ -57,7 +56,7 @@ internal sealed class CommandHandler : IHostedService
             userMessage.Author.IsBot)
             return;
 
-        _logger.LogInformation($"Received command \"{message.Content}\" from \"{message.Author.Username}\"");
+        _logger.LogInformation("Received command \"{command}\" from \"{user}\"", message.Content, message.Author.Username);
         var context = new SocketCommandContext(_client, userMessage);
 
         await _commands.ExecuteAsync(

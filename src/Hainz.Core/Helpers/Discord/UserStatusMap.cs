@@ -5,7 +5,7 @@ namespace Hainz.Core.Helpers.Discord;
 
 public static class UserStatusMap
 {
-    private static readonly BidirectionalMap<string, UserStatus> _map = new BidirectionalMap<string, UserStatus>() 
+    private static readonly BidirectionalMap<string, UserStatus> _map = new() 
     {
         { "online", UserStatus.Online },
         { "offline", UserStatus.Offline },
