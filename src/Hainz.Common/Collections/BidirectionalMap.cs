@@ -1,6 +1,6 @@
 using System.Collections;
 
-namespace Hainz.Core.Collections;
+namespace Hainz.Common.Collections;
 
 public sealed class BidirectionalMap<T1, T2> : IEnumerable<KeyValuePair<T1, T2>> where T1 : notnull where T2 : notnull
 {

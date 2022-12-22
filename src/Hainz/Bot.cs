@@ -1,29 +1,40 @@
 using Discord;
 using Discord.WebSocket;
-using Hainz.Core.Config;
-using Hainz.Core.Services.Discord;
+using Hainz.Commands;
+using Hainz.Config;
+using Hainz.Services.Discord;
+using Hainz.Services.Logging;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Hainz.Core;
+namespace Hainz;
 
 public sealed class Bot : IHostedService
 {
     private readonly DiscordSocketClient _client;
     private readonly BotConfig _config;
     private readonly DiscordStatusService _statusService;
+    private readonly DiscordActivityService _activityService;
+    private readonly CommandHandler _commandHandler;
+    private readonly DiscordLogAdapterService _logAdapterService;
     private readonly IHostApplicationLifetime _appLifetime;
     private readonly ILogger<Bot> _logger;
 
     public Bot(DiscordSocketClient client, 
                BotConfig config,
                DiscordStatusService statusService,
+               DiscordActivityService activityService,
+               CommandHandler commandHandler,
+               DiscordLogAdapterService logAdapterService,
                IHostApplicationLifetime appLifetime,
                ILogger<Bot> logger) 
     {
         _client = client;
         _config = config;
         _statusService = statusService;
+        _activityService = activityService;
+        _commandHandler = commandHandler;
+        _logAdapterService = logAdapterService;
         _appLifetime = appLifetime;
         _logger = logger;
     }
@@ -49,8 +60,14 @@ public sealed class Bot : IHostedService
         {
             await _client.StartAsync();
             await _client.LoginAsync(TokenType.Bot, _config.Token);
-            await _client.SetGameAsync(_config.StatusGameName);
-            await _statusService.SetStatus(_config.Status);
+
+            await _commandHandler.StartAsync();
+            await _logAdapterService.StartAsync();
+
+            _client.Ready += ClientReady;
+            _client.Disconnected += ClientDisconnected;
+
+            _logger.LogInformation("Bot has been started");
         }
         catch (Exception ex) 
         {
@@ -61,15 +78,33 @@ public sealed class Bot : IHostedService
 
     public async Task StopAsync(CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Stopping bot...");
+        
         try 
         {
-            _logger.LogInformation("Stopping bot...");
             await _client.LogoutAsync();
             await _client.StopAsync();
+
+            await _commandHandler.StopAsync();
+            await _logAdapterService.StopAsync();
+
+            _logger.LogInformation("Bot has been shutdown");
         }
         catch (Exception ex) 
         {
             _logger.LogCritical(ex, "Exception while trying to stop bot");
         }
+    }
+
+    private async Task ClientReady() 
+    {
+        await _activityService.SetGame(_config.StatusGameName);
+        await _statusService.SetStatus(_config.Status);
+    }
+
+    private Task ClientDisconnected(Exception disconnectException) 
+    {
+        _logger.LogCritical(disconnectException, "Disconnected from Discord Gateway");
+        return Task.CompletedTask;
     }
 }

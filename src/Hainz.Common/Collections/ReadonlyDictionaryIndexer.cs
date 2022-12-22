@@ -1,4 +1,4 @@
-namespace Hainz.Core.Collections;
+namespace Hainz.Common.Collections;
 
 public sealed class ReadonlyDictionaryIndexer<T1, T2> where T1 : notnull where T2: notnull
 {

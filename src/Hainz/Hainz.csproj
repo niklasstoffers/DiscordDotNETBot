@@ -26,8 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Hainz.Commands/Hainz.Commands.csproj" />
-    <ProjectReference Include="../Hainz.Core/Hainz.Core.csproj" />
+    <ProjectReference Include="../Hainz.Common/Hainz.Common.csproj" />
   </ItemGroup>
 
 </Project>
