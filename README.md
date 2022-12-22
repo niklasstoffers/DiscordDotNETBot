@@ -13,7 +13,7 @@
     <br>
     <img src="https://img.shields.io/github/languages/top/niklasstoffers/Hainz?color=blueviolet" alt="top language">
     <img src="https://www.aschey.tech/tokei/github/niklasstoffers/Hainz" alt="lines of code">
-    <img src="https://img.shields.io/github/languages/code-size/niklasstoffers/Hainz">
+    <a href="https://www.codefactor.io/repository/github/niklasstoffers/hainz"><img src="https://www.codefactor.io/repository/github/niklasstoffers/hainz/badge" alt="code quality" /></a>
     <hr>
 </p>
 
