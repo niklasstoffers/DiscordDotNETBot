@@ -1,9 +1,9 @@
 using Discord;
 using Discord.WebSocket;
-using Hainz.Core.Helpers.Discord;
+using Hainz.Helpers.Discord;
 using Microsoft.Extensions.Logging;
 
-namespace Hainz.Core.Services.Discord;
+namespace Hainz.Services.Discord;
 
 public sealed class DiscordStatusService 
 {

@@ -1,4 +1,4 @@
-namespace Hainz.Core.Config;
+namespace Hainz.Config;
 
 public static class SectionKey 
 {

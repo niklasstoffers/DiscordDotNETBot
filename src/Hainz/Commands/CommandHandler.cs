@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Hainz.Commands;
 
-internal sealed class CommandHandler : IHostedService
+public sealed class CommandHandler
 {
     private readonly DiscordSocketClient _client;
     private readonly CommandService _commands;
@@ -24,14 +24,14 @@ internal sealed class CommandHandler : IHostedService
         _logger = logger;
     }
     
-    public async Task StartAsync(CancellationToken cancellationToken)
+    public async Task StartAsync()
     {
         _logger.LogInformation("Starting CommandHandler...");
         await InstallCommandsAsync();
         _client.MessageReceived += HandleCommandAsync;
     }
 
-    public Task StopAsync(CancellationToken cancellationToken)
+    public Task StopAsync()
     {
         _logger.LogInformation("Stopping CommandHandler...");
         _client.MessageReceived -= HandleCommandAsync;
@@ -40,6 +40,7 @@ internal sealed class CommandHandler : IHostedService
 
     private async Task InstallCommandsAsync()
     {
+        _logger.LogTrace("Installing Command Modules");
         await _commands.AddModulesAsync(assembly: Assembly.GetExecutingAssembly(), 
                                         services: _serviceProvider);
     }

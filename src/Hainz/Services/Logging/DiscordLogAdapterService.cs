@@ -1,11 +1,10 @@
 using Discord;
 using Discord.WebSocket;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Hainz.Core.Logging;
+namespace Hainz.Services.Logging;
 
-public sealed class DiscordLogAdapterService : IHostedService
+public sealed class DiscordLogAdapterService
 {
     private readonly DiscordSocketClient _client;
     private readonly ILogger<DiscordLogAdapterService> _adapterLogger;
@@ -20,14 +19,14 @@ public sealed class DiscordLogAdapterService : IHostedService
         _discordLogger = discordLogger;
     }
 
-    public Task StartAsync(CancellationToken cancellationToken)
+    public Task StartAsync()
     {
         _adapterLogger.LogInformation("Starting DiscordLogAdapterService...");
         _client.Log += DiscordLogEventHandler;
         return Task.CompletedTask;
     }
 
-    public Task StopAsync(CancellationToken cancellationToken)
+    public Task StopAsync()
     {
         _adapterLogger.LogInformation("Stopping DiscordLogAdapterService...");
         _client.Log -= DiscordLogEventHandler;

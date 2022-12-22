@@ -1,8 +1,8 @@
 ﻿using System.Reflection;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using Hainz.Commands.Extensions;
-using Hainz.Core.Extensions;
+using Hainz;
+using Hainz.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -25,8 +25,7 @@ void ConfigureApp(IConfigurationBuilder configBuilder)
 
 void ConfigureServices(IServiceCollection services) 
 {
-    services.AddCore();
-    services.AddCommands();
+    services.AddHostedService<Bot>();
 }
 
 void ConfigureContainer(HostBuilderContext hostContext, ContainerBuilder builder) 

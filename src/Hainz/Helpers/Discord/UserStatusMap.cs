@@ -1,7 +1,7 @@
 using Discord;
-using Hainz.Core.Collections;
+using Hainz.Common.Collections;
 
-namespace Hainz.Core.Helpers.Discord;
+namespace Hainz.Helpers.Discord;
 
 public static class UserStatusMap
 {

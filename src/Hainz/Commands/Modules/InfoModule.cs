@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using Discord.Commands;
-using Microsoft.Extensions.Logging;
 
 namespace Hainz.Commands.Modules;
 
