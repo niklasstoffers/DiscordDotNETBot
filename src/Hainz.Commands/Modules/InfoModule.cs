@@ -6,13 +6,6 @@ namespace Hainz.Commands.Modules;
 
 public class InfoModule : ModuleBase<SocketCommandContext>
 {
-    private ILogger<InfoModule> _logger;
-
-    public InfoModule(ILogger<InfoModule> logger) 
-    {
-        _logger = logger;
-    }
-
     [Command("ping")]
     public async Task Ping() 
     {

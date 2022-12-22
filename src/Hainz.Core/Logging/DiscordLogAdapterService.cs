@@ -47,9 +47,11 @@ public sealed class DiscordLogAdapterService : IHostedService
             _ => LogLevel.None
         };
 
+#pragma warning disable CA2254
         _discordLogger.Log(logLevel, 
             message.Exception, 
             message.Message);
+#pragma warning restore CA2254
         
         return Task.CompletedTask;
     }

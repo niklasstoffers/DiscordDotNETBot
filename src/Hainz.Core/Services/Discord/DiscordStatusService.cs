@@ -26,11 +26,11 @@ public sealed class DiscordStatusService
 
         if (userStatus == null) 
         {
-            _logger.LogWarning($"Invalid user status. Tried to set status to \"{status}\"");
+            _logger.LogWarning("Invalid user status. Tried to set status to \"{status}\"", status);
         }
         else 
         {
-            _logger.LogInformation($"Setting status to \"{status}\"");
+            _logger.LogInformation("Setting status to \"{status}\"", status);
             await _client.SetStatusAsync(userStatus.Value);
             return true;
         }

@@ -7,8 +7,8 @@ public sealed class BidirectionalMap<T1, T2> : IEnumerable<KeyValuePair<T1, T2>>
     private readonly Dictionary<T1, T2> _forward;
     private readonly Dictionary<T2, T1> _reverse;
 
-    public ReadonlyDictionaryIndexer<T1, T2> Forward => new ReadonlyDictionaryIndexer<T1, T2>(_forward);
-    public ReadonlyDictionaryIndexer<T2, T1> Reverse => new ReadonlyDictionaryIndexer<T2, T1>(_reverse);
+    public ReadonlyDictionaryIndexer<T1, T2> Forward => new(_forward);
+    public ReadonlyDictionaryIndexer<T2, T1> Reverse => new(_reverse);
 
     public BidirectionalMap() 
     {
