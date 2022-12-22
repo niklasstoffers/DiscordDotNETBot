@@ -1,7 +1,7 @@
 pull_request_rules:
   - name: Automatic Merge on Build success
     conditions:
-      - check-success=BUILD
+      - check-success=build
       - base=main
     actions:
       merge:
