@@ -1,6 +1,7 @@
 pull_request_rules:
-  - name: Automatic Merge on Build success
+  - name: Automatic merge ⬇️ on approval ✔
     conditions:
+      - "approved-reviews-by=[niklasstoffers]"
       - check-success=build
       - base=main
     actions:
