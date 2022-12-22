@@ -3,6 +3,7 @@ pull_request_rules:
     conditions:
       - "approved-reviews-by=[niklasstoffers]"
       - check-success=build
+      - check-success=test
       - base=main
     actions:
       merge:
