@@ -22,5 +22,5 @@ jobs:
             pull_number: context.issue.number,
             review_id: 1,
             event: 'APPROVE',
-            body: 'Let's get this merged!'
+            body: 'Lets get this merged'
           })
