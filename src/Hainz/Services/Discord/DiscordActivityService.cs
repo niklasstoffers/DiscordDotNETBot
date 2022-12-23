@@ -1,3 +1,4 @@
+using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 
@@ -15,9 +16,9 @@ public class DiscordActivityService
         _logger = logger;
     }
 
-    public async Task SetGame(string? game) 
+    public async Task SetGame(string? game, ActivityType type = ActivityType.Playing) 
     {
         _logger.LogInformation("Setting game to \"{game}\"", game);
-        await _client.SetGameAsync(game);
+        await _client.SetGameAsync(game, type: type);
     }
 }
