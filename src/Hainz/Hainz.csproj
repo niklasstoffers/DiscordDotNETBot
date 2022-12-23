@@ -8,7 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-     <None Update="nlog.config" CopyToOutputDirectory="PreserveNewest" />
+     <None Update="nlog.common.config" CopyToOutputDirectory="PreserveNewest" />
+     <None Update="nlog.debug.config"  Condition="'$(Configuration)' == 'Debug'" CopyToOutputDirectory="PreserveNewest" />
+     <None Update="nlog.release.config" Condition="'$(Configuration)' == 'Release'" CopyToOutputDirectory="PreserveNewest" />
      <Content Include="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
