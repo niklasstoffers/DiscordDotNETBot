@@ -6,28 +6,42 @@ using Hainz.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 
-await new HostBuilder()
-    .UseContentRoot(AppDomain.CurrentDomain.BaseDirectory)
-    .ConfigureHostConfiguration(ConfigureHost)
-    .UseEnvironment(Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Production")
-    .UseServiceProviderFactory(new AutofacServiceProviderFactory())
-    .ConfigureAppConfiguration(ConfigureApp)
-    .ConfigureServices(ConfigureServices)
-    .ConfigureContainer<ContainerBuilder>(ConfigureContainer)
-    .ConfigureLogging(ConfigureLogging)
-    .RunConsoleAsync();
+string environmentName = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Production";
+NLog.Logger buildLogger = CreateBuildLogger();
+
+try
+{
+    var host = new HostBuilder()
+        .UseConsoleLifetime()
+        .UseEnvironment(environmentName)
+        .UseContentRoot(AppDomain.CurrentDomain.BaseDirectory)
+        .ConfigureHostConfiguration(ConfigureHost)
+        .UseServiceProviderFactory(new AutofacServiceProviderFactory())
+        .ConfigureAppConfiguration(ConfigureApp)
+        .ConfigureContainer<ContainerBuilder>(ConfigureContainer)
+        .ConfigureServices(ConfigureServices)
+        .ConfigureLogging(ConfigureLogging)
+        .Build();
+
+    ReloadNLog(host.Services);
+    await host.RunAsync();
+}
+catch (Exception ex) 
+{
+    buildLogger.Fatal(ex, "Error during startup");
+}
 
 void ConfigureHost(IConfigurationBuilder configBuilder)
 {
-    configBuilder.AddEnvironmentVariables("DOTNET_");
+    configBuilder.AddCommandLine(args);
 }
 
 void ConfigureApp(IConfigurationBuilder configBuilder)
 {
-    configBuilder.SetBasePath(AppDomain.CurrentDomain.BaseDirectory);
     configBuilder.AddJsonFile("appsettings.json", optional: false);
 }
 
@@ -62,4 +76,30 @@ void ConfigureLogging(HostBuilderContext hostContext, ILoggingBuilder loggingBui
     {
         loggingBuilder.AddNLog("nlog.release.config");
     }
+}
+
+NLog.Logger CreateBuildLogger() 
+{
+    IHostEnvironment startupEnvironment = new HostingEnvironment() 
+    {
+        EnvironmentName = environmentName
+    };
+
+    string nlogConfigFile = "nlog.debug.config";
+    if (startupEnvironment.IsProduction())
+        nlogConfigFile = "nlog.release.config";
+
+    var buildLoggerFactory = NLog.LogManager.LoadConfiguration(nlogConfigFile);
+    return buildLoggerFactory.GetCurrentClassLogger();
+}
+
+void ReloadNLog(IServiceProvider serviceProvider) 
+{
+    // NLog catch22 work-around. Reloads all configuration using the newly built host service provider.
+    // This is required because some custom NLog targets require dependencies to work.
+    // The InitializeTarget() pattern doesn't work here as well since NLog will resolve unregistered dependencies by itself if they have a default constructor ignoring the provided ServiceProvider.
+    var nlogServiceProvider = NLog.Config.ConfigurationItemFactory.Default.CreateInstance;
+    NLog.Config.ConfigurationItemFactory.Default.CreateInstance = 
+        type => serviceProvider.GetService(type) ?? nlogServiceProvider(type);
+    NLog.LogManager.Configuration = NLog.LogManager.Configuration.Reload();
 }

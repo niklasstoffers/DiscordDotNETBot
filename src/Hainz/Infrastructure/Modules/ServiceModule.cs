@@ -19,5 +19,9 @@ public class ServiceModule : Module
         builder.RegisterType<DiscordLogAdapterService>()
                .AsSelf()
                .SingleInstance();
+
+        builder.RegisterType<DiscordChannelLoggerService>()
+               .AsSelf()
+               .SingleInstance();
     }
 }
