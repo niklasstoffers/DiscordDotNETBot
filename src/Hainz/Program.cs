@@ -9,13 +9,21 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 
-await Host.CreateDefaultBuilder(args)
+await new HostBuilder()
+    .UseContentRoot(AppDomain.CurrentDomain.BaseDirectory)
+    .ConfigureHostConfiguration(ConfigureHost)
+    .UseEnvironment(Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Production")
     .UseServiceProviderFactory(new AutofacServiceProviderFactory())
     .ConfigureAppConfiguration(ConfigureApp)
     .ConfigureServices(ConfigureServices)
     .ConfigureContainer<ContainerBuilder>(ConfigureContainer)
     .ConfigureLogging(ConfigureLogging)
     .RunConsoleAsync();
+
+void ConfigureHost(IConfigurationBuilder configBuilder)
+{
+    configBuilder.AddEnvironmentVariables("DOTNET_");
+}
 
 void ConfigureApp(IConfigurationBuilder configBuilder)
 {
@@ -45,5 +53,13 @@ void ConfigureLogging(HostBuilderContext hostContext, ILoggingBuilder loggingBui
 {
     loggingBuilder.ClearProviders();
     loggingBuilder.SetMinimumLevel(LogLevel.Trace);
-    loggingBuilder.AddNLog("nlog.config");
+
+    if (hostContext.HostingEnvironment.IsDevelopment())
+    {
+        loggingBuilder.AddNLog("nlog.debug.config");
+    }
+    else if (hostContext.HostingEnvironment.IsProduction())
+    {
+        loggingBuilder.AddNLog("nlog.release.config");
+    }
 }

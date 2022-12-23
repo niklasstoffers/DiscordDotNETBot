@@ -5,7 +5,7 @@ COPY ./src ./src
 COPY ./Hainz.sln .
 
 RUN dotnet restore
-RUN dotnet publish ./src/Hainz/Hainz.csproj -c Debug -o out
+RUN dotnet publish ./src/Hainz/Hainz.csproj -c Release -o out
 
 FROM mcr.microsoft.com/dotnet/runtime:6.0
 WORKDIR /Hainz
