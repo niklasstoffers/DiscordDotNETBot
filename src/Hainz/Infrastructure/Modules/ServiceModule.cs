@@ -10,11 +10,11 @@ public class ServiceModule : Module
     {
         builder.RegisterType<DiscordStatusService>()
                .AsSelf()
-               .SingleInstance();
+               .InstancePerDependency();
 
         builder.RegisterType<DiscordActivityService>()
                .AsSelf()
-               .SingleInstance();
+               .InstancePerDependency();
 
         builder.RegisterType<DiscordLogAdapterService>()
                .AsSelf()
