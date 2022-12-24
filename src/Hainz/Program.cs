@@ -18,7 +18,7 @@ try
         .RegisterAutofacServices()
         .AddAppSettings(false)
         .AddNLogConfiguration()
-        .AddHostedServices()
+        .AddApplicationHost()
         .Build();
 
     NLogServiceProviderConfigurator.ReloadConfigWithServiceProvider(host.Services);

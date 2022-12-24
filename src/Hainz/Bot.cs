@@ -1,9 +1,7 @@
 using Discord;
 using Discord.WebSocket;
-using Hainz.Commands;
 using Hainz.Config;
 using Hainz.Services.Discord;
-using Hainz.Services.Logging;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -15,8 +13,6 @@ public sealed class Bot : IHostedService
     private readonly BotConfig _config;
     private readonly DiscordStatusService _statusService;
     private readonly DiscordActivityService _activityService;
-    private readonly CommandHandler _commandHandler;
-    private readonly DiscordLogAdapterService _logAdapterService;
     private readonly IHostApplicationLifetime _appLifetime;
     private readonly ILogger<Bot> _logger;
 
@@ -24,8 +20,6 @@ public sealed class Bot : IHostedService
                BotConfig config,
                DiscordStatusService statusService,
                DiscordActivityService activityService,
-               CommandHandler commandHandler,
-               DiscordLogAdapterService logAdapterService,
                IHostApplicationLifetime appLifetime,
                ILogger<Bot> logger) 
     {
@@ -33,8 +27,6 @@ public sealed class Bot : IHostedService
         _config = config;
         _statusService = statusService;
         _activityService = activityService;
-        _commandHandler = commandHandler;
-        _logAdapterService = logAdapterService;
         _appLifetime = appLifetime;
         _logger = logger;
     }
@@ -61,9 +53,6 @@ public sealed class Bot : IHostedService
             await _client.StartAsync();
             await _client.LoginAsync(TokenType.Bot, _config.Token);
 
-            await _commandHandler.StartAsync();
-            await _logAdapterService.StartAsync();
-
             _client.Ready += ClientReady;
             _client.Disconnected += ClientDisconnected;
 
@@ -84,9 +73,6 @@ public sealed class Bot : IHostedService
         {
             await _client.LogoutAsync();
             await _client.StopAsync();
-
-            await _commandHandler.StopAsync();
-            await _logAdapterService.StopAsync();
 
             _logger.LogInformation("Bot has been shutdown");
         }

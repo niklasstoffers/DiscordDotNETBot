@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Hainz.Services.Logging;
 
-public sealed class DiscordLogAdapterService
+public sealed class DiscordLogAdapterService : IGatewayService
 {
     private readonly DiscordSocketClient _client;
     private readonly ILogger<DiscordLogAdapterService> _adapterLogger;
@@ -19,7 +19,7 @@ public sealed class DiscordLogAdapterService
         _discordLogger = discordLogger;
     }
 
-    public Task StartAsync()
+    public Task StartAsync(bool isRestart)
     {
         _adapterLogger.LogInformation("Starting DiscordLogAdapterService...");
         _client.Log += DiscordLogEventHandler;

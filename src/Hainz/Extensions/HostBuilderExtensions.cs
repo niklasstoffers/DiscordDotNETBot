@@ -1,5 +1,6 @@
 using System.Reflection;
 using Autofac;
+using Hainz.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -58,11 +59,11 @@ public static class HostBuilderExtensions
         return hostBuilder;
     }
 
-    public static IHostBuilder AddHostedServices(this IHostBuilder hostBuilder)
+    public static IHostBuilder AddApplicationHost(this IHostBuilder hostBuilder) 
     {
         hostBuilder.ConfigureServices((hostBuilder, serviceCollection) => 
         {
-            serviceCollection.AddHostedService<Bot>();
+            serviceCollection.AddHostedService<ApplicationHost>();
         });
 
         return hostBuilder;

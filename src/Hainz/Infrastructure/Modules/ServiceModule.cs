@@ -1,4 +1,5 @@
 using Autofac;
+using Hainz.Services;
 using Hainz.Services.Discord;
 using Hainz.Services.Logging;
 
