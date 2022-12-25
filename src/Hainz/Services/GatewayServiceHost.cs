@@ -64,7 +64,7 @@ public sealed class GatewayServiceHost<TService> : IGatewayServiceHost<TService>
         try 
         {
             _logger.LogInformation("Starting service \"{name}\"", _serviceName);
-            await _service.StartAsync(_isFirstStart);
+            await _service.StartAsync(!_isFirstStart);
         }
         catch (Exception ex) 
         {
