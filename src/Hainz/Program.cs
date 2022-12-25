@@ -1,65 +1,38 @@
-﻿using System.Reflection;
-using Autofac;
-using Autofac.Extensions.DependencyInjection;
-using Hainz;
+﻿using Autofac.Extensions.DependencyInjection;
 using Hainz.Extensions;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+using Hainz.Infrastructure;
+using Hainz.Logging;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using NLog.Extensions.Logging;
 
-await new HostBuilder()
-    .UseContentRoot(AppDomain.CurrentDomain.BaseDirectory)
-    .ConfigureHostConfiguration(ConfigureHost)
-    .UseEnvironment(Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Production")
-    .UseServiceProviderFactory(new AutofacServiceProviderFactory())
-    .ConfigureAppConfiguration(ConfigureApp)
-    .ConfigureServices(ConfigureServices)
-    .ConfigureContainer<ContainerBuilder>(ConfigureContainer)
-    .ConfigureLogging(ConfigureLogging)
-    .RunConsoleAsync();
+var environment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Production";
+var startupEnvironment = new StartupEnvironment(environment);
+var rootLogger = startupEnvironment.Logger;
 
-void ConfigureHost(IConfigurationBuilder configBuilder)
+try
 {
-    configBuilder.AddEnvironmentVariables("DOTNET_");
-}
+    var host = new HostBuilder()
+        .UseConsoleLifetime()
+        .UseEnvironment(environment)
+        .UseContentRoot(AppDomain.CurrentDomain.BaseDirectory)
+        .UseServiceProviderFactory(new AutofacServiceProviderFactory())
+        .RegisterAutofacServices()
+        .AddAppSettings(false)
+        .AddNLogConfiguration()
+        .AddApplicationHost()
+        .Build();
 
-void ConfigureApp(IConfigurationBuilder configBuilder)
-{
-    configBuilder.SetBasePath(AppDomain.CurrentDomain.BaseDirectory);
-    configBuilder.AddJsonFile("appsettings.json", optional: false);
-}
+    NLogServiceProviderConfigurator.ReloadConfigWithServiceProvider(host.Services);
 
-void ConfigureServices(IServiceCollection services) 
-{
-    services.AddHostedService<Bot>();
-}
-
-void ConfigureContainer(HostBuilderContext hostContext, ContainerBuilder builder) 
-{
-    var assembly = Assembly.GetExecutingAssembly();
-    builder.RegisterAssemblyModules(assembly);
-
-    var botConfig = hostContext.Configuration.GetBotConfiguration() ??
-                        throw new Exception("Invalid bot configuration");
-
-    builder.Register(ctx => botConfig)
-           .AsSelf()
-           .SingleInstance();
-}
-
-void ConfigureLogging(HostBuilderContext hostContext, ILoggingBuilder loggingBuilder) 
-{
-    loggingBuilder.ClearProviders();
-    loggingBuilder.SetMinimumLevel(LogLevel.Trace);
-
-    if (hostContext.HostingEnvironment.IsDevelopment())
+    try 
     {
-        loggingBuilder.AddNLog("nlog.debug.config");
+        await host.RunAsync();
     }
-    else if (hostContext.HostingEnvironment.IsProduction())
+    catch (Exception ex)
     {
-        loggingBuilder.AddNLog("nlog.release.config");
+        rootLogger.Fatal(ex, "Error occured during host execution");
     }
+}
+catch (Exception ex) 
+{
+    rootLogger.Fatal(ex, "Error occured during host building");
 }

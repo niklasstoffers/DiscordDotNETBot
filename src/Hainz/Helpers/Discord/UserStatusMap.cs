@@ -15,6 +15,11 @@ public static class UserStatusMap
         { "invisible", UserStatus.Invisible }
     };
 
-    public static UserStatus? UserStatusFromString(string status) => _map.Forward.GetValueOrDefault(status);
+    public static UserStatus? UserStatusFromString(string status) 
+    {
+        if (_map.Forward.ContainsKey(status))
+            return _map.Forward[status];
+        return null;
+    }
     public static string? StringFromUserStatus(UserStatus status) => _map.Reverse.GetValueOrDefault(status);
 }

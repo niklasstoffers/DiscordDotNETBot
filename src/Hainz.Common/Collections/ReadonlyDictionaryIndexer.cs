@@ -15,4 +15,5 @@ public sealed class ReadonlyDictionaryIndexer<T1, T2> where T1 : notnull where T
     }
 
     public T2? GetValueOrDefault(T1 key) => _dictionary.GetValueOrDefault(key);
+    public bool ContainsKey(T1 key) => _dictionary.ContainsKey(key);
 }

@@ -1,5 +1,4 @@
 using Discord.Commands;
-using Discord.WebSocket;
 using Hainz.Services.Discord;
 using Microsoft.Extensions.Logging;
 
@@ -25,12 +24,17 @@ public class BotModule : ModuleBase<SocketCommandContext>
     {
         var gameName = string.Join(" ", game);
         await _activityService.SetGame(gameName);
+        await Context.Channel.SendMessageAsync($"Set game to \"{gameName}\"");
     }
 
     [Command("setstatus")]
     public async Task SetStatus(string status) 
     {
-        if (!await _statusService.SetStatus(status)) 
+        if (await _statusService.SetStatus(status)) 
+        {
+            await Context.Channel.SendMessageAsync($"Set status to \"{status}\"");
+        }
+        else
         {
             await Context.Channel.SendMessageAsync("Unknown status");
             _logger.LogWarning("Received invalid status argument \"{status}\" in setstatus command", status);

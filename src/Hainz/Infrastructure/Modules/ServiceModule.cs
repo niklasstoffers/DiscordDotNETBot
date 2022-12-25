@@ -1,4 +1,5 @@
 using Autofac;
+using Hainz.Services;
 using Hainz.Services.Discord;
 using Hainz.Services.Logging;
 
@@ -10,13 +11,17 @@ public class ServiceModule : Module
     {
         builder.RegisterType<DiscordStatusService>()
                .AsSelf()
-               .SingleInstance();
+               .InstancePerDependency();
 
         builder.RegisterType<DiscordActivityService>()
                .AsSelf()
-               .SingleInstance();
+               .InstancePerDependency();
 
         builder.RegisterType<DiscordLogAdapterService>()
+               .AsSelf()
+               .SingleInstance();
+
+        builder.RegisterType<DiscordChannelLoggerService>()
                .AsSelf()
                .SingleInstance();
     }

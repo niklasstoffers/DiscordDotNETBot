@@ -1,12 +1,13 @@
 using System.Reflection;
 using Discord.Commands;
 using Discord.WebSocket;
-using Microsoft.Extensions.Hosting;
+using Hainz.Services;
 using Microsoft.Extensions.Logging;
 
 namespace Hainz.Commands;
 
-public sealed class CommandHandler
+[RequireGatewayConnection(AllowRestart = true)]
+public sealed class CommandHandler : IGatewayService
 {
     private readonly DiscordSocketClient _client;
     private readonly CommandService _commands;
@@ -18,16 +19,19 @@ public sealed class CommandHandler
                           IServiceProvider serviceProvider,
                           ILogger<CommandHandler> logger)
     {
-        _commands = commands;
         _client = client;
+        _commands = commands;
         _serviceProvider = serviceProvider;
         _logger = logger;
     }
     
-    public async Task StartAsync()
+    public async Task StartAsync(bool isRestart)
     {
         _logger.LogInformation("Starting CommandHandler...");
-        await InstallCommandsAsync();
+
+        if (!isRestart)
+            await InstallCommandsAsync();
+            
         _client.MessageReceived += HandleCommandAsync;
     }
 
@@ -40,9 +44,16 @@ public sealed class CommandHandler
 
     private async Task InstallCommandsAsync()
     {
-        _logger.LogTrace("Installing Command Modules");
-        await _commands.AddModulesAsync(assembly: Assembly.GetExecutingAssembly(), 
-                                        services: _serviceProvider);
+        try 
+        {
+            _logger.LogTrace("Installing Command Modules");
+            await _commands.AddModulesAsync(assembly: Assembly.GetExecutingAssembly(), 
+                                            services: _serviceProvider);
+        }
+        catch (Exception ex) 
+        {
+            _logger.LogError(ex, "Error while trying to install commands");
+        }
     }
 
     private async Task HandleCommandAsync(SocketMessage message)
@@ -60,9 +71,16 @@ public sealed class CommandHandler
         _logger.LogInformation("Received command \"{command}\" from \"{user}\"", message.Content, message.Author.Username);
         var context = new SocketCommandContext(_client, userMessage);
 
-        await _commands.ExecuteAsync(
-            context: context, 
-            argPos: argPos,
-            services: _serviceProvider);
+        try 
+        {
+            await _commands.ExecuteAsync(
+                context: context, 
+                argPos: argPos,
+                services: _serviceProvider);
+        }
+        catch (Exception ex) 
+        {
+            _logger.LogError(ex, "Exception during command execution");
+        }
     }
 }
