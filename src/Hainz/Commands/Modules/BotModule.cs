@@ -20,17 +20,17 @@ public class BotModule : ModuleBase<SocketCommandContext>
     }
 
     [Command("setgame")]
-    public async Task SetGame(params string[] game) 
+    public async Task SetGameAsync(params string[] game) 
     {
         var gameName = string.Join(" ", game);
-        await _activityService.SetGame(gameName);
+        await _activityService.SetGameAsync(gameName);
         await Context.Channel.SendMessageAsync($"Set game to \"{gameName}\"");
     }
 
     [Command("setstatus")]
-    public async Task SetStatus(string status) 
+    public async Task SetStatusAsync(string status) 
     {
-        if (await _statusService.SetStatus(status)) 
+        if (await _statusService.SetStatusAsync(status)) 
         {
             await Context.Channel.SendMessageAsync($"Set status to \"{status}\"");
         }

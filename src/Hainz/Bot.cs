@@ -53,7 +53,7 @@ public sealed class Bot : IHostedService
             await _client.StartAsync();
             await _client.LoginAsync(TokenType.Bot, _config.Token);
 
-            _client.Ready += ClientReady;
+            _client.Ready += ClientReadyAsync;
             _client.Disconnected += ClientDisconnected;
 
             _logger.LogInformation("Bot has been started");
@@ -82,10 +82,10 @@ public sealed class Bot : IHostedService
         }
     }
 
-    private async Task ClientReady() 
+    private async Task ClientReadyAsync() 
     {
-        await _activityService.SetGame(_config.StatusGameName);
-        await _statusService.SetStatus(_config.Status);
+        await _activityService.SetGameAsync(_config.StatusGameName);
+        await _statusService.SetStatusAsync(_config.Status);
     }
 
     private Task ClientDisconnected(Exception disconnectException) 

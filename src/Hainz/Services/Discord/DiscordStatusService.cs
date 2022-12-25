@@ -17,7 +17,7 @@ public sealed class DiscordStatusService
         _logger = logger;
     }
 
-    public async Task<bool> SetStatus(string? status) 
+    public async Task<bool> SetStatusAsync(string? status) 
     {
         UserStatus? userStatus = null;
 

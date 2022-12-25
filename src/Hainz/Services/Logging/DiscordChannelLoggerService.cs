@@ -49,7 +49,7 @@ public sealed class DiscordChannelLoggerService : IGatewayService
                 if (!isRestart)
                     _currentLogMessage = null;
                 _stopCTS = new();
-                _loggerTask = Task.Run(async () => await LogWriter(_stopCTS.Token));
+                _loggerTask = Task.Run(async () => await LogWriterAsync(_stopCTS.Token));
             }
         }
     }
@@ -61,7 +61,7 @@ public sealed class DiscordChannelLoggerService : IGatewayService
         await (_loggerTask ?? Task.CompletedTask);
     }
 
-    private async Task LogWriter(CancellationToken ct) 
+    private async Task LogWriterAsync(CancellationToken ct) 
     {
         while(!ct.IsCancellationRequested) 
         {
@@ -71,7 +71,7 @@ public sealed class DiscordChannelLoggerService : IGatewayService
                 {
                     if (_currentLogMessage != null)
                     {
-                       await AppendToLog(_currentLogMessage, logMessage);
+                       await AppendToLogAsync(_currentLogMessage, logMessage);
                     }
                     else
                     {
@@ -84,7 +84,7 @@ public sealed class DiscordChannelLoggerService : IGatewayService
         }
     }
 
-    private static async Task AppendToLog(RestUserMessage message, string logMessage) 
+    private static async Task AppendToLogAsync(RestUserMessage message, string logMessage) 
     {
         await message.ModifyAsync(msg => 
         {

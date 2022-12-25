@@ -16,7 +16,7 @@ public class DiscordActivityService
         _logger = logger;
     }
 
-    public async Task SetGame(string? game, ActivityType type = ActivityType.Playing) 
+    public async Task SetGameAsync(string? game, ActivityType type = ActivityType.Playing) 
     {
         _logger.LogInformation("Setting game to \"{game}\"", game);
         await _client.SetGameAsync(game, type: type);
