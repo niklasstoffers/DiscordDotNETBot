@@ -1,9 +1,11 @@
 using Discord.Commands;
+using Hainz.Commands.Preconditions;
 using Hainz.Services.Discord;
 using Microsoft.Extensions.Logging;
 
 namespace Hainz.Commands.Modules;
 
+[RequireBotAdminPermission]
 public class BotModule : ModuleBase<SocketCommandContext>
 {
     private readonly DiscordStatusService _statusService;

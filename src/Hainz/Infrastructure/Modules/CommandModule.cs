@@ -10,5 +10,9 @@ public class CommandModule : Module
         builder.RegisterType<CommandHandler>()
                .AsSelf()
                .SingleInstance();
+
+        builder.RegisterType<CommandPostExecutionHandler>()
+               .AsSelf()
+               .SingleInstance();
     }
 }

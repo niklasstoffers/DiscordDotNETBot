@@ -20,5 +20,9 @@ public class GatewayServiceModule : Module
         builder.RegisterType<GatewayServiceHost<DiscordLogAdapterService>>()
                .As<IGatewayServiceHost<IGatewayService>>()
                .SingleInstance();
+
+       builder.RegisterType<GatewayServiceHost<CommandPostExecutionHandler>>()
+              .As<IGatewayServiceHost<IGatewayService>>()
+              .SingleInstance();
     }
 }
