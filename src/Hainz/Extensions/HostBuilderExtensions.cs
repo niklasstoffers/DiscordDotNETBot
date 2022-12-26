@@ -1,5 +1,7 @@
 using System.Reflection;
 using Autofac;
+using FluentValidation;
+using Hainz.Config.Validation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -53,7 +55,18 @@ public static class HostBuilderExtensions
 
     public static IHostBuilder AddApplicationConfiguration(this IHostBuilder hostBuilder)
     {
-        
+        hostBuilder.ConfigureServices((hostBuilder, serviceCollection) => 
+        {
+            var botConfiguration = hostBuilder.Configuration.GetBotConfiguration();
+            var serverConfiguration = hostBuilder.Configuration.GetServerConfiguration();
+
+            var botConfigurationValidator = new BotConfigValidator();
+            botConfigurationValidator.ValidateAndThrow(botConfiguration);
+
+            serviceCollection.AddSingleton(botConfiguration);
+            serviceCollection.AddSingleton(serverConfiguration);
+        });
+
         return hostBuilder;
     }
 

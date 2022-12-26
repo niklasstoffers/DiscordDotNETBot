@@ -40,19 +40,6 @@ public sealed class Bot : IHostedService
 
         try 
         {
-            // Token validation is done here because although DiscordSocketClient.LoginAsync() also performs token validation
-            // it only logs a Warning Message if the supplied token was invalid. However we want to terminate the whole application.
-            TokenUtils.ValidateToken(TokenType.Bot, _config.Token);
-        }
-        catch
-        {
-            _logger.LogCritical("Supplied bot token was invalid");
-            _appLifetime.StopApplication();
-            return;
-        }
-
-        try 
-        {
             await _client.StartAsync();
             await _client.LoginAsync(TokenType.Bot, _config.Token);
 
