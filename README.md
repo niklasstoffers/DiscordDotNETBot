@@ -43,7 +43,7 @@ In order for the bot to work you need to provide proper configuration for it. To
 
 ### Note about discord channel logging
 
-Although posting internal logs directly to a discord channel has it's usefulness in that you can quickly determine if something's wrong, it should be used with some caution. First and foremost especially on active servers log messages posted to a Discord channel may contribute to exceeding the Discord gateways rate limiting for your application. Furthermore logging to a discord channel will only work during the applications gateway uptime. Log events that take place during the gateways downtime will be added to a queue by default so they can be posted once the gateway is up again. 
+Although posting internal logs directly to a discord channel has it's usefulness in that you can quickly determine if something's wrong, it should be used with some caution. First and foremost especially on active servers log messages posted to a Discord channel may contribute to exceeding the Discord gateways rate limiting for your application. Furthermore logging to a discord channel will only work during the applications gateway uptime. Log events that take place during the gateways downtime will be added to a queue by default so they can be posted once the gateway is up again however in certain events that may not happen. Lastly log messages that exceed the maximum message length (currently `2000` characters) aren't split up into parts but instead not sent at all.
 
 ## Self hosting
 
