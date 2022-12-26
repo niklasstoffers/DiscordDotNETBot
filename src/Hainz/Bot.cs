@@ -1,6 +1,6 @@
 using Discord;
 using Discord.WebSocket;
-using Hainz.Config;
+using Hainz.Config.Bot;
 using Hainz.Services.Discord;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -84,8 +84,8 @@ public sealed class Bot : IHostedService
 
     private async Task ClientReadyAsync() 
     {
-        await _activityService.SetGameAsync(_config.StatusGameName);
-        await _statusService.SetStatusAsync(_config.Status);
+        if (_config.DefaultActivity != null) await _activityService.SetGameAsync(_config.DefaultActivity.Name, _config.DefaultActivity.Type);
+        if (_config.DefaultStatus != null) await _statusService.SetStatusAsync(_config.DefaultStatus.Value);
     }
 
     private Task ClientDisconnected(Exception disconnectException) 

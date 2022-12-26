@@ -1,7 +1,8 @@
 using System.Threading.Tasks.Dataflow;
 using Discord.Rest;
 using Discord.WebSocket;
-using Hainz.Config;
+using Hainz.Config.Server;
+using Hainz.Config.Server.Channels;
 using Hainz.Helpers.Discord;
 using Microsoft.Extensions.Logging;
 
@@ -12,7 +13,7 @@ public sealed class DiscordChannelLoggerService : IGatewayService
 {
     private readonly BufferBlock<string> _logQueue;
     private readonly DiscordSocketClient _client;
-    private readonly BotConfig _config;
+    private readonly LogChannelConfig? _logChannelConfig;
     private readonly ILogger<DiscordChannelLoggerService> _logger;
     private Task? _loggerTask;
     private CancellationTokenSource _stopCTS;
@@ -20,11 +21,11 @@ public sealed class DiscordChannelLoggerService : IGatewayService
     private RestUserMessage? _currentLogMessage;
 
     public DiscordChannelLoggerService(DiscordSocketClient client,
-                                       BotConfig config,
+                                       ServerConfig serverConfig,
                                        ILogger<DiscordChannelLoggerService> logger) 
     {
         _client = client;
-        _config = config;
+        _logChannelConfig = serverConfig.Channels?.LogChannel;
         _logger = logger;
 
         _logQueue = new();
@@ -37,12 +38,13 @@ public sealed class DiscordChannelLoggerService : IGatewayService
     {
         _logger.LogInformation("Starting DiscordChannelLoggerService");
 
-        if (_config.Logging.DiscordChannelLogging.IsEnabled) 
+        if (_logChannelConfig?.IsEnabled ?? false) 
         {
-            _logChannel = await _client.GetChannelAsync(_config.Logging.DiscordChannelLogging.LogChannelId) as SocketTextChannel;
+            var logChannelId = _logChannelConfig.ChannelId;
+            _logChannel = await _client.GetChannelAsync(logChannelId) as SocketTextChannel;
             if (_logChannel == null) 
             {
-                _logger.LogWarning("Log channel with id \"{id}\" not found", _config.Logging.DiscordChannelLogging.LogChannelId);
+                _logger.LogWarning("Log channel with id \"{id}\" not found", logChannelId);
             }
             else 
             {

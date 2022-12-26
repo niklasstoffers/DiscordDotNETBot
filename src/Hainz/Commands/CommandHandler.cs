@@ -1,6 +1,9 @@
 using System.Reflection;
+using AutoMapper;
+using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Hainz.Commands.TypeReaders;
 using Hainz.Services;
 using Microsoft.Extensions.Logging;
 
@@ -10,18 +13,21 @@ namespace Hainz.Commands;
 public sealed class CommandHandler : IGatewayService
 {
     private readonly DiscordSocketClient _client;
-    private readonly CommandService _commands;
+    private readonly CommandService _commandService;
     private readonly IServiceProvider _serviceProvider;
+    private readonly IMapper _mapper;
     private readonly ILogger<CommandHandler> _logger;
 
     public CommandHandler(DiscordSocketClient client, 
                           CommandService commands,
                           IServiceProvider serviceProvider,
+                          IMapper mapper,
                           ILogger<CommandHandler> logger)
     {
         _client = client;
-        _commands = commands;
+        _commandService = commands;
         _serviceProvider = serviceProvider;
+        _mapper = mapper;
         _logger = logger;
     }
     
@@ -30,7 +36,7 @@ public sealed class CommandHandler : IGatewayService
         _logger.LogInformation("Starting CommandHandler...");
 
         if (!isRestart)
-            await InstallCommandsAsync();
+            await SetupAsync();
             
         _client.MessageReceived += HandleCommandAsync;
     }
@@ -42,13 +48,15 @@ public sealed class CommandHandler : IGatewayService
         return Task.CompletedTask;
     }
 
-    private async Task InstallCommandsAsync()
+    private async Task SetupAsync()
     {
+        _commandService.AddTypeReader<UserStatus>(new UserStatusTypeReader(_mapper));
+
         try 
         {
             _logger.LogTrace("Installing Command Modules");
-            await _commands.AddModulesAsync(assembly: Assembly.GetExecutingAssembly(), 
-                                            services: _serviceProvider);
+            await _commandService.AddModulesAsync(assembly: Assembly.GetExecutingAssembly(), 
+                                                  services: _serviceProvider);
         }
         catch (Exception ex) 
         {
@@ -73,7 +81,7 @@ public sealed class CommandHandler : IGatewayService
 
         try 
         {
-            await _commands.ExecuteAsync(
+            await _commandService.ExecuteAsync(
                 context: context, 
                 argPos: argPos,
                 services: _serviceProvider);

@@ -1,3 +1,4 @@
+using Discord;
 using Discord.Commands;
 using Hainz.Commands.Preconditions;
 using Hainz.Services.Discord;
@@ -10,27 +11,29 @@ public class BotModule : ModuleBase<SocketCommandContext>
 {
     private readonly DiscordStatusService _statusService;
     private readonly DiscordActivityService _activityService;
-    private readonly ILogger<BotModule> _logger;
 
     public BotModule(DiscordStatusService statusService,
-                     DiscordActivityService activityService,
-                     ILogger<BotModule> logger) 
+                     DiscordActivityService activityService) 
     {
         _statusService = statusService;
         _activityService = activityService;
-        _logger = logger;
     }
 
     [Command("setgame")]
-    public async Task SetGameAsync(params string[] game) 
+    public async Task SetGameAsync([Remainder]string game) 
     {
-        var gameName = string.Join(" ", game);
-        await _activityService.SetGameAsync(gameName);
-        await Context.Channel.SendMessageAsync($"Set game to \"{gameName}\"");
+        if (await _activityService.SetGameAsync(game))
+        {
+            await Context.Channel.SendMessageAsync($"Set game to \"{game}\"");
+        }
+        else
+        {
+            await Context.Channel.SendMessageAsync($"Failed to set game to \"{game}\"");
+        }
     }
 
     [Command("setstatus")]
-    public async Task SetStatusAsync(string status) 
+    public async Task SetStatusAsync(UserStatus status) 
     {
         if (await _statusService.SetStatusAsync(status)) 
         {
@@ -38,8 +41,7 @@ public class BotModule : ModuleBase<SocketCommandContext>
         }
         else
         {
-            await Context.Channel.SendMessageAsync("Unknown status");
-            _logger.LogWarning("Received invalid status argument \"{status}\" in setstatus command", status);
+            await Context.Channel.SendMessageAsync($"Failed to set status to \"{status}\"");
         }
     }
 }

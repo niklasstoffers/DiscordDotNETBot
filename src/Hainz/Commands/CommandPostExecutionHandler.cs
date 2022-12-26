@@ -39,12 +39,20 @@ public sealed class CommandPostExecutionHandler : IGatewayService
             if (result.Error != CommandError.UnknownCommand)
                 _logger.LogWarning("Command execution failed with error \"{error}\" and reason \"{reason}\"", result.Error, result.ErrorReason);
 
-            await (result.Error switch 
+            string? response = result.Error switch 
             {
-                CommandError.BadArgCount => commandContext.Channel.SendMessageAsync($"Invalid command invocation: {result.ErrorReason}"),
-                CommandError.UnmetPrecondition => commandContext.Channel.SendMessageAsync($"Failed to invoke command: {result.ErrorReason}"),
-                _ => Task.CompletedTask
-            });
+                CommandError.BadArgCount => $"Invalid command invocation: {result.ErrorReason}",
+                CommandError.ParseFailed => $"Failed to parse command: {result.ErrorReason}",
+                CommandError.UnmetPrecondition => $"Failed to invoke command: {result.ErrorReason}",
+                CommandError.Exception => "Exception occured during command execution",
+                CommandError.Unsuccessful => "Command execution was unsuccessful",
+                CommandError.MultipleMatches or
+                    CommandError.ObjectNotFound => "Internal parse error",
+                _ => null
+            };
+
+            if (response != null)
+                await commandContext.Channel.SendMessageAsync(response);
         }
     }
 }

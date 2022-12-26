@@ -1,4 +1,5 @@
 using Hainz.Config;
+using Hainz.Config.Bot;
 using Microsoft.Extensions.Configuration;
 
 namespace Hainz.Extensions;
