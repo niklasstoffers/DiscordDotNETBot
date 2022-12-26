@@ -82,7 +82,10 @@ public sealed class DiscordChannelLoggerService : IGatewayService
                     }
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Exception in LogWriter task");
+            }
         }
     }
 
