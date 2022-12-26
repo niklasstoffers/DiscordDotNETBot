@@ -1,6 +1,6 @@
 using Discord;
 using Discord.WebSocket;
-using Hainz.Config;
+using Hainz.Config.Bot;
 using Hainz.Services.Discord;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -29,6 +29,9 @@ public sealed class Bot : IHostedService
         _activityService = activityService;
         _appLifetime = appLifetime;
         _logger = logger;
+
+        _client.Ready += ClientReadyAsync;
+        _client.Disconnected += ClientDisconnected;
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
@@ -37,24 +40,8 @@ public sealed class Bot : IHostedService
 
         try 
         {
-            // Token validation is done here because although DiscordSocketClient.LoginAsync() also performs token validation
-            // it only logs a Warning Message if the supplied token was invalid. However we want to terminate the whole application.
-            TokenUtils.ValidateToken(TokenType.Bot, _config.Token);
-        }
-        catch
-        {
-            _logger.LogCritical("Supplied bot token was invalid");
-            _appLifetime.StopApplication();
-            return;
-        }
-
-        try 
-        {
             await _client.StartAsync();
             await _client.LoginAsync(TokenType.Bot, _config.Token);
-
-            _client.Ready += ClientReady;
-            _client.Disconnected += ClientDisconnected;
 
             _logger.LogInformation("Bot has been started");
         }
@@ -82,10 +69,10 @@ public sealed class Bot : IHostedService
         }
     }
 
-    private async Task ClientReady() 
+    private async Task ClientReadyAsync() 
     {
-        await _activityService.SetGame(_config.StatusGameName);
-        await _statusService.SetStatus(_config.Status);
+        if (_config.DefaultActivity != null) await _activityService.SetGameAsync(_config.DefaultActivity.Name, _config.DefaultActivity.Type);
+        if (_config.DefaultStatus != null) await _statusService.SetStatusAsync(_config.DefaultStatus.Value);
     }
 
     private Task ClientDisconnected(Exception disconnectException) 

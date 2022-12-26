@@ -18,6 +18,8 @@ try
         .RegisterAutofacServices()
         .AddAppSettings(false)
         .AddNLogConfiguration()
+        .AddApplicationConfiguration()
+        .AddAutoMapper()
         .AddApplicationHost()
         .Build();
 

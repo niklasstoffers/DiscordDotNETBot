@@ -1,9 +1,4 @@
-using System.Collections.Concurrent;
-using Discord;
-using Discord.WebSocket;
-using Hainz.Config;
 using Hainz.Services.Logging;
-using Microsoft.Extensions.Logging;
 using NLog;
 using NLog.Targets;
 

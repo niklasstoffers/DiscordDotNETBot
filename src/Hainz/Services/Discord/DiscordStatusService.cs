@@ -1,6 +1,5 @@
 using Discord;
 using Discord.WebSocket;
-using Hainz.Helpers.Discord;
 using Microsoft.Extensions.Logging;
 
 namespace Hainz.Services.Discord;
@@ -17,22 +16,17 @@ public sealed class DiscordStatusService
         _logger = logger;
     }
 
-    public async Task<bool> SetStatus(string? status) 
+    public async Task<bool> SetStatusAsync(UserStatus status) 
     {
-        UserStatus? userStatus = null;
-
-        if (status != null)
-            userStatus = UserStatusMap.UserStatusFromString(status);
-
-        if (userStatus == null) 
-        {
-            _logger.LogWarning("Invalid user status. Tried to set status to \"{status}\"", status);
-        }
-        else 
+        try
         {
             _logger.LogInformation("Setting status to \"{status}\"", status);
-            await _client.SetStatusAsync(userStatus.Value);
+            await _client.SetStatusAsync(status);
             return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to set status");
         }
 
         return false;

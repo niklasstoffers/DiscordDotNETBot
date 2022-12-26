@@ -31,7 +31,7 @@ public sealed class GatewayServiceHost<TService> : IGatewayServiceHost<TService>
 
     public async Task StartAsync()
     {
-        _logger.LogInformation("Starting service hoster for service \"{name}\"", _serviceName);
+        _logger.LogInformation("Starting service host for service \"{name}\"", _serviceName);
 
         if (_requireGatewayConnectionAttribute == null)
         {
@@ -46,7 +46,7 @@ public sealed class GatewayServiceHost<TService> : IGatewayServiceHost<TService>
 
     public async Task StopAsync()
     {
-        _logger.LogInformation("Stopping service hoster for service \"{name}\"", _serviceName);
+        _logger.LogInformation("Stopping service host for service \"{name}\"", _serviceName);
         await StopServiceAsync(null);
 
         if (_requireGatewayConnectionAttribute != null)

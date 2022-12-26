@@ -1,6 +1,7 @@
 using System.Reflection;
 using Autofac;
-using Hainz.Services;
+using FluentValidation;
+using Hainz.Config.Validation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -37,13 +38,6 @@ public static class HostBuilderExtensions
         {
             var assembly = Assembly.GetExecutingAssembly();
             containerBuilder.RegisterAssemblyModules(assembly);
-
-            var botConfig = hostContext.Configuration.GetBotConfiguration() ??
-                                throw new Exception("Invalid bot configuration");
-
-            containerBuilder.Register(ctx => botConfig)
-                .AsSelf()
-                .SingleInstance();
         });
 
         return hostBuilder;
@@ -54,6 +48,34 @@ public static class HostBuilderExtensions
         hostBuilder.ConfigureAppConfiguration(configurationBuilder => 
         {
             configurationBuilder.AddJsonFile("appsettings.json", optional: optional);
+        });
+
+        return hostBuilder;
+    }
+
+    public static IHostBuilder AddApplicationConfiguration(this IHostBuilder hostBuilder)
+    {
+        hostBuilder.ConfigureServices((hostBuilder, serviceCollection) => 
+        {
+            var botConfiguration = hostBuilder.Configuration.GetBotConfiguration();
+            var serverConfiguration = hostBuilder.Configuration.GetServerConfiguration();
+
+            var botConfigurationValidator = new BotConfigValidator();
+            botConfigurationValidator.ValidateAndThrow(botConfiguration);
+
+            serviceCollection.AddSingleton(botConfiguration);
+            serviceCollection.AddSingleton(serverConfiguration);
+        });
+
+        return hostBuilder;
+    }
+
+    public static IHostBuilder AddAutoMapper(this IHostBuilder hostBuilder)
+    {
+        hostBuilder.ConfigureServices((hostBuilder, serviceCollection) =>
+        {
+            var currentAssembly = Assembly.GetExecutingAssembly();
+            serviceCollection.AddAutoMapper(currentAssembly);
         });
 
         return hostBuilder;

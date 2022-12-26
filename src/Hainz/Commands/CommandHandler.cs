@@ -1,6 +1,7 @@
 using System.Reflection;
 using Discord.Commands;
 using Discord.WebSocket;
+using Hainz.Commands.TypeReaders;
 using Hainz.Services;
 using Microsoft.Extensions.Logging;
 
@@ -10,17 +11,20 @@ namespace Hainz.Commands;
 public sealed class CommandHandler : IGatewayService
 {
     private readonly DiscordSocketClient _client;
-    private readonly CommandService _commands;
+    private readonly CommandService _commandService;
+    private readonly IEnumerable<TypeReaderBase> _typeReaders;
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<CommandHandler> _logger;
 
     public CommandHandler(DiscordSocketClient client, 
                           CommandService commands,
+                          IEnumerable<TypeReaderBase> typeReaders,
                           IServiceProvider serviceProvider,
                           ILogger<CommandHandler> logger)
     {
         _client = client;
-        _commands = commands;
+        _commandService = commands;
+        _typeReaders = typeReaders;
         _serviceProvider = serviceProvider;
         _logger = logger;
     }
@@ -30,7 +34,7 @@ public sealed class CommandHandler : IGatewayService
         _logger.LogInformation("Starting CommandHandler...");
 
         if (!isRestart)
-            await InstallCommandsAsync();
+            await SetupAsync();
             
         _client.MessageReceived += HandleCommandAsync;
     }
@@ -42,17 +46,27 @@ public sealed class CommandHandler : IGatewayService
         return Task.CompletedTask;
     }
 
-    private async Task InstallCommandsAsync()
+    private async Task SetupAsync()
     {
+        AddTypeReaders();
+
         try 
         {
             _logger.LogTrace("Installing Command Modules");
-            await _commands.AddModulesAsync(assembly: Assembly.GetExecutingAssembly(), 
-                                            services: _serviceProvider);
+            await _commandService.AddModulesAsync(assembly: Assembly.GetExecutingAssembly(), 
+                                                  services: _serviceProvider);
         }
         catch (Exception ex) 
         {
             _logger.LogError(ex, "Error while trying to install commands");
+        }
+    }
+
+    private void AddTypeReaders()
+    {
+        foreach (var typeReader in _typeReaders)
+        {
+            _commandService.AddTypeReader(typeReader.ForType, typeReader);
         }
     }
 
@@ -73,7 +87,7 @@ public sealed class CommandHandler : IGatewayService
 
         try 
         {
-            await _commands.ExecuteAsync(
+            await _commandService.ExecuteAsync(
                 context: context, 
                 argPos: argPos,
                 services: _serviceProvider);

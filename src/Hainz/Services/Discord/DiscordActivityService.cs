@@ -16,9 +16,19 @@ public class DiscordActivityService
         _logger = logger;
     }
 
-    public async Task SetGame(string? game, ActivityType type = ActivityType.Playing) 
+    public async Task<bool> SetGameAsync(string? game, ActivityType type = ActivityType.Playing) 
     {
-        _logger.LogInformation("Setting game to \"{game}\"", game);
-        await _client.SetGameAsync(game, type: type);
+        try
+        {
+            _logger.LogInformation("Setting game to \"{game}\"", game);
+            await _client.SetGameAsync(game, type: type);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to set game");
+        }
+
+        return false;
     }
 }
