@@ -71,28 +71,50 @@ public sealed class DiscordChannelLoggerService : IGatewayService
             {
                 await foreach (var logMessage in _logQueue.ReceiveAllAsync(ct)) 
                 {
-                    if (_currentLogMessage != null)
-                    {
-                       await AppendToLogAsync(_currentLogMessage, logMessage);
-                    }
-                    else
-                    {
-                        var message = Format.Code(logMessage, "css");
-                        _currentLogMessage = await _logChannel!.SendMessageAsync(message);
-                    }
+                    await AppendToLogAsync(logMessage);
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Exception in LogWriter task");
+            }
         }
     }
 
-    private static async Task AppendToLogAsync(RestUserMessage message, string logMessage) 
+    private async Task AppendToLogAsync(string logMessage) 
     {
-        await message.ModifyAsync(msg => 
+        if (_currentLogMessage == null || 
+            logMessage.Length + _currentLogMessage.Content.Length + 1 > DiscordConfig.MaxMessageSize)
         {
-            var content = message.Content;
-            int lastLogIndex = content.LastIndexOf('\n');
-            msg.Content = content.Insert(lastLogIndex + 1, logMessage + "\n");
-        });
+            await WriteAsNewMessageAsync(logMessage);
+        }
+        else
+        {
+            await _currentLogMessage.ModifyAsync(msg => 
+            {
+                var content = _currentLogMessage.Content;
+                int lastLogIndex = content.LastIndexOf('\n');
+                msg.Content = content.Insert(lastLogIndex + 1, logMessage + "\n");
+            });
+        }
+    }
+
+    private async Task WriteAsNewMessageAsync(string logMessage)
+    {
+        logMessage = Format.Code(logMessage, "css");
+
+        if (logMessage.Length > DiscordConfig.MaxMessageSize)
+        {
+            // Note: Although the message could be split and send in separate parts we decided not to do that.
+            _logger.LogWarning("Not logging log message to Discord channel because content length of {contentSize} exceeds maximum length {maximumLength}", logMessage.Length, DiscordConfig.MaxMessageSize);
+        }
+        else
+        {
+            MessageReference? oldLogMessageReference = null;
+            if (_currentLogMessage != null)
+                oldLogMessageReference = new MessageReference(_currentLogMessage.Id);
+
+            _currentLogMessage = await _logChannel!.SendMessageAsync(logMessage, messageReference: oldLogMessageReference);   
+        }
     }
 }
