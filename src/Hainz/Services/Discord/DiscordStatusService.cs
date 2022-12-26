@@ -1,6 +1,5 @@
 using Discord;
 using Discord.WebSocket;
-using Hainz.Helpers.Discord;
 using Microsoft.Extensions.Logging;
 
 namespace Hainz.Services.Discord;
