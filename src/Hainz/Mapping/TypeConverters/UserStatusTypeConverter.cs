@@ -2,7 +2,7 @@ using AutoMapper;
 using Discord;
 using Hainz.Common.Collections;
 
-namespace Hainz.Infrastructure.Mapping.TypeConverters;
+namespace Hainz.Mapping.TypeConverters;
 
 public sealed class UserStatusTypeConverter : ITypeConverter<string, UserStatus?>, ITypeConverter<UserStatus, string?>
 {

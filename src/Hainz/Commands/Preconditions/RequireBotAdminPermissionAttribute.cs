@@ -1,18 +1,19 @@
 using Discord.Commands;
 using Discord.WebSocket;
+using Hainz.Config.Server;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Hainz.Commands.Preconditions;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
 public sealed class RequireBotAdminPermissionAttribute : PreconditionAttribute
 {
-    private const string _BOT_ADMIN_ROLE = "BotAdmin";
-
     public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services)
     {
+        var serverConfig = services.GetRequiredService<ServerConfig>();
         if (context.User is SocketGuildUser guildUser)
         {
-            if (guildUser.Roles.Any(role => role.Name == _BOT_ADMIN_ROLE))
+            if (guildUser.Roles.Any(role => role.Name == serverConfig.BotAdminRole))
             {
                 return Task.FromResult(PreconditionResult.FromSuccess());
             }

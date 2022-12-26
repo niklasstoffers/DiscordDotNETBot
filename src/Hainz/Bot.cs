@@ -29,6 +29,9 @@ public sealed class Bot : IHostedService
         _activityService = activityService;
         _appLifetime = appLifetime;
         _logger = logger;
+
+        _client.Ready += ClientReadyAsync;
+        _client.Disconnected += ClientDisconnected;
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
@@ -52,9 +55,6 @@ public sealed class Bot : IHostedService
         {
             await _client.StartAsync();
             await _client.LoginAsync(TokenType.Bot, _config.Token);
-
-            _client.Ready += ClientReadyAsync;
-            _client.Disconnected += ClientDisconnected;
 
             _logger.LogInformation("Bot has been started");
         }

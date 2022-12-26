@@ -1,0 +1,2 @@
+- Review Config handling (e.g. erronous config -> fluent validation?, null handling etc, logging config for discord into nlog config file?)
+- Split commands into multiple distinct files instead of modules?

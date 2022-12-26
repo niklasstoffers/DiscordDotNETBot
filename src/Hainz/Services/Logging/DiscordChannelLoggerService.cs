@@ -1,9 +1,9 @@
 using System.Threading.Tasks.Dataflow;
+using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
 using Hainz.Config.Server;
 using Hainz.Config.Server.Channels;
-using Hainz.Helpers.Discord;
 using Microsoft.Extensions.Logging;
 
 namespace Hainz.Services.Logging;
@@ -77,7 +77,7 @@ public sealed class DiscordChannelLoggerService : IGatewayService
                     }
                     else
                     {
-                        var message = DiscordText.WrapInCode(logMessage, "css");
+                        var message = Format.Code(logMessage, "css");
                         _currentLogMessage = await _logChannel!.SendMessageAsync(message);
                     }
                 }

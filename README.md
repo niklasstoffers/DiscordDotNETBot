@@ -34,6 +34,7 @@ In order for the bot to work you need to provide proper configuration for it. To
 | `Bot.DefaultActivity?`   | The bots default activity.        |
 | `Bot.DefaultActivity?.Name`   | The default activity name.        |
 | `Bot.DefaultActivity?.Type`   | The default activity type. Can be set to `playing`, `listening`, `streaming`, `watching` and `competing`.        |
+| `Server.BotAdminRole?`   | Required role to invoke bot administration commands. If not set, nobody will be able to execute administration commands.        |
 | `Server.Channels.LogChannel?`   | Configuration options for the servers log channel. If enabled the bot will post it's internal log messages here. Useful if you quickly want to find out if something went wrong (especially if the bot is hosted somewhere on a server).        |
 | `Server.Channels.LogChannel?.ChannelId`   | The log channels discord channel id.       |
 | `Server.Channels.LogChannel?.IsEnabled`   | Whether the logging channel feature is enabled or not. Note that per default the discord channel log target is only used if the application is run in the `Production` environment.       |
