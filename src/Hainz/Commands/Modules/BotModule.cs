@@ -2,7 +2,6 @@ using Discord;
 using Discord.Commands;
 using Hainz.Commands.Preconditions;
 using Hainz.Services.Discord;
-using Microsoft.Extensions.Logging;
 
 namespace Hainz.Commands.Modules;
 

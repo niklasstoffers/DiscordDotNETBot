@@ -19,8 +19,12 @@ public class DiscordModule : Module
             .AsSelf()
             .SingleInstance();
 
-        builder.RegisterType<CommandService>()
-               .AsSelf()
-               .SingleInstance();
+        builder.Register(ctx => 
+            new CommandService(new CommandServiceConfig()
+            {
+                DefaultRunMode = RunMode.Async
+            }))
+            .AsSelf()
+            .SingleInstance();
     }
 }
