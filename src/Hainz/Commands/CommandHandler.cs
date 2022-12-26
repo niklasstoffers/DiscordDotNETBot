@@ -1,6 +1,4 @@
 using System.Reflection;
-using AutoMapper;
-using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Hainz.Commands.TypeReaders;
@@ -14,20 +12,20 @@ public sealed class CommandHandler : IGatewayService
 {
     private readonly DiscordSocketClient _client;
     private readonly CommandService _commandService;
+    private readonly IEnumerable<TypeReaderBase> _typeReaders;
     private readonly IServiceProvider _serviceProvider;
-    private readonly IMapper _mapper;
     private readonly ILogger<CommandHandler> _logger;
 
     public CommandHandler(DiscordSocketClient client, 
                           CommandService commands,
+                          IEnumerable<TypeReaderBase> typeReaders,
                           IServiceProvider serviceProvider,
-                          IMapper mapper,
                           ILogger<CommandHandler> logger)
     {
         _client = client;
         _commandService = commands;
+        _typeReaders = typeReaders;
         _serviceProvider = serviceProvider;
-        _mapper = mapper;
         _logger = logger;
     }
     
@@ -50,7 +48,7 @@ public sealed class CommandHandler : IGatewayService
 
     private async Task SetupAsync()
     {
-        _commandService.AddTypeReader<UserStatus>(new UserStatusTypeReader(_mapper));
+        AddTypeReaders();
 
         try 
         {
@@ -61,6 +59,14 @@ public sealed class CommandHandler : IGatewayService
         catch (Exception ex) 
         {
             _logger.LogError(ex, "Error while trying to install commands");
+        }
+    }
+
+    private void AddTypeReaders()
+    {
+        foreach (var typeReader in _typeReaders)
+        {
+            _commandService.AddTypeReader(typeReader.ForType, typeReader);
         }
     }
 
