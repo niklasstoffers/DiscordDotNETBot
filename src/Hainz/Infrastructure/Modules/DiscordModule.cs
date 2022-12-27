@@ -5,7 +5,7 @@ using Discord.WebSocket;
 
 namespace Hainz.Infrastructure.Modules;
 
-public class DiscordModule : Module
+public sealed class DiscordModule : Module
 {
     protected override void Load(ContainerBuilder builder)
     {

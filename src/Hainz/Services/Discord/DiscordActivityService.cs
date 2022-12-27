@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Hainz.Services.Discord;
 
-public class DiscordActivityService
+public sealed class DiscordActivityService
 {
     private readonly DiscordSocketClient _client;
     private readonly ILogger<DiscordActivityService> _logger;

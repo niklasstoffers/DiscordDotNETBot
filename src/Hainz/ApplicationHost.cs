@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Hainz;
 
-public class ApplicationHost : IHostedService
+public sealed class ApplicationHost : IHostedService
 {
     private readonly Bot _bot;
     private readonly IEnumerable<IGatewayServiceHost<IGatewayService>> _gatewayServiceHosts;

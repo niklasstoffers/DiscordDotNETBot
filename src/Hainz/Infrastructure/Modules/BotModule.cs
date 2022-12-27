@@ -2,7 +2,7 @@ using Autofac;
 
 namespace Hainz.Infrastructure.Modules;
 
-public class BotModule : Module 
+public sealed class BotModule : Module 
 {
     protected override void Load(ContainerBuilder builder)
     {

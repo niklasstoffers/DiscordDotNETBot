@@ -5,7 +5,7 @@ using Hainz.Services.Logging;
 
 namespace Hainz.Infrastructure.Modules;
 
-public class GatewayServiceModule : Module 
+public sealed class GatewayServiceModule : Module 
 {
     protected override void Load(ContainerBuilder builder)
     {

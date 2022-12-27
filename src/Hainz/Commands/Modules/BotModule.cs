@@ -7,7 +7,7 @@ namespace Hainz.Commands.Modules;
 
 [RequireOwner(Group = "Permission")]
 [RequireBotAdminPermission(Group = "Permission")]
-public class BotModule : ModuleBase<SocketCommandContext>
+public sealed class BotModule : ModuleBase<SocketCommandContext>
 {
     private readonly DiscordStatusService _statusService;
     private readonly DiscordActivityService _activityService;

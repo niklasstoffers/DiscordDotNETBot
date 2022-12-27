@@ -3,7 +3,7 @@ using Discord.Commands;
 
 namespace Hainz.Commands.Modules;
 
-public class InfoModule : ModuleBase<SocketCommandContext>
+public sealed class InfoModule : ModuleBase<SocketCommandContext>
 {
     [Command("ping")]
     public async Task PingAsync() 

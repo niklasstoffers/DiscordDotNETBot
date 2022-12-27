@@ -4,7 +4,7 @@ using Hainz.Commands.TypeReaders;
 
 namespace Hainz.Infrastructure.Modules;
 
-public class CommandModule : Module 
+public sealed class CommandModule : Module 
 {
     protected override void Load(ContainerBuilder builder)
     {
