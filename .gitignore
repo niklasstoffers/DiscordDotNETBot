@@ -1,4 +1,5 @@
 bin
 obj
+scripts
 .vscode
 .DS_Store
