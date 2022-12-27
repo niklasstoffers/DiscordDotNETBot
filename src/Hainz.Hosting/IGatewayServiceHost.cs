@@ -1,4 +1,4 @@
-namespace Hainz.Core.Services;
+namespace Hainz.Hosting;
 
 public interface IGatewayServiceHost<out TService> where TService : IGatewayService
 {

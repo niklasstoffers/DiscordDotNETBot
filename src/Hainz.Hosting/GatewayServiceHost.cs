@@ -2,7 +2,7 @@ using System.Reflection;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 
-namespace Hainz.Core.Services;
+namespace Hainz.Hosting;
 
 public sealed class GatewayServiceHost<TService> : IGatewayServiceHost<TService> where TService : IGatewayService
 {
@@ -11,8 +11,6 @@ public sealed class GatewayServiceHost<TService> : IGatewayServiceHost<TService>
     private readonly ILogger<GatewayServiceHost<TService>> _logger;
     private readonly string? _serviceName;
     private readonly RequireGatewayConnectionAttribute? _requireGatewayConnectionAttribute;
-    private readonly bool _canServiceRestart;
-    private bool _isFirstStart = true;
     private bool _isServiceRunning = false;
 
     public GatewayServiceHost(DiscordSocketClient client,
@@ -27,12 +25,13 @@ public sealed class GatewayServiceHost<TService> : IGatewayServiceHost<TService>
 
         _serviceName = serviceType.FullName;
         _requireGatewayConnectionAttribute = serviceType.GetCustomAttribute<RequireGatewayConnectionAttribute>();
-        _canServiceRestart = _requireGatewayConnectionAttribute?.AllowRestartAfterReconnecting ?? true;
     }
 
     public async Task StartAsync()
     {
         _logger.LogInformation("Starting service host for service \"{name}\"", _serviceName);
+
+        await SetupServiceAsync();
 
         if (_requireGatewayConnectionAttribute == null)
         {
@@ -57,18 +56,32 @@ public sealed class GatewayServiceHost<TService> : IGatewayServiceHost<TService>
         }
     }
 
+    private async Task<bool> SetupServiceAsync()
+    {
+        try
+        {
+            _logger.LogInformation("Setting up service \"{name}\"", _serviceName);
+            await _service.SetupAsync();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error while setting up service \"{name}\"", _serviceName);
+            return false;
+        }
+    }
+
     private async Task StartServiceAsync()
     {
-        if (_isServiceRunning || !(_isFirstStart || _canServiceRestart))
+        if (_isServiceRunning)
             return;
 
         try 
         {
             _logger.LogInformation("Starting service \"{name}\"", _serviceName);
-            await _service.StartAsync(!_isFirstStart);
+            await _service.StartAsync();
             
             _isServiceRunning = true;
-            _isFirstStart = false;
         }
         catch (Exception ex) 
         {

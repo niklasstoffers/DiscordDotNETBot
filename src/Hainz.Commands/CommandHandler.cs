@@ -2,14 +2,14 @@ using System.Reflection;
 using Discord.Commands;
 using Discord.WebSocket;
 using Hainz.Commands.TypeReaders;
-using Hainz.Core.Services;
 using Hainz.Events.Notifications.Messages;
+using Hainz.Hosting;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Hainz.Commands;
 
-public sealed class CommandHandler : INotificationHandler<MessageReceived>, IGatewayService
+public sealed class CommandHandler : GatewayServiceBase, INotificationHandler<MessageReceived>
 {
     private readonly DiscordSocketClient _client;
     private readonly CommandService _commandService;
@@ -29,35 +29,21 @@ public sealed class CommandHandler : INotificationHandler<MessageReceived>, IGat
         _serviceProvider = serviceProvider;
         _logger = logger;
     }
-    
-    public async Task StartAsync(bool isRestart)
-    {
-        _logger.LogInformation("Starting CommandHandler...");
 
-        if (!isRestart)
-            await SetupAsync();
-    }
-
-    public Task StopAsync()
-    {
-        _logger.LogInformation("Stopping CommandHandler...");
-        return Task.CompletedTask;
-    }
-
-    private async Task SetupAsync()
+    public override async Task SetupAsync()
     {
         _logger.LogTrace("Adding type readers");
         AddTypeReaders();
 
         try 
         {
-            _logger.LogTrace("Installing Command Modules");
+            _logger.LogTrace("Adding command modules");
             await _commandService.AddModulesAsync(assembly: Assembly.GetExecutingAssembly(), 
                                                   services: _serviceProvider);
         }
         catch (Exception ex) 
         {
-            _logger.LogError(ex, "Error while trying to install commands");
+            _logger.LogError(ex, "Error while trying to add command modules");
         }
     }
 

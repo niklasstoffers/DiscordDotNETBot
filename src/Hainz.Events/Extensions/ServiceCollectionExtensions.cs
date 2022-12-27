@@ -1,6 +1,7 @@
 using Hainz.Events.NotificationSources.Commands;
 using Hainz.Events.NotificationSources.Connection;
 using Hainz.Events.NotificationSources.Messages;
+using Hainz.Hosting.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Hainz.Events.Extensions;
@@ -17,7 +18,7 @@ public static class ServiceCollectionExtensions
         serviceCollection.AddSingleton<INotificationSource, NotificationSources.Logs.LogNotificationSource>();
         serviceCollection.AddSingleton<INotificationSource, MessageReceivedNotificationSource>();
 
-        serviceCollection.AddSingleton<IEventListener, EventListener>();
+        serviceCollection.AddGatewayService<EventListener>();
 
         return serviceCollection;
     }

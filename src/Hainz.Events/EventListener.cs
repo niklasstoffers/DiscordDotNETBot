@@ -1,6 +1,8 @@
+using Hainz.Hosting;
+
 namespace Hainz.Events;
 
-public class EventListener : IEventListener
+public class EventListener : GatewayServiceBase
 {
     private readonly IEnumerable<INotificationSource> _notificationSources;
 
@@ -9,13 +11,13 @@ public class EventListener : IEventListener
         _notificationSources = notificationSources;
     }
 
-    public async Task StartAsync()
+    public override async Task StartAsync()
     {
         foreach (var notificationSource in _notificationSources)
             await notificationSource.RegisterAsync();
     }
 
-    public async Task StopAsync()
+    public override async Task StopAsync()
     {
         foreach (var notificationSource in _notificationSources)
             await notificationSource.DeregisterAsync();

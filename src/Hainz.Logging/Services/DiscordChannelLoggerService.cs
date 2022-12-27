@@ -4,13 +4,13 @@ using Discord.Rest;
 using Discord.WebSocket;
 using Hainz.Core.Config.Server;
 using Hainz.Core.Config.Server.Channels;
-using Hainz.Core.Services;
+using Hainz.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Hainz.Logging.Services;
 
-[RequireGatewayConnection(AllowRestartAfterReconnecting = true)]
-public sealed class DiscordChannelLoggerService : IGatewayService
+[RequireGatewayConnection]
+public sealed class DiscordChannelLoggerService : GatewayServiceBase
 {
     private readonly BufferBlock<string> _logQueue;
     private readonly DiscordSocketClient _client;
@@ -35,7 +35,7 @@ public sealed class DiscordChannelLoggerService : IGatewayService
 
     public void LogMessage(string logEvent) => _logQueue.Post(logEvent);
 
-    public async Task StartAsync(bool isRestart) 
+    public override async Task StartAsync() 
     {
         _logger.LogInformation("Starting DiscordChannelLoggerService");
 
@@ -49,15 +49,13 @@ public sealed class DiscordChannelLoggerService : IGatewayService
             }
             else 
             {
-                if (!isRestart)
-                    _currentLogMessage = null;
                 _stopCTS = new();
                 _loggerTask = Task.Run(async () => await LogWriterAsync(_stopCTS.Token));
             }
         }
     }
 
-    public async Task StopAsync() 
+    public override async Task StopAsync() 
     {
         _logger.LogInformation("Stopping DiscordChannelLoggerService");
         _stopCTS.Cancel();
