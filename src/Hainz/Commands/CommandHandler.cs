@@ -48,6 +48,7 @@ public sealed class CommandHandler : IGatewayService
 
     private async Task SetupAsync()
     {
+        _logger.LogTrace("Adding type readers");
         AddTypeReaders();
 
         try 

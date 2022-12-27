@@ -5,7 +5,8 @@ using Hainz.Services.Discord;
 
 namespace Hainz.Commands.Modules;
 
-[RequireBotAdminPermission]
+[RequireOwner(Group = "Permission")]
+[RequireBotAdminPermission(Group = "Permission")]
 public class BotModule : ModuleBase<SocketCommandContext>
 {
     private readonly DiscordStatusService _statusService;
