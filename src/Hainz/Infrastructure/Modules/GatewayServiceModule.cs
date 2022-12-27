@@ -1,7 +1,7 @@
 using Autofac;
 using Hainz.Commands;
-using Hainz.Services;
-using Hainz.Services.Logging;
+using Hainz.Core.Services;
+using Hainz.Core.Services.Logging;
 
 namespace Hainz.Infrastructure.Modules;
 
@@ -20,9 +20,5 @@ public sealed class GatewayServiceModule : Module
         builder.RegisterType<GatewayServiceHost<DiscordLogAdapterService>>()
                .As<IGatewayServiceHost<IGatewayService>>()
                .SingleInstance();
-
-       builder.RegisterType<GatewayServiceHost<CommandPostExecutionHandler>>()
-              .As<IGatewayServiceHost<IGatewayService>>()
-              .SingleInstance();
     }
 }

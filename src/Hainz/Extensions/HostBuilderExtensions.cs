@@ -2,6 +2,8 @@ using System.Reflection;
 using Autofac;
 using FluentValidation;
 using Hainz.Config.Validation;
+using Hainz.Events.Extensions;
+using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -76,6 +78,27 @@ public static class HostBuilderExtensions
         {
             var currentAssembly = Assembly.GetExecutingAssembly();
             serviceCollection.AddAutoMapper(currentAssembly);
+        });
+
+        return hostBuilder;
+    }
+
+    public static IHostBuilder AddMediatR(this IHostBuilder hostBuilder)
+    {
+        hostBuilder.ConfigureServices((hostBuilder, serviceCollection) =>
+        {
+            var currentAssembly = Assembly.GetExecutingAssembly();
+            serviceCollection.AddMediatR(currentAssembly);
+        });
+
+        return hostBuilder;
+    }
+
+    public static IHostBuilder AddEvents(this IHostBuilder hostBuilder)
+    {
+        hostBuilder.ConfigureServices((hostBuilder, serviceCollection) =>
+        {
+            serviceCollection.AddEvents();
         });
 
         return hostBuilder;

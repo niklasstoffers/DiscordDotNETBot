@@ -20,6 +20,8 @@ try
         .AddNLogConfiguration()
         .AddApplicationConfiguration()
         .AddAutoMapper()
+        .AddMediatR()
+        .AddEvents()
         .AddApplicationHost()
         .Build();
 

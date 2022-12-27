@@ -1,7 +1,7 @@
 using Discord;
 using Discord.WebSocket;
-using Hainz.Config.Bot;
-using Hainz.Services.Discord;
+using Hainz.Core.Config.Bot;
+using Hainz.Core.Services.Discord;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 

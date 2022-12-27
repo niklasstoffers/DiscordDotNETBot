@@ -1,7 +1,7 @@
 using Autofac;
-using Hainz.Services;
-using Hainz.Services.Discord;
-using Hainz.Services.Logging;
+using Hainz.Core.Services;
+using Hainz.Core.Services.Discord;
+using Hainz.Core.Services.Logging;
 
 namespace Hainz.Infrastructure.Modules;
 

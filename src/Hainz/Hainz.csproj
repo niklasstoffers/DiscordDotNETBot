@@ -34,6 +34,10 @@
 
   <ItemGroup>
     <ProjectReference Include="../Hainz.Common/Hainz.Common.csproj" />
+    <ProjectReference Include="../Hainz.Core/Hainz.Core.csproj" />
+    <ProjectReference Include="../Hainz.Events/Hainz.Events.csproj" />
+    <ProjectReference Include="../Hainz.Commands/Hainz.Commands.csproj" />
+    <ProjectReference Include="../Hainz.Logging/Hainz.Logging.csproj" />
   </ItemGroup>
 
 </Project>
