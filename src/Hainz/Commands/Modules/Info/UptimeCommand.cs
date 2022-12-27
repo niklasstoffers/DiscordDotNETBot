@@ -1,16 +1,10 @@
 using System.Diagnostics;
 using Discord.Commands;
 
-namespace Hainz.Commands.Modules;
+namespace Hainz.Commands.Modules.Info;
 
-public sealed class InfoModule : ModuleBase<SocketCommandContext>
+public sealed class UptimeCommand : InfoCommandBase
 {
-    [Command("ping")]
-    public async Task PingAsync() 
-    {
-        await Context.Channel.SendMessageAsync("pong");
-    }
-
     [Command("uptime")]
     public async Task UptimeAsync() 
     {
