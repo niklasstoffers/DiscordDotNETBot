@@ -1,5 +1,6 @@
 using Discord;
 using Discord.Commands;
+using Hainz.Commands.Metadata;
 using Hainz.Core.Services.Discord;
 
 namespace Hainz.Commands.Modules.Bot;
@@ -14,7 +15,8 @@ public sealed class SetStatusCommand : BotCommandBase
     }
 
     [Command("setstatus")]
-    public async Task SetStatusAsync(UserStatus status) 
+    [Summary("Sets the bots status")]
+    public async Task SetStatusAsync([CommandParameter(CommandParameterType.UserStatus, "status", "The status")]UserStatus status) 
     {
         if (await _statusService.SetStatusAsync(status)) 
         {

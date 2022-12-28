@@ -1,6 +1,7 @@
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Hainz.Commands.Metadata;
 using Hainz.Commands.Modules.Admin.Parameters;
 using Hainz.Commands.Preconditions;
 using Hainz.Core.Services.User;
@@ -19,7 +20,9 @@ public sealed class BanCommand : AdminCommandBase
     }
 
     [Command("ban")]
-    public async Task BanAsync([NotSelfInvokable] ulong userId, BanOptionsParameter? options = null)
+    [Summary("Bans the specified user from the Discord Server using the users id")]
+    [Remarks("This command cannot be invoked on oneself")]
+    public async Task BanAsync([NotSelfInvokable, CommandParameter(CommandParameterType.Id, "user id", "Id of the user to ban")] ulong userId, BanOptionsParameter? options = null)
     {
         if (await _banService.BanAsync(Context.Guild, userId, options?.Reason, options?.PruneDays))
         {
@@ -32,7 +35,9 @@ public sealed class BanCommand : AdminCommandBase
     }
 
     [Command("ban")]
-    public async Task BanAsync([NotSelfInvokable] SocketGuildUser user, BanOptionsParameter? options = null)
+    [Summary("Bans the specified user from the Discord Server using the users mention")]
+    [Remarks("This command cannot be invoked on oneself")]
+    public async Task BanAsync([NotSelfInvokable, CommandParameter(CommandParameterType.Mention, "user", "Mention of the user to ban")] SocketGuildUser user, BanOptionsParameter? options = null)
     {
         if (await _banService.BanAsync(user, options?.Reason, options?.PruneDays))
         {

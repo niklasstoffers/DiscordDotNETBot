@@ -1,4 +1,5 @@
 using Discord.Commands;
+using Hainz.Commands.Metadata;
 using Hainz.Core.Services.Discord;
 
 namespace Hainz.Commands.Modules.Bot;
@@ -13,7 +14,8 @@ public sealed class SetGameCommand : BotCommandBase
     }
 
     [Command("setgame")]
-    public async Task SetGameAsync([Remainder]string game) 
+    [Summary("Sets the status game of the bot")]
+    public async Task SetGameAsync([Remainder, CommandParameter(CommandParameterType.Text, "game", "The games name")] string game) 
     {
         if (await _activityService.SetGameAsync(game))
         {
