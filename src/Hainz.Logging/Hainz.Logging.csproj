@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Discord.Net" Version="3.9.0" />
+    <PackageReference Include="NLog" Version="5.1.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Hainz.Hosting/Hainz.Hosting.csproj" />
+    <ProjectReference Include="../Hainz.Core/Hainz.Core.csproj" />
+    <ProjectReference Include="../Hainz.Events/Hainz.Events.csproj" />
+    <ProjectReference Include="../Hainz.Common/Hainz.Common.csproj" />
+  </ItemGroup>
+
+</Project>

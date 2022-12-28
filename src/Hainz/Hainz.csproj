@@ -24,6 +24,8 @@
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
     <PackageReference Include="FluentValidation" Version="11.4.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.0" />
+    <PackageReference Include="MediatR" Version="11.1.0" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
@@ -32,6 +34,11 @@
 
   <ItemGroup>
     <ProjectReference Include="../Hainz.Common/Hainz.Common.csproj" />
+    <ProjectReference Include="../Hainz.Core/Hainz.Core.csproj" />
+    <ProjectReference Include="../Hainz.Events/Hainz.Events.csproj" />
+    <ProjectReference Include="../Hainz.Commands/Hainz.Commands.csproj" />
+    <ProjectReference Include="../Hainz.Logging/Hainz.Logging.csproj" />
+    <ProjectReference Include="../Hainz.Hosting/Hainz.Hosting.csproj" />
   </ItemGroup>
 
 </Project>

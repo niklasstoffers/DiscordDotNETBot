@@ -1,7 +1,7 @@
 ﻿using Autofac.Extensions.DependencyInjection;
 using Hainz.Extensions;
 using Hainz.Infrastructure;
-using Hainz.Logging;
+using Hainz.Logging.NLog;
 using Microsoft.Extensions.Hosting;
 
 var environment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Production";
@@ -10,23 +10,27 @@ var rootLogger = startupEnvironment.Logger;
 
 try
 {
+    rootLogger.Info("Starting host building");
     var host = new HostBuilder()
         .UseConsoleLifetime()
         .UseEnvironment(environment)
         .UseContentRoot(AppDomain.CurrentDomain.BaseDirectory)
         .UseServiceProviderFactory(new AutofacServiceProviderFactory())
-        .RegisterAutofacServices()
+        .AddServices()
         .AddAppSettings(false)
-        .AddNLogConfiguration()
+        .AddNLog()
         .AddApplicationConfiguration()
-        .AddAutoMapper()
         .AddApplicationHost()
         .Build();
 
+    rootLogger.Info("Host building complete");
+
+    rootLogger.Info("Reloading NLog with host service provider");
     NLogServiceProviderConfigurator.ReloadConfigWithServiceProvider(host.Services);
 
     try 
     {
+        rootLogger.Info("Starting host");
         await host.RunAsync();
     }
     catch (Exception ex)

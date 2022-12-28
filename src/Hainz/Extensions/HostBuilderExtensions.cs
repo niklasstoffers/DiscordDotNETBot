@@ -1,7 +1,12 @@
-using System.Reflection;
-using Autofac;
+using Discord;
+using Discord.WebSocket;
 using FluentValidation;
-using Hainz.Config.Validation;
+using Hainz.Commands.Extensions;
+using Hainz.Core.Extensions;
+using Hainz.Core.Validation.Configuration;
+using Hainz.Events.Extensions;
+using Hainz.Logging.Extensions;
+using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -12,7 +17,7 @@ namespace Hainz.Extensions;
 
 public static class HostBuilderExtensions
 {
-    public static IHostBuilder AddNLogConfiguration(this IHostBuilder hostBuilder)
+    public static IHostBuilder AddNLog(this IHostBuilder hostBuilder)
     {
         hostBuilder.ConfigureLogging((hostBuilderContext, loggingBuilder) => 
         {
@@ -27,17 +32,6 @@ public static class HostBuilderExtensions
             {
                 loggingBuilder.AddNLog("nlog.release.config");
             }
-        });
-
-        return hostBuilder;
-    }
-
-    public static IHostBuilder RegisterAutofacServices(this IHostBuilder hostBuilder) 
-    {
-        hostBuilder.ConfigureContainer<ContainerBuilder>((hostContext, containerBuilder) => 
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-            containerBuilder.RegisterAssemblyModules(assembly);
         });
 
         return hostBuilder;
@@ -70,12 +64,25 @@ public static class HostBuilderExtensions
         return hostBuilder;
     }
 
-    public static IHostBuilder AddAutoMapper(this IHostBuilder hostBuilder)
+    public static IHostBuilder AddServices(this IHostBuilder hostBuilder)
     {
         hostBuilder.ConfigureServices((hostBuilder, serviceCollection) =>
         {
-            var currentAssembly = Assembly.GetExecutingAssembly();
-            serviceCollection.AddAutoMapper(currentAssembly);
+            serviceCollection.AddEvents();
+            serviceCollection.AddCore();
+            serviceCollection.AddLoggingServices();
+            serviceCollection.AddCommands();
+
+            serviceCollection.AddSingleton(new DiscordSocketClient(new DiscordSocketConfig()
+            {
+                GatewayIntents = (GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent)
+                              & ~(GatewayIntents.GuildInvites | GatewayIntents.GuildScheduledEvents)
+            }));
+
+            serviceCollection.AddAutoMapper(typeof(Core.Extensions.ServiceCollectionExtensions));
+            serviceCollection.AddMediatR(typeof(Commands.Extensions.ServiceCollectionExtensions),
+                                         typeof(Core.Extensions.ServiceCollectionExtensions),
+                                         typeof(Logging.Extensions.ServiceCollectionExtensions));
         });
 
         return hostBuilder;

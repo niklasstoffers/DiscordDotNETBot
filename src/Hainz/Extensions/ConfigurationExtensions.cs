@@ -1,6 +1,6 @@
 using Hainz.Config;
-using Hainz.Config.Bot;
-using Hainz.Config.Server;
+using Hainz.Core.Config.Bot;
+using Hainz.Core.Config.Server;
 using Microsoft.Extensions.Configuration;
 
 namespace Hainz.Extensions;
