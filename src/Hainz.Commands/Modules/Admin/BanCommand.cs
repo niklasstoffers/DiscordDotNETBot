@@ -1,6 +1,8 @@
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Hainz.Commands.Modules.Admin.Parameters;
+using Hainz.Commands.Preconditions;
 using Hainz.Core.Services.User;
 
 namespace Hainz.Commands.Modules.Admin;
@@ -17,9 +19,9 @@ public sealed class BanCommand : AdminCommandBase
     }
 
     [Command("ban")]
-    public async Task BanAsync(ulong userId)
+    public async Task BanAsync([NotSelfInvokable] ulong userId, BanOptionsParameter? options = null)
     {
-        if (await _banService.BanAsync(Context.Guild, userId))
+        if (await _banService.BanAsync(Context.Guild, userId, options?.Reason, options?.PruneDays))
         {
             await Context.Channel.SendMessageAsync($"Banned user with id {userId}");
         }
@@ -30,9 +32,9 @@ public sealed class BanCommand : AdminCommandBase
     }
 
     [Command("ban")]
-    public async Task BanAsync(SocketGuildUser user)
+    public async Task BanAsync([NotSelfInvokable] SocketGuildUser user, BanOptionsParameter? options = null)
     {
-        if (await _banService.BanAsync(user))
+        if (await _banService.BanAsync(user, options?.Reason, options?.PruneDays))
         {
             await Context.Channel.SendMessageAsync($"Banned user {user.Mention}");
         }

@@ -53,12 +53,14 @@ public static class HostBuilderExtensions
         {
             var botConfiguration = hostBuilder.Configuration.GetBotConfiguration();
             var serverConfiguration = hostBuilder.Configuration.GetServerConfiguration();
+            var botOptionsConfiguration = hostBuilder.Configuration.GetBotOptionsConfiguration();
 
-            var botConfigurationValidator = new BotConfigValidator();
-            botConfigurationValidator.ValidateAndThrow(botConfiguration);
+            new BotConfigValidator().ValidateAndThrow(botConfiguration);
+            new BotOptionsConfigValidator().ValidateAndThrow(botOptionsConfiguration);
 
             serviceCollection.AddSingleton(botConfiguration);
             serviceCollection.AddSingleton(serverConfiguration);
+            serviceCollection.AddSingleton(botOptionsConfiguration);
         });
 
         return hostBuilder;

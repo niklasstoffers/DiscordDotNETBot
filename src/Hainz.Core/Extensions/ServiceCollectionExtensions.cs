@@ -13,6 +13,7 @@ public static class ServiceCollectionExtensions
         serviceCollection.AddTransient<DiscordActivityService>();
         serviceCollection.AddTransient<DiscordStatusService>();
         serviceCollection.AddTransient<BanService>();
+        serviceCollection.AddTransient<DMService>();
 
         serviceCollection.AddSingleton<DefaultStatusService>();
         serviceCollection.AddGatewayService<GatewayConnectionService>();
