@@ -10,7 +10,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddLoggingServices(this IServiceCollection serviceCollection)
     {
         serviceCollection.AddGatewayService<DiscordChannelLoggerService>();
-        serviceCollection.AddTransient<DiscordLogAdapterService>();
+        serviceCollection.AddSingleton<DiscordLogAdapterService>();
         serviceCollection.AddSingleton<DiscordChannelLogTarget>();
 
         return serviceCollection;

@@ -81,7 +81,8 @@ public static class HostBuilderExtensions
 
             serviceCollection.AddAutoMapper(typeof(Core.Extensions.ServiceCollectionExtensions));
             serviceCollection.AddMediatR(typeof(Commands.Extensions.ServiceCollectionExtensions),
-                                         typeof(Core.Extensions.ServiceCollectionExtensions));
+                                         typeof(Core.Extensions.ServiceCollectionExtensions),
+                                         typeof(Logging.Extensions.ServiceCollectionExtensions));
         });
 
         return hostBuilder;

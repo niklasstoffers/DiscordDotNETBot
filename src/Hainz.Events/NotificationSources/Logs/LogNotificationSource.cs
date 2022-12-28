@@ -1,6 +1,6 @@
 using Discord;
 using Discord.WebSocket;
-using Hainz.Events.Notifications.Commands;
+using Hainz.Events.Notifications.Logs;
 using MediatR;
 
 namespace Hainz.Events.NotificationSources.Logs;
