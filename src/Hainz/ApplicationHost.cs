@@ -6,15 +6,12 @@ namespace Hainz;
 
 public sealed class ApplicationHost : IHostedService
 {
-    private readonly Bot _bot;
     private readonly IEnumerable<IGatewayServiceHost<IGatewayService>> _gatewayServiceHosts;
     private readonly ILogger<ApplicationHost> _logger;
 
-    public ApplicationHost(Bot bot,
-                           IEnumerable<IGatewayServiceHost<IGatewayService>> gatewayServiceHosts,
+    public ApplicationHost(IEnumerable<IGatewayServiceHost<IGatewayService>> gatewayServiceHosts,
                            ILogger<ApplicationHost> logger)
     {
-        _bot = bot;
         _gatewayServiceHosts = gatewayServiceHosts;
         _logger = logger;
     }
@@ -22,9 +19,6 @@ public sealed class ApplicationHost : IHostedService
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("Starting application host");
-
-        await _bot.StartAsync(cancellationToken);
-        cancellationToken.ThrowIfCancellationRequested();
 
         foreach (var serviceHost in _gatewayServiceHosts) 
         {
@@ -43,7 +37,6 @@ public sealed class ApplicationHost : IHostedService
             await serviceHost.StopAsync();
         }
 
-        await _bot.StopAsync(cancellationToken);
         _logger.LogInformation("Application host stopped");
     }
 }

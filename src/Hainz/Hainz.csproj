@@ -38,6 +38,7 @@
     <ProjectReference Include="../Hainz.Events/Hainz.Events.csproj" />
     <ProjectReference Include="../Hainz.Commands/Hainz.Commands.csproj" />
     <ProjectReference Include="../Hainz.Logging/Hainz.Logging.csproj" />
+    <ProjectReference Include="../Hainz.Hosting/Hainz.Hosting.csproj" />
   </ItemGroup>
 
 </Project>

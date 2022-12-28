@@ -73,7 +73,6 @@ public static class HostBuilderExtensions
             serviceCollection.AddLoggingServices();
             serviceCollection.AddCommands();
 
-            serviceCollection.AddSingleton<Bot>();
             serviceCollection.AddSingleton(new DiscordSocketClient(new DiscordSocketConfig()
             {
                 GatewayIntents = (GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent)
@@ -81,7 +80,8 @@ public static class HostBuilderExtensions
             }));
 
             serviceCollection.AddAutoMapper(typeof(Core.Extensions.ServiceCollectionExtensions));
-            serviceCollection.AddMediatR(typeof(Commands.Extensions.ServiceCollectionExtensions));
+            serviceCollection.AddMediatR(typeof(Commands.Extensions.ServiceCollectionExtensions),
+                                         typeof(Core.Extensions.ServiceCollectionExtensions));
         });
 
         return hostBuilder;
