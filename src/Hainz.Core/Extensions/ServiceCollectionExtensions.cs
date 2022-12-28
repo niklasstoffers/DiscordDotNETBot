@@ -1,5 +1,6 @@
 using Hainz.Core.Services.Bot;
 using Hainz.Core.Services.Discord;
+using Hainz.Core.Services.User;
 using Hainz.Hosting.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,8 +12,10 @@ public static class ServiceCollectionExtensions
     {
         serviceCollection.AddTransient<DiscordActivityService>();
         serviceCollection.AddTransient<DiscordStatusService>();
-        serviceCollection.AddSingleton<DefaultStatusService>();
+        serviceCollection.AddTransient<BanService>();
+        serviceCollection.AddTransient<DMService>();
 
+        serviceCollection.AddSingleton<DefaultStatusService>();
         serviceCollection.AddGatewayService<GatewayConnectionService>();
 
         return serviceCollection;
