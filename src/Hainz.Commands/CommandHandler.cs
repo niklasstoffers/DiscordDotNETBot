@@ -51,6 +51,7 @@ public sealed class CommandHandler : GatewayServiceBase, INotificationHandler<Me
     {
         foreach (var typeReader in _typeReaders)
         {
+            _logger.LogTrace("Adding type reader {name} for type {type}", typeReader.GetType().FullName, typeReader.ForType.FullName);
             _commandService.AddTypeReader(typeReader.ForType, typeReader);
         }
     }
@@ -58,6 +59,8 @@ public sealed class CommandHandler : GatewayServiceBase, INotificationHandler<Me
     public async Task Handle(MessageReceived notification, CancellationToken cancellationToken)
     {
         var message = notification.Message;
+        _logger.LogTrace("Received message \"{message}\" from \"{user}\"", message.Content, message.Author.Username);
+
         if (message is not SocketUserMessage userMessage)
             return;
 
@@ -73,6 +76,7 @@ public sealed class CommandHandler : GatewayServiceBase, INotificationHandler<Me
 
         try 
         {
+            _logger.LogTrace("Executing command");
             await _commandService.ExecuteAsync(
                 context: context, 
                 argPos: argPos,

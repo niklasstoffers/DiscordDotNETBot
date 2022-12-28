@@ -39,5 +39,9 @@ public sealed class CommandPostExecutionHandler : INotificationHandler<CommandEx
             if (response != null)
                 await commandContext.Channel.SendMessageAsync(response);
         }
+        else
+        {
+            _logger.LogInformation("Command execution successfull");
+        }
     }
 }

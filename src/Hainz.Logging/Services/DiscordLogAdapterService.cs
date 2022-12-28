@@ -7,15 +7,19 @@ namespace Hainz.Logging.Services;
 
 public sealed class DiscordLogAdapterService : INotificationHandler<Log>
 {
+    private readonly ILogger<DiscordLogAdapterService> _adapterLogger;
     private readonly ILogger<DiscordLogSource> _discordLogger;
 
-    public DiscordLogAdapterService(ILogger<DiscordLogSource> discordLogger)
+    public DiscordLogAdapterService(ILogger<DiscordLogAdapterService> adapterLogger,
+                                    ILogger<DiscordLogSource> discordLogger)
     {
+        _adapterLogger = adapterLogger;
         _discordLogger = discordLogger;
     }
 
     public Task Handle(Log notification, CancellationToken cancellationToken)
     {
+        _adapterLogger.LogTrace("Received log message from discord");
         var message = notification.Message;
 
         var logLevel = message.Severity switch 

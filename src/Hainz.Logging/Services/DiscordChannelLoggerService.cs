@@ -49,9 +49,14 @@ public sealed class DiscordChannelLoggerService : GatewayServiceBase
             }
             else 
             {
+                _logger.LogInformation("Starting channel logger task");
                 _stopCTS = new();
                 _loggerTask = Task.Run(async () => await LogWriterAsync(_stopCTS.Token));
             }
+        }
+        else
+        {
+            _logger.LogInformation("Discord channel logging is disabled");
         }
     }
 
