@@ -75,7 +75,7 @@ public static class HostBuilderExtensions
 
             serviceCollection.AddSingleton(new DiscordSocketClient(new DiscordSocketConfig()
             {
-                GatewayIntents = (GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent)
+                GatewayIntents = (GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent | GatewayIntents.GuildMembers | GatewayIntents.GuildPresences)
                               & ~(GatewayIntents.GuildInvites | GatewayIntents.GuildScheduledEvents)
             }));
 
