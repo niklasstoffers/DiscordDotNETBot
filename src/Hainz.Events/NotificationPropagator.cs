@@ -3,13 +3,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Hainz.Events;
 
-public class EventListener : GatewayServiceBase
+public class NotificationPropagator : GatewayServiceBase
 {
     private readonly IEnumerable<INotificationSource> _notificationSources;
-    private readonly ILogger<EventListener> _logger;
+    private readonly ILogger<NotificationPropagator> _logger;
 
-    public EventListener(IEnumerable<INotificationSource> notificationSources,
-                         ILogger<EventListener> logger)
+    public NotificationPropagator(IEnumerable<INotificationSource> notificationSources,
+                                  ILogger<NotificationPropagator> logger)
     {
         _logger = logger;
         _notificationSources = notificationSources;

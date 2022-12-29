@@ -3,6 +3,7 @@ using Hainz.Extensions;
 using Hainz.Infrastructure;
 using Hainz.Infrastructure.Logging;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 var environment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Production";
 var startupEnvironment = new StartupEnvironment(environment);
@@ -10,7 +11,7 @@ var rootLogger = startupEnvironment.Logger;
 
 try
 {
-    rootLogger.Info("Starting host building");
+    rootLogger.LogInformation("Starting host building");
     var host = new HostBuilder()
         .UseConsoleLifetime()
         .UseEnvironment(environment)
@@ -22,22 +23,20 @@ try
         .AddApplicationHost()
         .Build();
 
-    rootLogger.Info("Host building complete");
-
-    rootLogger.Info("Reloading NLog with host service provider");
-    NLogServiceProviderConfigurator.ReloadConfigWithServiceProvider(host.Services);
+    rootLogger.LogInformation("Reloading logging with host service provider");
+    LoggingServiceProviderConfigurator.ReloadConfigWithServiceProvider(host.Services);
 
     try 
     {
-        rootLogger.Info("Starting host");
+        rootLogger.LogInformation("Starting host");
         await host.RunAsync();
     }
     catch (Exception ex)
     {
-        rootLogger.Fatal(ex, "Error occured during host execution");
+        rootLogger.LogCritical(ex, "Error occured during host execution");
     }
 }
 catch (Exception ex) 
 {
-    rootLogger.Fatal(ex, "Error occured during host building");
+    rootLogger.LogCritical(ex, "Error occured during host building");
 }

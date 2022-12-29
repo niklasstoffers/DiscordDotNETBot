@@ -18,7 +18,7 @@ public static class ServiceCollectionExtensions
         serviceCollection.AddSingleton<INotificationSource, NotificationSources.Logs.LogNotificationSource>();
         serviceCollection.AddSingleton<INotificationSource, MessageReceivedNotificationSource>();
 
-        serviceCollection.AddGatewayService<EventListener>();
+        serviceCollection.AddGatewayService<NotificationPropagator>();
 
         return serviceCollection;
     }

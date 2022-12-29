@@ -1,7 +1,5 @@
-using FluentValidation;
 using Hainz.Commands.Extensions;
 using Hainz.Core.Extensions;
-using Hainz.Core.Validation.Configuration;
 using Hainz.Events.Extensions;
 using Hainz.Infrastructure.Extensions;
 using Microsoft.Extensions.Configuration;
@@ -30,12 +28,9 @@ public static class HostBuilderExtensions
             var serverConfiguration = hostBuilder.Configuration.GetServerConfiguration();
             var botOptionsConfiguration = hostBuilder.Configuration.GetBotOptionsConfiguration();
 
-            new BotConfigValidator().ValidateAndThrow(botConfiguration);
-            new BotOptionsConfigValidator().ValidateAndThrow(botOptionsConfiguration);
-
-            serviceCollection.AddSingleton(botConfiguration);
-            serviceCollection.AddSingleton(serverConfiguration);
-            serviceCollection.AddSingleton(botOptionsConfiguration);
+            serviceCollection.AddCoreConfiguration(botConfiguration, 
+                botOptionsConfiguration, 
+                serverConfiguration);
         });
 
         return hostBuilder;
@@ -43,6 +38,8 @@ public static class HostBuilderExtensions
 
     public static IHostBuilder AddServices(this IHostBuilder hostBuilder)
     {
+        hostBuilder.AddInfrastructure();
+
         hostBuilder.ConfigureServices((hostBuilder, serviceCollection) =>
         {
             serviceCollection.AddEvents();

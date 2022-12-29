@@ -1,6 +1,8 @@
+using System.Reflection;
 using Discord.Commands;
 using Hainz.Commands.TypeReaders;
 using Hainz.Hosting.Extensions;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Hainz.Commands.Extensions;
@@ -19,6 +21,9 @@ public static class ServiceCollectionExtensions
         serviceCollection.AddTransient<TypeReaderBase, UserStatusTypeReader>();
 
         serviceCollection.AddGatewayService<CommandHandler>();
+
+        var currentAssembly = Assembly.GetExecutingAssembly();
+        serviceCollection.AddMediatR(currentAssembly);
 
         return serviceCollection;
     }
