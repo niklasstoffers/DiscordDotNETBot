@@ -2,9 +2,10 @@ using Discord;
 using Discord.WebSocket;
 using Hainz.Common.Helpers;
 using Hainz.Core.Config.BotOptions;
+using Hainz.Core.Services.Messages;
 using Microsoft.Extensions.Logging;
 
-namespace Hainz.Core.Services.User;
+namespace Hainz.Core.Services.Guild;
 
 public sealed class BanService
 {

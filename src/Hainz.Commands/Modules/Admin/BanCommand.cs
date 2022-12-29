@@ -4,7 +4,7 @@ using Discord.WebSocket;
 using Hainz.Commands.Metadata;
 using Hainz.Commands.Modules.Admin.Parameters;
 using Hainz.Commands.Preconditions;
-using Hainz.Core.Services.User;
+using Hainz.Core.Services.Guild;
 
 namespace Hainz.Commands.Modules.Admin;
 

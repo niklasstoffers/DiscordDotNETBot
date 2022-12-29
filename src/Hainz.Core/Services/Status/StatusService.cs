@@ -2,15 +2,15 @@ using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 
-namespace Hainz.Core.Services.Discord;
+namespace Hainz.Core.Services.Status;
 
-public sealed class DiscordStatusService 
+public sealed class StatusService 
 {
     private readonly DiscordSocketClient _client;
-    private readonly ILogger<DiscordStatusService> _logger;
+    private readonly ILogger<StatusService> _logger;
 
-    public DiscordStatusService(DiscordSocketClient client,
-                                ILogger<DiscordStatusService> logger)
+    public StatusService(DiscordSocketClient client,
+                         ILogger<StatusService> logger)
     {
         _client = client;
         _logger = logger;

@@ -9,7 +9,7 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddCommands(this IServiceCollection serviceCollection)
     {
-        serviceCollection.AddSingleton<CommandPostExecutionHandler>();
+        serviceCollection.AddTransient<CommandPostExecutionHandler>();
         serviceCollection.AddSingleton(new CommandService(new CommandServiceConfig()
         {
             DefaultRunMode = RunMode.Async

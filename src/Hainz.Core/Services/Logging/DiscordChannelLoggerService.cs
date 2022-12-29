@@ -7,7 +7,7 @@ using Hainz.Core.Config.Server.Channels;
 using Hainz.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Hainz.Logging.Services;
+namespace Hainz.Core.Services.Logging;
 
 [RequireGatewayConnection]
 public sealed class DiscordChannelLoggerService : GatewayServiceBase

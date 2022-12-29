@@ -1,8 +1,8 @@
-using Hainz.Logging.Services;
+using Hainz.Core.Services.Logging;
 using NLog;
 using NLog.Targets;
 
-namespace Hainz.Logging.NLog.Targets;
+namespace Hainz.Infrastructure.Logging.Targets;
 
 [Target("DiscordChannel")]
 public sealed class DiscordChannelLogTarget : TargetWithLayout

@@ -1,42 +1,17 @@
-using Discord;
-using Discord.WebSocket;
 using FluentValidation;
 using Hainz.Commands.Extensions;
 using Hainz.Core.Extensions;
 using Hainz.Core.Validation.Configuration;
 using Hainz.Events.Extensions;
-using Hainz.Logging.Extensions;
-using MediatR;
+using Hainz.Infrastructure.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using NLog.Extensions.Logging;
 
 namespace Hainz.Extensions;
 
 public static class HostBuilderExtensions
 {
-    public static IHostBuilder AddNLog(this IHostBuilder hostBuilder)
-    {
-        hostBuilder.ConfigureLogging((hostBuilderContext, loggingBuilder) => 
-        {
-            loggingBuilder.ClearProviders();
-            loggingBuilder.SetMinimumLevel(LogLevel.Trace);
-
-            if (hostBuilderContext.HostingEnvironment.IsDevelopment())
-            {
-                loggingBuilder.AddNLog("nlog.debug.config");
-            }
-            else if (hostBuilderContext.HostingEnvironment.IsProduction())
-            {
-                loggingBuilder.AddNLog("nlog.release.config");
-            }
-        });
-
-        return hostBuilder;
-    }
-
     public static IHostBuilder AddAppSettings(this IHostBuilder hostBuilder, bool optional = true)
     {
         hostBuilder.ConfigureAppConfiguration(configurationBuilder => 
@@ -72,19 +47,8 @@ public static class HostBuilderExtensions
         {
             serviceCollection.AddEvents();
             serviceCollection.AddCore();
-            serviceCollection.AddLoggingServices();
+            serviceCollection.AddInfrastructure();
             serviceCollection.AddCommands();
-
-            serviceCollection.AddSingleton(new DiscordSocketClient(new DiscordSocketConfig()
-            {
-                GatewayIntents = (GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent | GatewayIntents.GuildMembers | GatewayIntents.GuildPresences)
-                              & ~(GatewayIntents.GuildInvites | GatewayIntents.GuildScheduledEvents)
-            }));
-
-            serviceCollection.AddAutoMapper(typeof(Core.Extensions.ServiceCollectionExtensions));
-            serviceCollection.AddMediatR(typeof(Commands.Extensions.ServiceCollectionExtensions),
-                                         typeof(Core.Extensions.ServiceCollectionExtensions),
-                                         typeof(Logging.Extensions.ServiceCollectionExtensions));
         });
 
         return hostBuilder;

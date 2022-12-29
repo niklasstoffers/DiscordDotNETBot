@@ -1,14 +1,14 @@
 using Discord.Commands;
 using Hainz.Commands.Metadata;
-using Hainz.Core.Services.Discord;
+using Hainz.Core.Services.Status;
 
 namespace Hainz.Commands.Modules.Bot;
 
 public sealed class SetGameCommand : BotCommandBase
 {
-    private readonly DiscordActivityService _activityService;
+    private readonly ActivityService _activityService;
 
-    public SetGameCommand(DiscordActivityService activityService)
+    public SetGameCommand(ActivityService activityService)
     {
         _activityService = activityService;
     }

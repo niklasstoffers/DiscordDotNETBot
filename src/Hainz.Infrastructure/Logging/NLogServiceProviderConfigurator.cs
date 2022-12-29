@@ -1,6 +1,6 @@
 using Log = global::NLog;
 
-namespace Hainz.Logging.NLog;
+namespace Hainz.Infrastructure.Logging;
 
 public static class NLogServiceProviderConfigurator 
 {

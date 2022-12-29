@@ -1,7 +1,7 @@
 ﻿using Autofac.Extensions.DependencyInjection;
 using Hainz.Extensions;
 using Hainz.Infrastructure;
-using Hainz.Logging.NLog;
+using Hainz.Infrastructure.Logging;
 using Microsoft.Extensions.Hosting;
 
 var environment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Production";
@@ -16,10 +16,9 @@ try
         .UseEnvironment(environment)
         .UseContentRoot(AppDomain.CurrentDomain.BaseDirectory)
         .UseServiceProviderFactory(new AutofacServiceProviderFactory())
-        .AddServices()
         .AddAppSettings(false)
-        .AddNLog()
         .AddApplicationConfiguration()
+        .AddServices()
         .AddApplicationHost()
         .Build();
 
