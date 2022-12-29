@@ -3,7 +3,7 @@ using Hainz.Events.Notifications.Logs;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace Hainz.Logging.Services;
+namespace Hainz.Core.Services.Logging;
 
 public sealed class DiscordLogAdapterService : INotificationHandler<Log>
 {

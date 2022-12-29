@@ -1,8 +1,8 @@
 using AutoMapper;
 using Discord;
-using Hainz.Core.Mapping.TypeConverters;
+using Hainz.Infrastructure.Mapping.TypeConverters;
 
-namespace Hainz.Core.Mapping.Profiles;
+namespace Hainz.Infrastructure.Mapping.Profiles;
 
 public sealed class ConfigurationMappingProfile : Profile
 {

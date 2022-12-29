@@ -1,5 +1,5 @@
 using Hainz.Core.Config.Bot;
-using Hainz.Core.Services.Discord;
+using Hainz.Core.Services.Status;
 using Hainz.Events.Notifications.Connection;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -8,13 +8,13 @@ namespace Hainz.Core.Services.Bot;
 
 public sealed class DefaultStatusService : INotificationHandler<Ready>
 {
-    private readonly DiscordStatusService _statusService;
-    private readonly DiscordActivityService _activityService;
+    private readonly StatusService _statusService;
+    private readonly ActivityService _activityService;
     private readonly BotConfig _botConfig;
     private readonly ILogger<DefaultStatusService> _logger;
 
-    public DefaultStatusService(DiscordStatusService statusService,
-                                DiscordActivityService activityService,
+    public DefaultStatusService(StatusService statusService,
+                                ActivityService activityService,
                                 BotConfig botConfig,
                                 ILogger<DefaultStatusService> logger)
     {

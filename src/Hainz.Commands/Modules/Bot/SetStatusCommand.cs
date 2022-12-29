@@ -1,15 +1,15 @@
 using Discord;
 using Discord.Commands;
 using Hainz.Commands.Metadata;
-using Hainz.Core.Services.Discord;
+using Hainz.Core.Services.Status;
 
 namespace Hainz.Commands.Modules.Bot;
 
 public sealed class SetStatusCommand : BotCommandBase
 {
-    private readonly DiscordStatusService _statusService;
+    private readonly StatusService _statusService;
 
-    public SetStatusCommand(DiscordStatusService statusService)
+    public SetStatusCommand(StatusService statusService)
     {
         _statusService = statusService;
     }
