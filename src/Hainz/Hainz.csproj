@@ -22,6 +22,10 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
@@ -30,6 +34,7 @@
     <ProjectReference Include="../Hainz.Commands/Hainz.Commands.csproj" />
     <ProjectReference Include="../Hainz.Infrastructure/Hainz.Infrastructure.csproj" />
     <ProjectReference Include="../Hainz.Hosting/Hainz.Hosting.csproj" />
+    <ProjectReference Include="../Hainz.Persistence/Hainz.Persistence.csproj" />
   </ItemGroup>
 
 </Project>

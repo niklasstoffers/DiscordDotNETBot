@@ -16,3 +16,6 @@ rebuild: ## Builds docker image without cache
 
 run: ## Runs docker image
 	@docker run -it --rm --name="$(APP_NAME)" $(APP_NAME)
+
+migration: ## Creates a new EF migration. Invoke with name=<migration name>.
+	@dotnet ef migrations add $(name) --project src/Hainz.Persistence/Hainz.Persistence.csproj

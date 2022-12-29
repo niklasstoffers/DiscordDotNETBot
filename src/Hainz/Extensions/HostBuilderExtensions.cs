@@ -2,6 +2,7 @@ using Hainz.Commands.Extensions;
 using Hainz.Core.Extensions;
 using Hainz.Events.Extensions;
 using Hainz.Infrastructure.Extensions;
+using Hainz.Persistence.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -42,10 +43,13 @@ public static class HostBuilderExtensions
 
         hostBuilder.ConfigureServices((hostBuilder, serviceCollection) =>
         {
+            var persistenceConfiguration = hostBuilder.Configuration.GetPersistenceConfiguration();
+
             serviceCollection.AddEvents();
             serviceCollection.AddCore();
             serviceCollection.AddInfrastructure();
             serviceCollection.AddCommands();
+            serviceCollection.AddPersistence(persistenceConfiguration);
         });
 
         return hostBuilder;
