@@ -8,22 +8,22 @@ help:
 	| sed -n 's/^\(.*\): \(.*\)\(##\)\(.*\)/\1\3-\4/p' \
 	| column -t -s '##'
 
-build-hainz: ## Builds bot docker image
+build-app: ## Builds application docker image
 	@docker build . -t $(APP_NAME)
 
-rebuild-hainz: ## Builds bot docker image without cache
+rebuild-app: ## Builds application docker image without cache
 	@docker build . --no-cache -t $(APP_NAME)
 
-run-hainz: ## Runs bot docker image
+run-app: ## Runs application docker image
 	@docker run -it --rm --name="$(APP_NAME)" $(APP_NAME)
 
-build: ## Builds application
+build: ## Builds docker application with database
 	@docker-compose build
 
-rebuild: ## Rebuilds application
+rebuild: ## Rebuilds docker application with database
 	@docker-compose build --no-cache
 
-run: ## Runs application
+run: ## Runs docker application with database
 	@docker-compose up
 
 migration: ## Creates a new EF migration. Invoke with name=<migration name>.
