@@ -1,6 +1,6 @@
 using Discord;
 using Discord.Commands;
-using Hainz.Core.Services.User;
+using Hainz.Core.Services.Guild;
 
 namespace Hainz.Commands.Modules.Admin;
 

@@ -3,7 +3,7 @@ using Discord.WebSocket;
 using Hainz.Common.Helpers;
 using Microsoft.Extensions.Logging;
 
-namespace Hainz.Core.Services.User;
+namespace Hainz.Core.Services.Messages;
 
 public sealed class DMService
 {

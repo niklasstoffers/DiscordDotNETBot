@@ -17,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Hainz.Common/Hainz.Common.csproj" />
     <ProjectReference Include="../Hainz.Hosting/Hainz.Hosting.csproj" />
   </ItemGroup>
 

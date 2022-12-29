@@ -1,8 +1,6 @@
-using Log = global::NLog;
+namespace Hainz.Infrastructure.Logging;
 
-namespace Hainz.Logging.NLog;
-
-public static class NLogServiceProviderConfigurator 
+public static class LoggingServiceProviderConfigurator 
 {
     public static void ReloadConfigWithServiceProvider(IServiceProvider serviceProvider) 
     {
@@ -13,9 +11,9 @@ public static class NLogServiceProviderConfigurator
         // The InitializeTarget() pattern introduced with NLog 5.0 also doesn't work in this case since NLog will automatically resolve unregistered dependencies by itself 
         // if they have a default constructor, completely ignoring the provided ServiceProvider. Furthermore its an inconsitency within the applications general DI flow.
 
-        var nlogServiceProvider = Log.Config.ConfigurationItemFactory.Default.CreateInstance;
-        Log.Config.ConfigurationItemFactory.Default.CreateInstance = 
+        var nlogServiceProvider = NLog.Config.ConfigurationItemFactory.Default.CreateInstance;
+        NLog.Config.ConfigurationItemFactory.Default.CreateInstance = 
             type => serviceProvider.GetService(type) ?? nlogServiceProvider(type);
-        Log.LogManager.Configuration = Log.LogManager.Configuration.Reload();
+        NLog.LogManager.Configuration = NLog.LogManager.Configuration.Reload();
     }
 }
