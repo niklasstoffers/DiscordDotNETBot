@@ -1,5 +1,6 @@
 using FluentValidation;
 using Hainz.Persistence.Configuration;
+using Hainz.Persistence.Helpers;
 using Hainz.Persistence.Validation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,8 +14,10 @@ public static class ServiceCollectionExtensions
         new PersistenceConfigurationValidator().ValidateAndThrow(config);
         
         var connectionString = config.ToConnectionString();
-        serviceCollection.AddEntityFrameworkNpgsql().AddDbContext<HainzDbContext>(opt =>
+        serviceCollection.AddDbContext<HainzDbContext>(opt =>
             opt.UseNpgsql(connectionString));
+
+        serviceCollection.AddTransient<DbMigrationHelper>();
 
         return serviceCollection;
     }
