@@ -4,10 +4,16 @@ services:
     container_name: hainz-db
     image: postgres:15.1-alpine
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${USERNAME}
+      - POSTGRES_PASSWORD=${PASSWORD}
+      - POSTGRES_DB=${DB}
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "localhost", "-p", "${PORT}", "-U", "${USERNAME}"]
+      interval: 1s
+      timeout: 3s
+      retries: 5
     ports:
-      - 5432:5432
+      - 5432:${PORT}
     volumes:
       - db:/var/lib/postgresql/data
     networks:
@@ -17,13 +23,16 @@ services:
     image: hainz-app
     build: .
     depends_on:
-      - hainz-db
+      hainz-db:
+        condition: service_healthy
     networks:
       - hainz-network
     environment:
-      - PERSISTENCE_USERNAME=${POSTGRES_USER}
-      - PERSISTENCE_PASSWORD=${POSTGRES_PASSWORD}
+      - PERSISTENCE_USERNAME=${USERNAME}
+      - PERSISTENCE_PASSWORD=${PASSWORD}
       - PERSISTENCE_HOSTNAME=${HOSTNAME}
+      - PERSISTENCE_PORT=${PORT}
+      - PERSISTENCE_DB=${DB}
 
 volumes:
   db:
