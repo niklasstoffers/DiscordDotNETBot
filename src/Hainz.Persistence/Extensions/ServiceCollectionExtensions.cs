@@ -2,6 +2,7 @@ using FluentValidation;
 using Hainz.Persistence.Configuration;
 using Hainz.Persistence.Helpers;
 using Hainz.Persistence.Validation;
+using Hainz.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -18,6 +19,7 @@ public static class ServiceCollectionExtensions
             opt.UseNpgsql(connectionString));
 
         serviceCollection.AddTransient<DbMigrationHelper>();
+        serviceCollection.AddTransient<IDbContext, DbContextAdapter>();
 
         return serviceCollection;
     }
