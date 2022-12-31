@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace Hainz.Persistence.Helpers;
+namespace Hainz.Data.Helpers;
 
 public class DbMigrationHelper
 {

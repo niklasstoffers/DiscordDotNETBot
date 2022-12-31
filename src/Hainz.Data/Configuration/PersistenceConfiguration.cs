@@ -1,4 +1,4 @@
-namespace Hainz.Persistence.Configuration;
+namespace Hainz.Data.Configuration;
 
 public sealed class PersistenceConfiguration
 {

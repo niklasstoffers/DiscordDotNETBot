@@ -1,6 +1,6 @@
 using Discord;
 
-namespace Hainz.Core.Config.Bot;
+namespace Hainz.Core.Config;
 
 public static class RequiredGatewayIntents
 {

@@ -5,10 +5,8 @@ using Hainz.Core.Services.Messages;
 using Hainz.Hosting.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Discord.WebSocket;
-using Hainz.Core.Config.Bot;
+using Hainz.Core.Config;
 using Hainz.Core.Services.Logging;
-using Hainz.Core.Config.BotOptions;
-using Hainz.Core.Config.Server;
 using Hainz.Core.Validation.Configuration;
 using FluentValidation;
 using MediatR;
@@ -42,16 +40,10 @@ public static class ServiceCollectionExtensions
     }
 
     public static IServiceCollection AddCoreConfiguration(this IServiceCollection serviceCollection,
-                                                          BotConfig botConfig,
-                                                          BotOptionsConfig botOptionsConfig,
-                                                          ServerConfig serverConfig)
+                                                          BotConfig botConfig)
     {
         new BotConfigValidator().ValidateAndThrow(botConfig);
-        new BotOptionsConfigValidator().ValidateAndThrow(botOptionsConfig);
-
         serviceCollection.AddSingleton(botConfig);
-        serviceCollection.AddSingleton(botOptionsConfig);
-        serviceCollection.AddSingleton(serverConfig);
 
         return serviceCollection;
     }

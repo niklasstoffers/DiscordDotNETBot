@@ -1,6 +1,6 @@
 using Discord;
 using FluentValidation;
-using Hainz.Core.Config.Bot;
+using Hainz.Core.Config;
 
 namespace Hainz.Core.Validation.Configuration;
 
@@ -20,11 +20,5 @@ public sealed class BotConfigValidator : AbstractValidator<BotConfig>
                     context.AddFailure(context.PropertyName, "Invalid bot token");
                 }
             });
-
-        RuleFor(config => config.DefaultActivity)
-            .ChildRules(v => 
-                v.RuleFor(activity => activity!.Name)
-                    .NotEmpty())
-            .When(config => config != null);
     }
 }

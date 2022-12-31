@@ -1,4 +1,4 @@
-using Hainz.Core.Config.Bot;
+using Hainz.Core.Config;
 using Hainz.Core.Services.Status;
 using Hainz.Events.Notifications.Connection;
 using MediatR;
@@ -26,16 +26,16 @@ public sealed class DefaultStatusService : INotificationHandler<Ready>
 
     public async Task Handle(Ready notification, CancellationToken cancellationToken)
     {
-        if (_botConfig.DefaultStatus != null)
-        {
-            _logger.LogInformation("Setting default bot status");
-            await _statusService.SetStatusAsync(_botConfig.DefaultStatus.Value);
-        }
+        // if (_botConfig.DefaultStatus != null)
+        // {
+        //     _logger.LogInformation("Setting default bot status");
+        //     await _statusService.SetStatusAsync(_botConfig.DefaultStatus.Value);
+        // }
 
-        if (_botConfig.DefaultActivity != null)
-        {
-            _logger.LogInformation("Setting default bot activity");
-            await _activityService.SetGameAsync(_botConfig.DefaultActivity.Name, _botConfig.DefaultActivity.Type);
-        }
+        // if (_botConfig.DefaultActivity != null)
+        // {
+        //     _logger.LogInformation("Setting default bot activity");
+        //     await _activityService.SetGameAsync(_botConfig.DefaultActivity.Name, _botConfig.DefaultActivity.Type);
+        // }
     }
 }

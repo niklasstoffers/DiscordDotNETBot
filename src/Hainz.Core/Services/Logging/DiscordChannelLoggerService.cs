@@ -2,8 +2,6 @@ using System.Threading.Tasks.Dataflow;
 using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
-using Hainz.Core.Config.Server;
-using Hainz.Core.Config.Server.Channels;
 using Hainz.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -14,7 +12,6 @@ public sealed class DiscordChannelLoggerService : GatewayServiceBase
 {
     private readonly BufferBlock<string> _logQueue;
     private readonly DiscordSocketClient _client;
-    private readonly LogChannelConfig? _logChannelConfig;
     private readonly ILogger<DiscordChannelLoggerService> _logger;
     private Task? _loggerTask;
     private CancellationTokenSource _stopCTS;
@@ -22,11 +19,9 @@ public sealed class DiscordChannelLoggerService : GatewayServiceBase
     private RestUserMessage? _currentLogMessage;
 
     public DiscordChannelLoggerService(DiscordSocketClient client,
-                                       ServerConfig serverConfig,
                                        ILogger<DiscordChannelLoggerService> logger) 
     {
         _client = client;
-        _logChannelConfig = serverConfig.Channels?.LogChannel;
         _logger = logger;
 
         _logQueue = new();
@@ -39,25 +34,25 @@ public sealed class DiscordChannelLoggerService : GatewayServiceBase
     {
         _logger.LogInformation("Starting DiscordChannelLoggerService");
 
-        if (_logChannelConfig?.IsEnabled ?? false) 
-        {
-            var logChannelId = _logChannelConfig.ChannelId;
-            _logChannel = await _client.GetChannelAsync(logChannelId) as SocketTextChannel;
-            if (_logChannel == null) 
-            {
-                _logger.LogWarning("Log channel with id \"{id}\" not found", logChannelId);
-            }
-            else 
-            {
-                _logger.LogInformation("Starting channel logger task");
-                _stopCTS = new();
-                _loggerTask = Task.Run(async () => await LogWriterAsync(_stopCTS.Token));
-            }
-        }
-        else
-        {
-            _logger.LogInformation("Discord channel logging is disabled");
-        }
+        // if (_logChannelConfig?.IsEnabled ?? false) 
+        // {
+        //     var logChannelId = _logChannelConfig.ChannelId;
+        //     _logChannel = await _client.GetChannelAsync(logChannelId) as SocketTextChannel;
+        //     if (_logChannel == null) 
+        //     {
+        //         _logger.LogWarning("Log channel with id \"{id}\" not found", logChannelId);
+        //     }
+        //     else 
+        //     {
+        //         _logger.LogInformation("Starting channel logger task");
+        //         _stopCTS = new();
+        //         _loggerTask = Task.Run(async () => await LogWriterAsync(_stopCTS.Token));
+        //     }
+        // }
+        // else
+        // {
+        //     _logger.LogInformation("Discord channel logging is disabled");
+        // }
     }
 
     public override async Task StopAsync() 

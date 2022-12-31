@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Hainz.Data.Entities;
 
-namespace Hainz.Persistence;
+namespace Hainz.Data;
 
 public sealed class HainzDbContext : DbContext
 {

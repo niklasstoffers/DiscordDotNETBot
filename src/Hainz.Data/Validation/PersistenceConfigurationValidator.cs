@@ -1,7 +1,7 @@
 using FluentValidation;
-using Hainz.Persistence.Configuration;
+using Hainz.Data.Configuration;
 
-namespace Hainz.Persistence.Validation;
+namespace Hainz.Data.Validation;
 
 public sealed class PersistenceConfigurationValidator : AbstractValidator<PersistenceConfiguration>
 {
