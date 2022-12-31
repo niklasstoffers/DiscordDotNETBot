@@ -18,6 +18,7 @@ public static class ServiceCollectionExtensions
             opt.UseNpgsql(connectionString));
 
         serviceCollection.AddTransient<DbMigrationHelper>();
+        serviceCollection.AddTransient<DbInitializer>();
 
         return serviceCollection;
     }

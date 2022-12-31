@@ -28,4 +28,4 @@ run: ## Runs docker application with database
 	@docker-compose --env-file $(ENV_FILE) up
 
 migration: ## Creates a new EF migration. Invoke with name=<migration name>.
-	@dotnet ef migrations add $(name) --project src/Hainz.Persistence/Hainz.Persistence.csproj
+	@dotnet ef migrations add $(name) --project src/Hainz.Data/Hainz.Data.csproj --startup-project src/Hainz/Hainz.csproj
