@@ -4,6 +4,8 @@ using Hainz.Data.Helpers;
 using Hainz.Data.Validation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
+using MediatR;
 
 namespace Hainz.Data.Extensions;
 
@@ -19,6 +21,9 @@ public static class ServiceCollectionExtensions
 
         serviceCollection.AddTransient<DbMigrationHelper>();
         serviceCollection.AddTransient<DbInitializer>();
+
+        var currentAssembly = Assembly.GetExecutingAssembly();
+        serviceCollection.AddMediatR(currentAssembly);
 
         return serviceCollection;
     }
