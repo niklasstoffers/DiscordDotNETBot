@@ -1,4 +1,5 @@
 APP_NAME = hainz
+ENV_FILE = .env.docker
 
 .DEFAULT_GOAL := help
 .PHONY: *
@@ -18,13 +19,13 @@ run-app: ## Runs application docker image
 	@docker run -it --rm --name="$(APP_NAME)" $(APP_NAME)
 
 build: ## Builds docker application with database
-	@docker-compose build
+	@docker-compose --env-file $(ENV_FILE) build
 
 rebuild: ## Rebuilds docker application with database
-	@docker-compose build --no-cache
+	@docker-compose --env-file $(ENV_FILE) build --no-cache
 
 run: ## Runs docker application with database
-	@docker-compose up
+	@docker-compose --env-file $(ENV_FILE) up
 
 migration: ## Creates a new EF migration. Invoke with name=<migration name>.
 	@dotnet ef migrations add $(name) --project src/Hainz.Persistence/Hainz.Persistence.csproj
