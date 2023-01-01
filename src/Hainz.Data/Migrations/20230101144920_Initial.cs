@@ -3,6 +3,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace Hainz.Data.Migrations
 {
     /// <inheritdoc />
@@ -71,6 +73,18 @@ namespace Hainz.Data.Migrations
                         principalTable: "Guilds",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "ApplicationSettings",
+                columns: new[] { "Id", "Name", "Value" },
+                values: new object[,]
+                {
+                    { 1, "DefaultActivityType", "Playing" },
+                    { 2, "DefaultActivityName", "Development" },
+                    { 3, "DefaultStatus", "AFK" },
+                    { 4, "SendDMUponBan", "True" },
+                    { 5, "CommandPrefix", "!" }
                 });
 
             migrationBuilder.CreateIndex(

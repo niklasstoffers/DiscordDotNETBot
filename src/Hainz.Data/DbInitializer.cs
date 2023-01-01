@@ -20,7 +20,9 @@ public class DbInitializer
         modelBuilder.Entity<ApplicationSetting>().HasData(
             new ApplicationSetting() { Id = 1, Name = DefaultActivityType, Value = _mapper.Map<string>(ActivityType.Playing) },
             new ApplicationSetting() { Id = 2, Name = DefaultActivityName, Value = "Development" },
-            new ApplicationSetting() { Id = 3, Name = DefaultStatus, Value = _mapper.Map<string>(UserStatus.AFK) }
+            new ApplicationSetting() { Id = 3, Name = DefaultStatus, Value = _mapper.Map<string>(UserStatus.AFK) },
+            new ApplicationSetting() { Id = 4, Name = SendDMUponBan, Value = true.ToString() },
+            new ApplicationSetting() { Id = 5, Name = CommandPrefix, Value = "!" }
         );
     }
 }

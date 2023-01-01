@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 using MediatR;
+using Hainz.Data.Services.Guild;
 
 namespace Hainz.Data.Extensions;
 
@@ -21,6 +22,7 @@ public static class ServiceCollectionExtensions
 
         serviceCollection.AddTransient<DbMigrationHelper>();
         serviceCollection.AddTransient<DbInitializer>();
+        serviceCollection.AddTransient<GuildService>();
 
         var currentAssembly = Assembly.GetExecutingAssembly();
         serviceCollection.AddMediatR(currentAssembly);

@@ -59,6 +59,38 @@ namespace Hainz.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ApplicationSettings");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "DefaultActivityType",
+                            Value = "Playing"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "DefaultActivityName",
+                            Value = "Development"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "DefaultStatus",
+                            Value = "AFK"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "SendDMUponBan",
+                            Value = "True"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "CommandPrefix",
+                            Value = "!"
+                        });
                 });
 
             modelBuilder.Entity("Hainz.Data.Entities.Guild", b =>

@@ -23,6 +23,6 @@ public class GetDefaultStatusHandler : IRequestHandler<GetDefaultStatusQuery, Us
 
         if (defaultStatus == null) throw new Exception("No application setting for default status found");
 
-        return Task.FromResult(_mapper.Map<UserStatus>(defaultStatus));
+        return Task.FromResult(_mapper.Map<UserStatus>(defaultStatus.Value));
     }
 }
