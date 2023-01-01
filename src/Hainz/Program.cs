@@ -1,13 +1,14 @@
 ﻿using Autofac.Extensions.DependencyInjection;
+using Hainz.Config;
 using Hainz.Extensions;
+using Hainz.Helpers;
 using Hainz.Infrastructure;
-using Hainz.Infrastructure.Logging;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-var environment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Production";
-var startupEnvironment = new StartupEnvironment(environment);
-var rootLogger = startupEnvironment.Logger;
+string environment = EnvironmentVariable.GetDotNetEnvironment();
+StartupEnvironment startupEnvironment = new(environment);
+ILogger rootLogger = startupEnvironment.Logger;
 
 try
 {
@@ -23,8 +24,9 @@ try
         .AddApplicationHost()
         .Build();
 
-    rootLogger.LogInformation("Reloading logging with host service provider");
-    LoggingServiceProviderConfigurator.ReloadConfigWithServiceProvider(host.Services);
+    using var hostStartup = new HostStartup(host);
+    hostStartup.ReloadLogging();
+    await hostStartup.ApplyMigrationsAsync();
 
     try 
     {

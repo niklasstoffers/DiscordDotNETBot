@@ -24,7 +24,7 @@ public sealed class CommandPostExecutionHandler : INotificationHandler<CommandEx
             if (result.Error != CommandError.UnknownCommand)
                 _logger.LogWarning("Command execution failed with error \"{error}\" and reason \"{reason}\"", result.Error, result.ErrorReason);
             else
-                _logger.LogInformation("Command {content} not found", commandContext.Message.Content);
+                _logger.LogInformation("Command \"{content}\" not found", commandContext.Message.Content);
 
             string? response = result.Error switch 
             {

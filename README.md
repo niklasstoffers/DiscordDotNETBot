@@ -12,38 +12,32 @@
     <img src="https://img.shields.io/github/last-commit/niklasstoffers/Hainz" alt="last commit">
     <br>
     <img src="https://img.shields.io/github/languages/top/niklasstoffers/Hainz?color=blueviolet" alt="top language">
-    <img src="https://www.aschey.tech/tokei/github/niklasstoffers/Hainz" alt="lines of code">
+    <img src="https://img.shields.io/tokei/lines/github/niklasstoffers/Hainz" alt="lines of code">
     <a href="https://www.codefactor.io/repository/github/niklasstoffers/hainz"><img src="https://www.codefactor.io/repository/github/niklasstoffers/hainz/badge" alt="code quality" /></a>
     <hr>
 </p>
 
 **Hainz** is a Discord bot for server administration, music, entertainment and more. It's built on top of the [Discord.NET](https://github.com/discord-net/Discord.Net) framework. 
 
-*This project is currently still under development*
+*This project is currently under development*
 
 ## Configuring the bot
 
-In order for the bot to work you need to provide proper configuration for it. To do this open the *appsettings.json* file under *src/Hainz* and set the configuration options to your liking. The most important option here is the `Bot.Token` option. You need to set this to your [Discord application bot token](https://discord.com/developers/applications).
+In order for the bot to work you need to provide configuration for it. To do this open the *appsettings.json* file under *src/Hainz* and set the configuration options to your liking. The most important setting here is the `Discord.Token` option. You need to set this to your [Discord application bot token](https://discord.com/developers/applications).
 
 ### Configuration options
 
 | Option      | Description |
 | ----------- | ----------- |
-| `Bot.Token` | Your applications bot token. This is required in order for the bot to work.       |
-| `Bot.DefaultStatus?`   | The bots default status. Can be set to `online`, `offline`, `afk`, `idle`, `donotdisturb` and `invisible`.        |
-| `Bot.DefaultActivity?`   | The bots default activity.        |
-| `Bot.DefaultActivity?.Name`   | The default activity name.        |
-| `Bot.DefaultActivity?.Type`   | The default activity type. Can be set to `playing`, `listening`, `streaming`, `watching` and `competing`.        |
-| `Server.BotAdminRole?`   | Required role to invoke bot administration commands. If not set, nobody will be able to execute administration commands.        |
-| `Server.Channels.LogChannel?`   | Configuration options for the servers log channel. If enabled the bot will post it's internal log messages here. Useful if you quickly want to find out if something went wrong (especially if the bot is hosted somewhere on a server).        |
-| `Server.Channels.LogChannel?.ChannelId`   | The log channels discord channel id.       |
-| `Server.Channels.LogChannel?.IsEnabled`   | Whether the logging channel feature is enabled or not. Note that per default the discord channel log target is only used if the application is run in the `Production` environment.       |
+| `Discord.Token` | Your applications bot token. This is required in order for the bot to work.       |
+| `Persistence.Host`   | Hostname for PostgreSQL server.       |
+| `Persistence.Port`   | Port for PostgreSQL server.        |
+| `Persistence.Username`   | Login username for PostgreSQL server.        |
+| `Persistence.Password`   | Login password for PostgreSQL server.        |
+| `Persistence.Database`   | Name of the PostgreSQL database to use. Note that this database doesn't have to exist yet and is created automatically by the application if your PostgreSQL login role has the permissions to do so.        |
 
-> **Note:** Options marked with `?` are optional and may be ommitted if unneeded.
-
-### Note about discord channel logging
-
-Although posting internal logs directly to a discord channel has it's usefulness in that you can quickly determine if something's wrong, it should be used with some caution. First and foremost especially on active servers log messages posted to a Discord channel may contribute to exceeding the Discord gateways rate limiting for your application. Furthermore logging to a discord channel will only work during the applications gateway uptime. Log events that take place during the gateways downtime will be added to a queue by default so they can be posted once the gateway is up again however in certain events that may not happen. Lastly log messages that exceed the maximum message length (currently `2000` characters) aren't split up into parts but instead not sent at all.
+> **Note about persistence configuration:**  
+  The persistence configuration in the *appsettings.json* file is only relevant if you host the PostgreSQL DB server by yourself. If you're using the Docker PostgreSQL database service coming with the repository, persistence configuration will be overriden by environment variables defined in the *.env* file.
 
 ## Self hosting
 
@@ -51,12 +45,19 @@ The recommended way to self-host this bot is to build and run the Docker image c
 
 ### Using Docker
 
-Make sure that [Docker is installed and running](https://docs.docker.com/get-docker/) for this step.
-To build and run the Docker image you have to run these commands:
+Make sure that both [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) are installed for this step.
+To build and run the application and database Docker image you have to run these commands:
 
 ```
 make build
 make run
+```
+
+If you only want to build and run the application Docker image you have to run these commands:
+
+```
+make build-app
+make run-app
 ```
 
 ### Building it by yourself
@@ -67,3 +68,11 @@ Open a terminal and run these commands:
 dotnet build .
 dotnet run --project src/Hainz/Hainz.csproj
 ```
+
+## PostgreSQL server
+
+The bot uses a PostgreSQL database to store data needed for its operation. This data includes information about Discord Guilds, Users, Channels, Configuration etc. We only store data that's crucial to the bots operation and thus try to keep it as minimal as possible. We do not store any personal information, message content, etc.
+
+### Setting up the PostgreSQL server
+
+If you're building and running the application using `make build && make run` you can skip this step. Otherwise you'll need to install and setup a local PostgreSQL server. Please refer to [this documentation](https://www.postgresql.org/docs/current/tutorial-install.html) on how to do so.

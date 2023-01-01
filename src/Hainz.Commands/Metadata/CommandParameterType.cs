@@ -6,5 +6,7 @@ public enum CommandParameterType
     UserStatus,
     Id,
     Mention,
-    Number
+    Number,
+    Bool,
+    Char
 }

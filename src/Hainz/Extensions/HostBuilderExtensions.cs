@@ -2,6 +2,7 @@ using Hainz.Commands.Extensions;
 using Hainz.Core.Extensions;
 using Hainz.Events.Extensions;
 using Hainz.Infrastructure.Extensions;
+using Hainz.Data.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -25,12 +26,7 @@ public static class HostBuilderExtensions
         hostBuilder.ConfigureServices((hostBuilder, serviceCollection) => 
         {
             var botConfiguration = hostBuilder.Configuration.GetBotConfiguration();
-            var serverConfiguration = hostBuilder.Configuration.GetServerConfiguration();
-            var botOptionsConfiguration = hostBuilder.Configuration.GetBotOptionsConfiguration();
-
-            serviceCollection.AddCoreConfiguration(botConfiguration, 
-                botOptionsConfiguration, 
-                serverConfiguration);
+            serviceCollection.AddCoreConfiguration(botConfiguration);
         });
 
         return hostBuilder;
@@ -42,10 +38,13 @@ public static class HostBuilderExtensions
 
         hostBuilder.ConfigureServices((hostBuilder, serviceCollection) =>
         {
+            var persistenceConfiguration = hostBuilder.Configuration.GetPersistenceConfigurationWithEnvironmentVars();
+
             serviceCollection.AddEvents();
             serviceCollection.AddCore();
             serviceCollection.AddInfrastructure();
             serviceCollection.AddCommands();
+            serviceCollection.AddPersistence(persistenceConfiguration);
         });
 
         return hostBuilder;

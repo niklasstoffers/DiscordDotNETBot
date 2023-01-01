@@ -1,10 +1,11 @@
+using System.Collections.Concurrent;
 using System.Threading.Tasks.Dataflow;
 using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
-using Hainz.Core.Config.Server;
-using Hainz.Core.Config.Server.Channels;
+using Hainz.Data.Queries.Channels.LogChannels;
 using Hainz.Hosting;
+using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Hainz.Core.Services.Logging;
@@ -14,56 +15,71 @@ public sealed class DiscordChannelLoggerService : GatewayServiceBase
 {
     private readonly BufferBlock<string> _logQueue;
     private readonly DiscordSocketClient _client;
-    private readonly LogChannelConfig? _logChannelConfig;
+    private readonly IMediator _mediator;
     private readonly ILogger<DiscordChannelLoggerService> _logger;
     private Task? _loggerTask;
-    private CancellationTokenSource _stopCTS;
-    private SocketTextChannel? _logChannel;
-    private RestUserMessage? _currentLogMessage;
+    private bool _isEnabled = true;
+    private CancellationTokenSource? _stopCTS;
+    private ConcurrentBag<SocketTextChannel>? _logChannels;
+    private ConcurrentDictionary<ulong, RestUserMessage?>? _currentLogMessages;
 
     public DiscordChannelLoggerService(DiscordSocketClient client,
-                                       ServerConfig serverConfig,
+                                       IMediator mediator,
                                        ILogger<DiscordChannelLoggerService> logger) 
     {
         _client = client;
-        _logChannelConfig = serverConfig.Channels?.LogChannel;
+        _mediator = mediator;
         _logger = logger;
 
         _logQueue = new();
-        _stopCTS = new();
     }
 
-    public void LogMessage(string logEvent) => _logQueue.Post(logEvent);
+    public void LogMessage(string logEvent)
+    {
+        if (_isEnabled)
+            _logQueue.Post(logEvent);
+    }
 
     public override async Task StartAsync() 
     {
         _logger.LogInformation("Starting DiscordChannelLoggerService");
+        
+        _logChannels = new();
+        _currentLogMessages = new();
 
-        if (_logChannelConfig?.IsEnabled ?? false) 
+        var logChannelDTOs = await _mediator.Send(new GetLogChannelsQuery());
+        await Parallel.ForEachAsync(logChannelDTOs, async (channel, cancellationToken) =>
         {
-            var logChannelId = _logChannelConfig.ChannelId;
-            _logChannel = await _client.GetChannelAsync(logChannelId) as SocketTextChannel;
-            if (_logChannel == null) 
+            var abc = await _client.GetChannelAsync(channel.ChannelId);
+            if (await _client.GetChannelAsync(channel.ChannelId) is SocketTextChannel logChannel)
             {
-                _logger.LogWarning("Log channel with id \"{id}\" not found", logChannelId);
+                _logChannels.Add(logChannel);
+                _logger.LogTrace("Using channel with id {id} for logging", channel.ChannelId);
             }
-            else 
-            {
-                _logger.LogInformation("Starting channel logger task");
-                _stopCTS = new();
-                _loggerTask = Task.Run(async () => await LogWriterAsync(_stopCTS.Token));
-            }
+            else
+                _logger.LogInformation("Skipping channel with id {id} because it could not be converted to a text channel", channel.ChannelId);
+        });
+
+        _logger.LogInformation("Number of log channels: {num}", _logChannels.Count);
+
+        if (!_logChannels.IsEmpty)
+        {
+            _logger.LogInformation("Starting channel logger task");
+            _isEnabled = true;
+            _stopCTS = new();
+            _loggerTask = Task.Run(async () => await LogWriterAsync(_stopCTS.Token));
         }
         else
         {
-            _logger.LogInformation("Discord channel logging is disabled");
+            _isEnabled = false;
+            _logger.LogInformation("No log channels found. Skipping creation of logger task.");
         }
     }
 
     public override async Task StopAsync() 
     {
         _logger.LogInformation("Stopping DiscordChannelLoggerService");
-        _stopCTS.Cancel();
+        _stopCTS?.Cancel();
         await (_loggerTask ?? Task.CompletedTask);
     }
 
@@ -75,7 +91,8 @@ public sealed class DiscordChannelLoggerService : GatewayServiceBase
             {
                 await foreach (var logMessage in _logQueue.ReceiveAllAsync(ct)) 
                 {
-                    await AppendToLogAsync(logMessage);
+                    foreach (var logChannel in _logChannels!)
+                        await AppendToLogAsync(logMessage, logChannel);
                 }
             }
             catch (Exception ex)
@@ -85,27 +102,29 @@ public sealed class DiscordChannelLoggerService : GatewayServiceBase
         }
     }
 
-    private async Task AppendToLogAsync(string logMessage) 
+    private async Task AppendToLogAsync(string logMessage, SocketTextChannel logChannel) 
     {
-        if (_currentLogMessage == null || 
-            logMessage.Length + _currentLogMessage.Content.Length + 1 > DiscordConfig.MaxMessageSize)
+        var currentMessage = _currentLogMessages!.GetValueOrDefault(logChannel.Id);
+        if (currentMessage == null || 
+            logMessage.Length + currentMessage.Content.Length + 1 > DiscordConfig.MaxMessageSize)
         {
-            await WriteAsNewMessageAsync(logMessage);
+            await WriteAsNewMessageAsync(logMessage, logChannel);
         }
         else
         {
-            await _currentLogMessage.ModifyAsync(msg => 
+            await currentMessage.ModifyAsync(msg => 
             {
-                var content = _currentLogMessage.Content;
+                var content = currentMessage.Content;
                 int lastLogIndex = content.LastIndexOf('\n');
                 msg.Content = content.Insert(lastLogIndex + 1, logMessage + "\n");
             });
         }
     }
 
-    private async Task WriteAsNewMessageAsync(string logMessage)
+    private async Task WriteAsNewMessageAsync(string logMessage, SocketTextChannel logChannel)
     {
         logMessage = Format.Code(logMessage, "css");
+        var currentMessage = _currentLogMessages!.GetValueOrDefault(logChannel.Id);
 
         if (logMessage.Length > DiscordConfig.MaxMessageSize)
         {
@@ -115,10 +134,10 @@ public sealed class DiscordChannelLoggerService : GatewayServiceBase
         else
         {
             MessageReference? oldLogMessageReference = null;
-            if (_currentLogMessage != null)
-                oldLogMessageReference = new MessageReference(_currentLogMessage.Id);
+            if (currentMessage != null)
+                oldLogMessageReference = new MessageReference(currentMessage.Id);
 
-            _currentLogMessage = await _logChannel!.SendMessageAsync(logMessage, messageReference: oldLogMessageReference);   
+            _currentLogMessages![logChannel.Id] = await logChannel.SendMessageAsync(logMessage, messageReference: oldLogMessageReference);   
         }
     }
 }
