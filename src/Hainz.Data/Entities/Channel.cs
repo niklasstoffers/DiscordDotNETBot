@@ -1,7 +1,7 @@
 using Hainz.Data.DTOs;
 using Hainz.Data.Entities;
 
-namespace Hainz.Data;
+namespace Hainz.Data.Entities;
 
 public class Channel : BaseEntity
 {

@@ -1,6 +1,7 @@
 namespace Hainz.Data.DTOs;
 
+[Flags]
 public enum ChannelFlags
 {
-    LogChannel
+    LogChannel = 1
 }

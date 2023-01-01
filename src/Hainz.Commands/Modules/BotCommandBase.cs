@@ -1,6 +1,5 @@
 using Discord.Commands;
 using Hainz.Commands.Metadata;
-using Hainz.Commands.Preconditions;
 
 namespace Hainz.Commands.Modules;
 

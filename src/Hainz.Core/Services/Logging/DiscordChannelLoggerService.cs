@@ -18,7 +18,7 @@ public sealed class DiscordChannelLoggerService : GatewayServiceBase
     private readonly IMediator _mediator;
     private readonly ILogger<DiscordChannelLoggerService> _logger;
     private Task? _loggerTask;
-    private bool _isEnabled = false;
+    private bool _isEnabled = true;
     private CancellationTokenSource? _stopCTS;
     private ConcurrentBag<SocketTextChannel>? _logChannels;
     private ConcurrentDictionary<ulong, RestUserMessage?>? _currentLogMessages;
@@ -50,6 +50,7 @@ public sealed class DiscordChannelLoggerService : GatewayServiceBase
         var logChannelDTOs = await _mediator.Send(new GetLogChannelsQuery());
         await Parallel.ForEachAsync(logChannelDTOs, async (channel, cancellationToken) =>
         {
+            var abc = await _client.GetChannelAsync(channel.ChannelId);
             if (await _client.GetChannelAsync(channel.ChannelId) is SocketTextChannel logChannel)
             {
                 _logChannels.Add(logChannel);
@@ -103,7 +104,7 @@ public sealed class DiscordChannelLoggerService : GatewayServiceBase
 
     private async Task AppendToLogAsync(string logMessage, SocketTextChannel logChannel) 
     {
-        var currentMessage = _currentLogMessages![logChannel.Id];
+        var currentMessage = _currentLogMessages!.GetValueOrDefault(logChannel.Id);
         if (currentMessage == null || 
             logMessage.Length + currentMessage.Content.Length + 1 > DiscordConfig.MaxMessageSize)
         {
@@ -123,7 +124,7 @@ public sealed class DiscordChannelLoggerService : GatewayServiceBase
     private async Task WriteAsNewMessageAsync(string logMessage, SocketTextChannel logChannel)
     {
         logMessage = Format.Code(logMessage, "css");
-        var currentMessage = _currentLogMessages![logChannel.Id];
+        var currentMessage = _currentLogMessages!.GetValueOrDefault(logChannel.Id);
 
         if (logMessage.Length > DiscordConfig.MaxMessageSize)
         {
