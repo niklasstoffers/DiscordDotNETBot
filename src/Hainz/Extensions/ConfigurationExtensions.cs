@@ -2,6 +2,7 @@ using Hainz.Config;
 using Hainz.Core.Config;
 using Microsoft.Extensions.Configuration;
 using Hainz.Data.Configuration;
+using Hainz.Data.Configuration.Caching;
 
 namespace Hainz.Extensions;
 
@@ -12,6 +13,9 @@ public static class ConfigurationExtensions
 
     public static PersistenceConfiguration GetPersistenceConfiguration(this IConfiguration configuration) =>
         configuration.GetSection(SectionKey.Persistence).Get<PersistenceConfiguration>() ?? throw new ArgumentException("Invalid persistence configuration");
+
+    public static CachingConfiguration GetCachingConfiguration(this IConfiguration configuration) =>
+        configuration.GetSection(SectionKey.Caching).Get<CachingConfiguration>() ?? throw new ArgumentException("Invalid caching configuration");
 
     public static PersistenceConfiguration GetPersistenceConfigurationWithEnvironmentVars(this IConfiguration configuration)
     {

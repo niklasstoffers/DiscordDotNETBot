@@ -39,12 +39,13 @@ public static class HostBuilderExtensions
         hostBuilder.ConfigureServices((hostBuilder, serviceCollection) =>
         {
             var persistenceConfiguration = hostBuilder.Configuration.GetPersistenceConfigurationWithEnvironmentVars();
+            var cachingConfiguration = hostBuilder.Configuration.GetCachingConfiguration();
 
             serviceCollection.AddEvents();
             serviceCollection.AddCore();
             serviceCollection.AddInfrastructure();
             serviceCollection.AddCommands();
-            serviceCollection.AddPersistence(persistenceConfiguration);
+            serviceCollection.AddPersistence(persistenceConfiguration, cachingConfiguration);
         });
 
         return hostBuilder;
