@@ -9,22 +9,18 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DATABASE}
     ports:
-      - 5432:${POSTGRES_PORT}
+      - '5432:${POSTGRES_PORT}'
     volumes:
       - db:/var/lib/postgresql/data
-    networks:
-      - hainz-network
   hainz-redis:
     container_name: hainz-redis
     image: redis:7.0.7-alpine
     restart: always
     command: redis-server --save ${REDIS_SAVE_AFTER_SECONDS} ${REDIS_SAVE_AFTER_WRITES} --loglevel warning
     ports:
-      - 6379:${REDIS_PORT}
+      - '6379:${REDIS_PORT}'
     volumes:
       - cache:/data
-    networks:
-      - hainz-network
   hainz-app:
     container_name: hainz-app
     image: hainz-app
@@ -33,8 +29,6 @@ services:
     depends_on:
       - hainz-db
       - hainz-redis
-    networks:
-      - hainz-network
     environment:
       - PERSISTENCE_USERNAME=${POSTGRES_USERNAME}
       - PERSISTENCE_PASSWORD=${POSTGRES_PASSWORD}
@@ -49,7 +43,3 @@ volumes:
     driver: local
   cache:
     driver: local
-
-networks:
-  hainz-network:
-    driver: bridge
