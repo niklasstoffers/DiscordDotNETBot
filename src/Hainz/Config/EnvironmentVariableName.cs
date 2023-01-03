@@ -9,4 +9,7 @@ public static class EnvironmentVariableName
     public const string PersistenceUsername = "PERSISTENCE_USERNAME";
     public const string PersistencePassword = "PERSISTENCE_PASSWORD";
     public const string PersistenceDatabase = "PERSISTENCE_DB";
+
+    public const string CacheHostname = "CACHE_HOSTNAME";
+    public const string CachePort = "CACHE_PORT";
 }

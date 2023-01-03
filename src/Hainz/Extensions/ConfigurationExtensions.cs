@@ -30,4 +30,25 @@ public static class ConfigurationExtensions
             Database = EnvironmentVariable.GetPersistenceDatabase() ?? persistenceConfiguration.Database
         };
     }
+
+    public static CachingConfiguration GetCachingConfigurationWithEnvironmentVars(this IConfiguration configuration)
+    {
+        var cachingConfiguration = configuration.GetCachingConfiguration();
+
+        return new CachingConfiguration()
+        {
+            CacheKeyPrefix = cachingConfiguration.CacheKeyPrefix,
+            ExpirationMode = cachingConfiguration.ExpirationMode,
+            ProviderName = cachingConfiguration.ProviderName,
+            TimeoutSeconds = cachingConfiguration.TimeoutSeconds,
+            Redis = new RedisConfiguration()
+            {
+                Hostname = EnvironmentVariable.GetCacheHostname() ?? cachingConfiguration.Redis.Hostname,
+                Port = EnvironmentVariable.GetCachePort() ?? cachingConfiguration.Redis.Port,
+                AsyncTimeout = cachingConfiguration.Redis.AsyncTimeout,
+                SyncTimeout = cachingConfiguration.Redis.SyncTimeout,
+                ConnectionTimeout = cachingConfiguration.Redis.ConnectionTimeout
+            }
+        };
+    }
 }

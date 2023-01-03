@@ -24,8 +24,9 @@ public static class ServiceCollectionExtensions
         new PersistenceConfigurationValidator().ValidateAndThrow(persistenceConfigurartion);
         
         var connectionString = persistenceConfigurartion.ToConnectionString();
-        serviceCollection.AddDbContext<HainzDbContext>(opt =>
-            opt.UseNpgsql(connectionString));
+        serviceCollection.AddDbContext<HainzDbContext>((serviceProvider, opt) =>
+            opt.UseNpgsql(connectionString)
+               .AddInterceptors(serviceProvider.GetRequiredService<SecondLevelCacheInterceptor>()));
         serviceCollection.AddCaching(cachingConfiguration);
 
         serviceCollection.AddTransient<DbMigrationHelper>();
@@ -47,10 +48,10 @@ public static class ServiceCollectionExtensions
             options.UseEasyCachingCoreProvider(cachingConfiguration.ProviderName, isHybridCache: false)
                 .UseCacheKeyPrefix(cachingConfiguration.CacheKeyPrefix)
                 .CacheAllQueries(cachingConfiguration.ExpirationMode, TimeSpan.FromSeconds(cachingConfiguration.TimeoutSeconds))
-                .DisableLogging(false)
+                .DisableLogging(true)
         );
 
-        serviceCollection.AddEasyCaching(options => 
+        serviceCollection.AddEasyCaching(options =>
             options.UseRedis(redisOptions =>
             {
                 redisOptions.DBConfig.AllowAdmin = true;
@@ -58,9 +59,9 @@ public static class ServiceCollectionExtensions
                 redisOptions.DBConfig.AsyncTimeout = cachingConfiguration.Redis.AsyncTimeout;
                 redisOptions.DBConfig.ConnectionTimeout = cachingConfiguration.Redis.ConnectionTimeout;
                 redisOptions.DBConfig.Endpoints.Add(new ServerEndPoint(cachingConfiguration.Redis.Hostname, cachingConfiguration.Redis.Port));
-                redisOptions.EnableLogging = true;
+                redisOptions.EnableLogging = false;
                 redisOptions.SerializerName = "Pack";
-            })
+            }, cachingConfiguration.ProviderName)
             .WithMessagePack(serializerOptions =>
             {
                 serializerOptions.EnableCustomResolver = true;
