@@ -3,6 +3,7 @@ using Hainz.Config;
 using Hainz.Extensions;
 using Hainz.Helpers;
 using Hainz.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -19,14 +20,17 @@ try
         .UseContentRoot(AppDomain.CurrentDomain.BaseDirectory)
         .UseServiceProviderFactory(new AutofacServiceProviderFactory())
         .AddAppSettings(false)
-        .AddApplicationConfiguration()
         .AddServices()
-        .AddApplicationHost()
         .Build();
 
-    using var hostStartup = new HostStartup(host);
-    hostStartup.ReloadLogging();
-    await hostStartup.ApplyMigrationsAsync();
+    using (var startupProviderScope = host.Services.CreateScope())
+    {
+        rootLogger.LogInformation("Performing host startup");
+
+        var hostStartup = startupProviderScope.ServiceProvider.GetRequiredService<HostStartup>();
+        hostStartup.ReloadLogging();
+        await hostStartup.ApplyMigrationsAsync();
+    }
 
     try 
     {
