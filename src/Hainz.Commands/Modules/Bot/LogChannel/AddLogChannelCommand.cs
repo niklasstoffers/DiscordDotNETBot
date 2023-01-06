@@ -27,15 +27,15 @@ public class AddLogChannelCommand : LogChannelCommandBase
 
             await (result switch 
             {
-                AddLogChannelResult.AlreadyALogChannel => Context.Channel.SendMessageAsync("This channel is already a log channel"),
-                AddLogChannelResult.Success => Context.Channel.SendMessageAsync("Added channel to log channels"),
+                AddLogChannelResult.AlreadyALogChannel => ReplyAsync("This channel is already a log channel"),
+                AddLogChannelResult.Success => ReplyAsync("Added channel to log channels"),
                 _ => Task.CompletedTask
             });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Exception while trying to add log channel");
-            await Context.Channel.SendMessageAsync("Internal error while trying to add log channel");
+            await ReplyAsync("Internal error while trying to add log channel");
         }
     }
 }

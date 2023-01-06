@@ -6,27 +6,17 @@ using Hainz.Data.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Hainz.Helpers;
 
 namespace Hainz.Extensions;
 
 public static class HostBuilderExtensions
 {
-    public static IHostBuilder AddAppSettings(this IHostBuilder hostBuilder, bool optional = true)
+    public static IHostBuilder AddAppSettings(this IHostBuilder hostBuilder, bool isOptional = true)
     {
         hostBuilder.ConfigureAppConfiguration(configurationBuilder => 
         {
-            configurationBuilder.AddJsonFile("appsettings.json", optional: optional);
-        });
-
-        return hostBuilder;
-    }
-
-    public static IHostBuilder AddApplicationConfiguration(this IHostBuilder hostBuilder)
-    {
-        hostBuilder.ConfigureServices((hostBuilder, serviceCollection) => 
-        {
-            var botConfiguration = hostBuilder.Configuration.GetBotConfiguration();
-            serviceCollection.AddCoreConfiguration(botConfiguration);
+            configurationBuilder.AddJsonFile("appsettings.json", optional: isOptional);
         });
 
         return hostBuilder;
@@ -38,22 +28,18 @@ public static class HostBuilderExtensions
 
         hostBuilder.ConfigureServices((hostBuilder, serviceCollection) =>
         {
-            var persistenceConfiguration = hostBuilder.Configuration.GetPersistenceConfigurationWithEnvironmentVars();
+            var botConfiguration = hostBuilder.Configuration.GetBotConfiguration();
+            var commandsConfiguration = hostBuilder.Configuration.GetCommandsConfiguration();
+            var persistenceConfiguration = hostBuilder.Configuration.GetPersistenceConfiguration();
+            var cachingConfiguration = hostBuilder.Configuration.GetCachingConfiguration();
 
             serviceCollection.AddEvents();
-            serviceCollection.AddCore();
+            serviceCollection.AddCore(botConfiguration);
             serviceCollection.AddInfrastructure();
-            serviceCollection.AddCommands();
-            serviceCollection.AddPersistence(persistenceConfiguration);
-        });
+            serviceCollection.AddCommands(commandsConfiguration);
+            serviceCollection.AddPersistence(persistenceConfiguration, cachingConfiguration);
 
-        return hostBuilder;
-    }
-
-    public static IHostBuilder AddApplicationHost(this IHostBuilder hostBuilder) 
-    {
-        hostBuilder.ConfigureServices((hostBuilder, serviceCollection) => 
-        {
+            serviceCollection.AddTransient<HostStartup>();
             serviceCollection.AddHostedService<ApplicationHost>();
         });
 

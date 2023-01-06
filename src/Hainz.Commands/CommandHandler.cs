@@ -1,6 +1,7 @@
 using System.Reflection;
 using Discord.Commands;
 using Discord.WebSocket;
+using Hainz.Commands.Config;
 using Hainz.Commands.TypeReaders;
 using Hainz.Common.Helpers;
 using Hainz.Data.Queries.Guild.Commands;
@@ -13,10 +14,9 @@ namespace Hainz.Commands;
 
 public sealed class CommandHandler : GatewayServiceBase, INotificationHandler<MessageReceived>
 {
-    private const char DEFAULT_COMMAND_PREFIX = '!';
-
     private readonly DiscordSocketClient _client;
     private readonly CommandService _commandService;
+    private readonly CommandsConfig _config;
     private readonly IMediator _mediator;
     private readonly IEnumerable<TypeReaderBase> _typeReaders;
     private readonly IServiceProvider _serviceProvider;
@@ -24,6 +24,7 @@ public sealed class CommandHandler : GatewayServiceBase, INotificationHandler<Me
 
     public CommandHandler(DiscordSocketClient client, 
                           CommandService commands,
+                          CommandsConfig config,
                           IMediator mediator,
                           IEnumerable<TypeReaderBase> typeReaders,
                           IServiceProvider serviceProvider,
@@ -31,6 +32,7 @@ public sealed class CommandHandler : GatewayServiceBase, INotificationHandler<Me
     {
         _client = client;
         _commandService = commands;
+        _config = config;
         _mediator = mediator;
         _typeReaders = typeReaders;
         _serviceProvider = serviceProvider;
@@ -79,8 +81,8 @@ public sealed class CommandHandler : GatewayServiceBase, INotificationHandler<Me
 
         char commandPrefix = await TryWrapper.TryAsync(
             async () => await _mediator.Send(new GetCommandPrefixQuery(guildId), cancellationToken),
-            DEFAULT_COMMAND_PREFIX,
-            ex => _logger.LogError(ex, "Error while trying to retrieve command prefix from database. Using default prefix instead")
+            _config.FallbackPrefix,
+            ex => _logger.LogError(ex, "Error while trying to retrieve command prefix from database. Using fallback prefix instead")
         );
 
         if (!(userMessage.HasCharPrefix(commandPrefix, ref argPos) || 

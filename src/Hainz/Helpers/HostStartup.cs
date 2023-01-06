@@ -1,43 +1,34 @@
 using Hainz.Infrastructure.Logging;
 using Hainz.Data.Helpers;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Hainz.Helpers;
 
-public sealed class HostStartup : IDisposable
+public sealed class HostStartup
 {
-    private readonly IHost _host;
-    private readonly IServiceScope _startupProvider;
+    private readonly DbMigrationHelper _migrationHelper;
+    private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<HostStartup> _logger;
 
-    public HostStartup(IHost host)
+    public HostStartup(DbMigrationHelper migrationHelper, 
+                       IServiceProvider serviceProvider, 
+                       ILogger<HostStartup> logger)
     {
-        _host = host;
-        _startupProvider = _host.Services.CreateScope();
-        _logger = _host.Services.GetRequiredService<ILogger<HostStartup>>();
+        _migrationHelper = migrationHelper;
+        _serviceProvider = serviceProvider;
+        _logger = logger;
     }
 
     public void ReloadLogging()
     {
         _logger.LogInformation("Reloading logging with host service provider");
-        LoggingServiceProviderConfigurator.ReloadConfigWithServiceProvider(_host.Services);
+        LoggingServiceProviderConfigurator.ReloadConfigWithServiceProvider(_serviceProvider);
     }
 
     public async Task ApplyMigrationsAsync()
     {
         _logger.LogInformation("Applying database migrations");
-        var migrationService = _startupProvider
-            .ServiceProvider
-            .GetRequiredService<DbMigrationHelper>();
-
-        var numMigrationsApplied = await migrationService.ApplyMigrationsAsync();
+        var numMigrationsApplied = await _migrationHelper.ApplyMigrationsAsync();
         _logger.LogInformation("Applied migrations: {numMigrations}", numMigrationsApplied);
-    }
-
-    public void Dispose()
-    {
-        _startupProvider.Dispose();
     }
 }

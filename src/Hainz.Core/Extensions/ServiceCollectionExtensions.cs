@@ -16,8 +16,11 @@ namespace Hainz.Core.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddCore(this IServiceCollection serviceCollection)
+    public static IServiceCollection AddCore(this IServiceCollection serviceCollection, BotConfig botConfig)
     {
+        new BotConfigValidator().ValidateAndThrow(botConfig);
+        serviceCollection.AddSingleton(botConfig);
+
         serviceCollection.AddTransient<ActivityService>();
         serviceCollection.AddTransient<StatusService>();
         serviceCollection.AddTransient<BanService>();
@@ -35,15 +38,6 @@ public static class ServiceCollectionExtensions
 
         var currentAssembly = Assembly.GetExecutingAssembly();
         serviceCollection.AddMediatR(currentAssembly);
-
-        return serviceCollection;
-    }
-
-    public static IServiceCollection AddCoreConfiguration(this IServiceCollection serviceCollection,
-                                                          BotConfig botConfig)
-    {
-        new BotConfigValidator().ValidateAndThrow(botConfig);
-        serviceCollection.AddSingleton(botConfig);
 
         return serviceCollection;
     }

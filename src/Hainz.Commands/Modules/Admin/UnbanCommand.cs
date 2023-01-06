@@ -20,11 +20,11 @@ public sealed class UnbanCommand : AdminCommandBase
     {
         if (await _banService.UnbanAsync(Context.Guild, userId))
         {
-            await Context.Channel.SendMessageAsync($"Unbanned user with id {userId}");
+            await ReplyAsync($"Unbanned user with id {userId}");
         }
         else
         {
-            await Context.Channel.SendMessageAsync($"Failed to unban user with id {userId}");
+            await ReplyAsync($"Failed to unban user with id {userId}");
         }
     }
 }
