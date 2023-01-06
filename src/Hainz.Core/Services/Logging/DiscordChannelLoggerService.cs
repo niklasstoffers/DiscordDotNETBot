@@ -50,7 +50,6 @@ public sealed class DiscordChannelLoggerService : GatewayServiceBase
         var logChannelDTOs = await _mediator.Send(new GetLogChannelsQuery());
         await Parallel.ForEachAsync(logChannelDTOs, async (channel, cancellationToken) =>
         {
-            var abc = await _client.GetChannelAsync(channel.ChannelId);
             if (await _client.GetChannelAsync(channel.ChannelId) is SocketTextChannel logChannel)
             {
                 _logChannels.Add(logChannel);

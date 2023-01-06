@@ -2,7 +2,6 @@ using Discord;
 using Discord.Commands;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using Hainz.Commands.Metadata;
 
 namespace Hainz.Commands.Modules.Admin;
 
@@ -19,8 +18,7 @@ public sealed class SetSendDMUponBanCommand : AdminCommandBase
     }
 
     [Command("setsenddmuponban")]
-    [Summary("Guild wide setting whether banned users will get a DM by the Bot upon ban")]
-    public async Task SetSendDMUponBanAsync([CommandParameter(CommandParameterType.Bool, "enable", "Whether to enable or disable setting")]bool enable)
+    public async Task SetSendDMUponBanAsync(bool enable)
     {
         try
         {
@@ -28,14 +26,14 @@ public sealed class SetSendDMUponBanCommand : AdminCommandBase
             await _mediator.Send(command);
 
             if (enable)
-                await Context.Channel.SendMessageAsync("Sending DM upon ban enabled");
+                await ReplyAsync("Sending DM upon ban enabled");
             else
-                await Context.Channel.SendMessageAsync("Sending DM upon ban disabled");
+                await ReplyAsync("Sending DM upon ban disabled");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error while trying to update SendDMUponBan setting");
-            await Context.Channel.SendMessageAsync("Internal error while trying to update setting");
+            await ReplyAsync("Internal error while trying to update setting");
         }
     }
 }

@@ -1,4 +1,3 @@
-using Hainz.Core.Config;
 using Hainz.Core.Services.Status;
 using Hainz.Data.Queries.Bot.DefaultActivity;
 using Hainz.Data.Queries.Bot.DefaultStatus;

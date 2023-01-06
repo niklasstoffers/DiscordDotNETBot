@@ -1,7 +1,6 @@
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Hainz.Commands.Metadata;
 using Hainz.Commands.Modules.Admin.Parameters;
 using Hainz.Commands.Preconditions;
 using Hainz.Core.Services.Guild;
@@ -20,32 +19,28 @@ public sealed class BanCommand : AdminCommandBase
     }
 
     [Command("ban")]
-    [Summary("Bans the specified user from the Discord Server using the users id")]
-    [Remarks("This command cannot be invoked on oneself")]
-    public async Task BanAsync([NotSelfInvokable, CommandParameter(CommandParameterType.Id, "user id", "Id of the user to ban")] ulong userId, BanOptionsParameter? options = null)
+    public async Task BanAsync([NotSelfInvokable] ulong userId, BanOptionsParameter? options = null)
     {
         if (await _banService.BanAsync(Context.Guild, userId, options?.Reason, options?.PruneDays))
         {
-            await Context.Channel.SendMessageAsync($"Banned user with id {userId}");
+            await ReplyAsync($"Banned user with id {userId}");
         }
         else
         {
-            await Context.Channel.SendMessageAsync($"Failed to ban user {userId}");
+            await ReplyAsync($"Failed to ban user with id {userId}");
         }
     }
 
     [Command("ban")]
-    [Summary("Bans the specified user from the Discord Server using the users mention")]
-    [Remarks("This command cannot be invoked on oneself")]
-    public async Task BanAsync([NotSelfInvokable, CommandParameter(CommandParameterType.Mention, "user", "Mention of the user to ban")] SocketGuildUser user, BanOptionsParameter? options = null)
+    public async Task BanAsync([NotSelfInvokable] SocketGuildUser user, BanOptionsParameter? options = null)
     {
         if (await _banService.BanAsync(user, options?.Reason, options?.PruneDays))
         {
-            await Context.Channel.SendMessageAsync($"Banned user {user.Mention}");
+            await ReplyAsync($"Banned user {user.Mention}");
         }
         else
         {
-            await Context.Channel.SendMessageAsync($"Failed to ban user {user.Mention}");
+            await ReplyAsync($"Failed to ban user {user.Mention}");
         }
     }
 }

@@ -27,15 +27,15 @@ public class RemoveLogChannelCommand : LogChannelCommandBase
 
             await (result switch
             {
-                RemoveLogChannelResult.NotALogChannel => Context.Channel.SendMessageAsync("This channel is not a log channel"),
-                RemoveLogChannelResult.Success => Context.Channel.SendMessageAsync("Removed channel from log channels"),
+                RemoveLogChannelResult.NotALogChannel => ReplyAsync("This channel is not a log channel"),
+                RemoveLogChannelResult.Success => ReplyAsync("Removed channel from log channels"),
                 _ => Task.CompletedTask
             });;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Exception while trying to remove log channel");
-            await Context.Channel.SendMessageAsync("Internal error while trying to remove log channel");
+            await ReplyAsync("Internal error while trying to remove log channel");
         }
     }
 }

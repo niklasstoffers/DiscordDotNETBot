@@ -51,6 +51,7 @@ public static class ServiceCollectionExtensions
                 .DisableLogging(true)
         );
 
+        const string messagePackSerializerName = "Pack";
         serviceCollection.AddEasyCaching(options =>
             options.UseRedis(redisOptions =>
             {
@@ -60,7 +61,7 @@ public static class ServiceCollectionExtensions
                 redisOptions.DBConfig.ConnectionTimeout = cachingConfiguration.Redis.ConnectionTimeout;
                 redisOptions.DBConfig.Endpoints.Add(new ServerEndPoint(cachingConfiguration.Redis.Hostname, cachingConfiguration.Redis.Port));
                 redisOptions.EnableLogging = false;
-                redisOptions.SerializerName = "Pack";
+                redisOptions.SerializerName = messagePackSerializerName;
             }, cachingConfiguration.ProviderName)
             .WithMessagePack(serializerOptions =>
             {
@@ -78,7 +79,7 @@ public static class ServiceCollectionExtensions
                     }
                 );
             },
-            "Pack")
+            messagePackSerializerName)
         );
 
         return serviceCollection;

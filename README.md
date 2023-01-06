@@ -30,6 +30,7 @@ In order for the bot to work you need to provide configuration for it. To do thi
 | Option      | Description |
 | ----------- | ----------- |
 | `Bot.Token` | Your applications bot token. This is required in order for the bot to work.       |
+| `Commands.FallbackPrefix` | Fallback command prefix that's used if retrieving prefix from database fails. |
 | `Persistence.Host`   | Hostname for PostgreSQL server.       |
 | `Persistence.Port`   | Port for PostgreSQL server.        |
 | `Persistence.Username`   | Login username for PostgreSQL server.        |
@@ -39,6 +40,9 @@ In order for the bot to work you need to provide configuration for it. To do thi
 | `Caching.Redis` | Caching configuration options related to the Redis server. |
 | `Caching.Redis.Hostname` | Hostname for Redis cache server. |
 | `Caching.Redis.Port` | Port for Redis cache server. |
+
+> **Note about configuration options:**
+  Configuration options marked with `?` are optional and can be omitted if unnecessary.
 
 > **Note about persistence and caching configuration:**  
   Most of the persistence configuration in the *appsettings.json* file is only relevant if you host the PostgreSQL DB server by yourself. The same applies to the Redis hostname and port settings. If you're using the Docker PostgreSQL and Redis services coming with the repository, the respective configuration will be overriden by environment variables defined in the *.env.docker* file.

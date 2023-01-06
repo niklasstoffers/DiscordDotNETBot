@@ -1,8 +1,6 @@
 using Discord;
 using Discord.Commands;
 using Hainz.Commands.Helpers;
-using Hainz.Commands.Metadata;
-using Hainz.Common.Helpers;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -21,14 +19,13 @@ public class SetCommandPrefixCommand : AdminCommandBase
     }
 
     [Command("setcommandprefix")]
-    [Summary("Sets the command prefix for this bot guild-wide")]
-    public async Task SetCommandPrefixAsync([CommandParameter(CommandParameterType.Char, "prefix", "The prefix to use")]char prefix)
+    public async Task SetCommandPrefixAsync(char prefix)
     {
         var isValidPrefix = CommandPrefixValidator.IsValidPrefix(prefix);
         if (!isValidPrefix)
         {
             var validPrefixes = string.Join(" ", CommandPrefixValidator.ValidPrefixes);
-            await Context.Channel.SendMessageAsync($"Invalid command prefix. Command prefix can only be set to [{validPrefixes}]");
+            await ReplyAsync($"Invalid command prefix. Command prefix can only be set to [{validPrefixes}]");
             return;
         }
 
@@ -36,12 +33,12 @@ public class SetCommandPrefixCommand : AdminCommandBase
         {
             var command = new Data.Commands.Guild.Commands.SetCommandPrefixCommand(Context.Guild.Id, prefix);
             await _mediator.Send(command);
-            await Context.Channel.SendMessageAsync("Command prefix successfully updated");
+            await ReplyAsync("Command prefix successfully updated");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Exception while trying to set command prefix");
-            await Context.Channel.SendMessageAsync("Internal error while trying to update command prefix");
+            await ReplyAsync("Internal error while trying to update command prefix");
         }
     }
 }

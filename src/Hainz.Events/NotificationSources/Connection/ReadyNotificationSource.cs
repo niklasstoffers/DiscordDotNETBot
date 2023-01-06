@@ -10,7 +10,7 @@ public class ReadyNotificationSource : INotificationSource
     private readonly IMediator _mediator;
 
     public ReadyNotificationSource(DiscordSocketClient client,
-                                       IMediator mediator)
+                                   IMediator mediator)
     {
         _client = client;
         _mediator = mediator;
@@ -28,6 +28,6 @@ public class ReadyNotificationSource : INotificationSource
         return Task.CompletedTask;
     }
 
-    private async Task ReadyAsync() => 
+    private async Task ReadyAsync() =>
         await _mediator.Publish(new Ready());
 }

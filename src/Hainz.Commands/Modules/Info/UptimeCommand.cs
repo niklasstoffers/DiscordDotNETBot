@@ -6,11 +6,10 @@ namespace Hainz.Commands.Modules.Info;
 public sealed class UptimeCommand : InfoCommandBase
 {
     [Command("uptime")]
-    [Summary("Responds with the bots current uptime")]
     public async Task UptimeAsync() 
     {
         var startupDate = Process.GetCurrentProcess().StartTime.ToUniversalTime();
         var uptime = DateTime.UtcNow - startupDate;
-        await Context.Channel.SendMessageAsync($"Up since {uptime}");
+        await ReplyAsync($"Up since {uptime}");
     }
 }

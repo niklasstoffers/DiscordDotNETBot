@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Hainz.Data.Configuration;
 using Hainz.Data.Configuration.Caching;
 using Hainz.Helpers;
+using Hainz.Commands.Config;
 
 namespace Hainz.Extensions;
 
@@ -11,6 +12,9 @@ public static class ConfigurationExtensions
 {
     public static BotConfig GetBotConfiguration(this IConfiguration configuration) => 
         configuration.GetConfiguration<BotConfig>(SectionKey.Bot);
+
+    public static CommandsConfig GetCommandsConfiguration(this IConfiguration configuration) =>
+        configuration.GetConfiguration<CommandsConfig>(SectionKey.Commands);
     
     public static PersistenceConfiguration GetPersistenceConfiguration(this IConfiguration configuration) => 
         configuration.GetConfiguration<PersistenceConfiguration>(

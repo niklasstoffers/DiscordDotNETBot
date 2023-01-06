@@ -29,13 +29,14 @@ public static class HostBuilderExtensions
         hostBuilder.ConfigureServices((hostBuilder, serviceCollection) =>
         {
             var botConfiguration = hostBuilder.Configuration.GetBotConfiguration();
+            var commandsConfiguration = hostBuilder.Configuration.GetCommandsConfiguration();
             var persistenceConfiguration = hostBuilder.Configuration.GetPersistenceConfiguration();
             var cachingConfiguration = hostBuilder.Configuration.GetCachingConfiguration();
 
             serviceCollection.AddEvents();
             serviceCollection.AddCore(botConfiguration);
             serviceCollection.AddInfrastructure();
-            serviceCollection.AddCommands();
+            serviceCollection.AddCommands(commandsConfiguration);
             serviceCollection.AddPersistence(persistenceConfiguration, cachingConfiguration);
 
             serviceCollection.AddTransient<HostStartup>();

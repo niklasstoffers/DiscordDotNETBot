@@ -2,6 +2,7 @@ using Discord;
 using Discord.WebSocket;
 using Hainz.Core.Config;
 using Hainz.Hosting;
+using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Hainz.Core.Services.Bot;
