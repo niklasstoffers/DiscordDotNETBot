@@ -1,6 +1,7 @@
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Hainz.Commands.Metadata;
 using Hainz.Commands.Modules.Admin.Parameters;
 using Hainz.Commands.Preconditions;
 using Hainz.Core.Services.Guild;
@@ -9,6 +10,9 @@ namespace Hainz.Commands.Modules.Admin;
 
 [RequireUserPermission(GuildPermission.BanMembers)]
 [RequireBotPermission(GuildPermission.BanMembers)]
+[CommandName("ban")]
+[Summary("bans a user from the current guild")]
+[Remarks("This command cannot be invoked on oneself")]
 public sealed class BanCommand : AdminCommandBase
 {
     private readonly BanService _banService;
@@ -19,7 +23,7 @@ public sealed class BanCommand : AdminCommandBase
     }
 
     [Command("ban")]
-    public async Task BanAsync([NotSelfInvokable] ulong userId, BanOptionsParameter? options = null)
+    public async Task BanAsync([NotSelfInvokable, CommandParameter("userid", "the users id")] ulong userId, BanOptionsParameter? options = null)
     {
         if (await _banService.BanAsync(Context.Guild, userId, options?.Reason, options?.PruneDays))
         {
@@ -32,7 +36,7 @@ public sealed class BanCommand : AdminCommandBase
     }
 
     [Command("ban")]
-    public async Task BanAsync([NotSelfInvokable] SocketGuildUser user, BanOptionsParameter? options = null)
+    public async Task BanAsync([NotSelfInvokable, CommandParameter("user", "mention of the user to ban")] SocketGuildUser user, BanOptionsParameter? options = null)
     {
         if (await _banService.BanAsync(user, options?.Reason, options?.PruneDays))
         {

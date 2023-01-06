@@ -1,5 +1,6 @@
-using Discord.Commands;
+using Hainz.Commands.Metadata;
 
 namespace Hainz.Commands.Modules;
 
-public class InfoCommandBase : ModuleBase<SocketCommandContext> { }
+[CommandSection("info", "informational commands")]
+public class InfoCommandBase : SocketCommandModuleBase { }

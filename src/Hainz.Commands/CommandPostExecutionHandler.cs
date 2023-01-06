@@ -1,5 +1,4 @@
 using Discord.Commands;
-using Discord.WebSocket;
 using Hainz.Events.Notifications.Commands;
 using MediatR;
 using Microsoft.Extensions.Logging;

@@ -1,11 +1,14 @@
 using Discord;
 using Discord.Commands;
+using Hainz.Commands.Metadata;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Hainz.Commands.Modules.Admin;
 
 [RequireUserPermission(GuildPermission.Administrator)]
+[CommandName("setsenddmuponban")]
+[Summary("sets whether banned users should receive a ban dm")]
 public sealed class SetSendDMUponBanCommand : AdminCommandBase
 {
     private readonly IMediator _mediator;
@@ -18,7 +21,7 @@ public sealed class SetSendDMUponBanCommand : AdminCommandBase
     }
 
     [Command("setsenddmuponban")]
-    public async Task SetSendDMUponBanAsync(bool enable)
+    public async Task SetSendDMUponBanAsync([CommandParameter("enable", "true to send a dm upon ban, otherwise false")]bool enable)
     {
         try
         {
