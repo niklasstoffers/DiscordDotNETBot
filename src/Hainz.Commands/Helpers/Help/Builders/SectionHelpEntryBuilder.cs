@@ -1,22 +1,23 @@
 using System.Text;
 using Discord;
 using Discord.Commands;
+using Hainz.Commands.Modules.Misc;
 
 namespace Hainz.Commands.Helpers.Help.Builders;
 
 public class SectionHelpEntryBuilder : HelpEntryBuilderBase<SectionHelpEntry>
 {
-    private readonly HelpCommandInvocationResolver _helpCommandInvocationResolver;
+    private readonly CommandInvocationResolver _commandInvocationResolver;
 
-    public SectionHelpEntryBuilder(HelpCommandInvocationResolver helpCommandInvocationResolver)
+    public SectionHelpEntryBuilder(CommandInvocationResolver commandInvocationResolver)
     {
-        _helpCommandInvocationResolver = helpCommandInvocationResolver;
+        _commandInvocationResolver = commandInvocationResolver;
     }
 
     protected override async Task Fill(EmbedBuilder builder, SocketCommandContext context, SectionHelpEntry entry)
     {
         var contentBuilder = new StringBuilder();
-        var helpSearchInvocation = await _helpCommandInvocationResolver.GetSearchInvocation(context.Channel);
+        var helpSearchInvocation = await _commandInvocationResolver.GetInvocation<HelpCommand>(m => m.SearchHelpAsync, context);
         contentBuilder.AppendLine(Format.Underline(entry.Description));
         contentBuilder.AppendLine();
 

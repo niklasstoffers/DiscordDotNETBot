@@ -1,3 +1,4 @@
+using System.Reflection;
 using FuzzySharp;
 
 namespace Hainz.Commands.Helpers.Help;
@@ -8,11 +9,13 @@ public class HelpRegister
 
     public List<SectionHelpEntry> Sections { get; init; }
     public Dictionary<string, HelpEntry> Entries { get; init; }
+    public Dictionary<MethodInfo, CommandInvocation> CommandInvocationMap { get; init; }
 
     public HelpRegister()
     {
         Sections = new();
         Entries = new();
+        CommandInvocationMap = new Dictionary<MethodInfo, CommandInvocation>();
     }
 
     public HelpEntry? GetEntry(string search, out bool wasFuzzyMatch)
@@ -41,4 +44,7 @@ public class HelpRegister
     {
         Entries.Add(command.Name, command);
     }
+
+    public void AddInvocation(MethodInfo methodInfo, CommandInvocation invocation) => CommandInvocationMap.Add(methodInfo, invocation);
+    public CommandInvocation? GetInvocationByMethod(MethodInfo methodInfo) => CommandInvocationMap.GetValueOrDefault(methodInfo);
 }

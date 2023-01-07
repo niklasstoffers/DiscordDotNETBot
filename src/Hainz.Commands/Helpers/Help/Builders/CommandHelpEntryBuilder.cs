@@ -17,7 +17,6 @@ public class CommandHelpEntryBuilder : HelpEntryBuilderBase<CommandHelpEntry>
 
     protected override async Task Fill(EmbedBuilder builder, SocketCommandContext context, CommandHelpEntry entry)
     {
-        char prefix = await _prefixResolver.GetPrefix(context.Channel);
         var contentBuilder = new StringBuilder();
 
         contentBuilder.AppendLine(Format.Underline(entry.Description));
@@ -25,7 +24,7 @@ public class CommandHelpEntryBuilder : HelpEntryBuilderBase<CommandHelpEntry>
 
         foreach (var invocation in entry.Invocations)
         {
-            contentBuilder.AppendLine(BuildInvocation(invocation, prefix));
+            contentBuilder.AppendLine(await BuildInvocation(invocation, context));
 
             if (entry.Invocations.Count > 1)
                 contentBuilder.AppendLine();
@@ -43,10 +42,14 @@ public class CommandHelpEntryBuilder : HelpEntryBuilderBase<CommandHelpEntry>
         builder.Description = contentBuilder.ToString();
     }
 
-    private static string BuildInvocation(CommandInvocation invocation, char prefix)
+    public async Task<string> BuildInvocation(CommandInvocation invocation, SocketCommandContext context, bool invocationOnly = false)
     {
+        char prefix = await _prefixResolver.GetPrefix(context.Channel);
         string parameterList = BuildParameterList(invocation);
         var invocationBuilder = new StringBuilder();
+
+        if (invocationOnly)
+            return Format.Code($"{prefix}{invocation.Name} {parameterList}".TrimEnd());
 
         if (invocation.Parameters.Count > 0)
         {

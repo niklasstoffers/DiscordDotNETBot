@@ -19,14 +19,14 @@ public sealed class HelpCommand : MiscCommandBase
     }
 
     [Command("help")]
-    public async Task HelpAsync()
+    public async Task RootHelpAsync()
     {
         var embed = await _helpEntryBuilder.GetRootHelp(Context);
         await ReplyAsync(embed: embed);
     }
 
     [Command("help")]
-    public async Task HelpAsync([Remainder, CommandParameter("search", "search term")] string search)
+    public async Task SearchHelpAsync([Remainder, CommandParameter("search", "search term")] string search)
     {
         var helpEntry = _helpRegister.GetEntry(search, out var wasFuzzyMatch);
 

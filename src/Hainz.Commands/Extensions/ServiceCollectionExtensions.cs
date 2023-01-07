@@ -40,7 +40,7 @@ public static class ServiceCollectionExtensions
         serviceCollection.AddTransient<CommandHelpEntryBuilder>();
         serviceCollection.AddTransient<RootHelpEntryBuilder>();
 
-        serviceCollection.AddTransient<HelpCommandInvocationResolver>();
+        serviceCollection.AddTransient<CommandInvocationResolver>();
         serviceCollection.AddTransient<HelpRegisterPopulator>();
         serviceCollection.AddTransient<CommandModuleBootstrapper>();
         serviceCollection.AddTransient<CommandPrefixResolver>();
