@@ -1,11 +1,14 @@
 using Discord.Commands;
 using Discord.WebSocket;
+using Hainz.Commands.Metadata;
 using Hainz.Data.Commands.Channel.AddLogChannel;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Hainz.Commands.Modules.Bot.LogChannel;
 
+[CommandName("add")]
+[Summary("adds a new log channel")]
 public class AddLogChannelCommand : LogChannelCommandBase
 {
     private readonly IMediator _mediator;
@@ -18,7 +21,7 @@ public class AddLogChannelCommand : LogChannelCommandBase
     }
 
     [Command("add")]
-    public async Task AddLogChannelAsync(SocketGuildChannel channel)
+    public async Task AddLogChannelAsync([CommandParameter("channel", "the channel to add")] SocketGuildChannel channel)
     {
         try
         {

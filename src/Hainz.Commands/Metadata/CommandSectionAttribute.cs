@@ -3,10 +3,12 @@ namespace Hainz.Commands.Metadata;
 [AttributeUsage(AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
 public sealed class CommandSectionAttribute : Attribute
 {
-    public string SectionName { get; init; }
+    public string Name { get; init; }
+    public string Description { get; init; }
 
-    public CommandSectionAttribute(string sectionName)
+    public CommandSectionAttribute(string name, string description)
     {
-        SectionName = sectionName;
+        Name = name;
+        Description = description;
     }
 }

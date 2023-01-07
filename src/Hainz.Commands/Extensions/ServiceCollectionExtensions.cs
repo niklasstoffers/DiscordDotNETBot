@@ -2,9 +2,11 @@ using System.Reflection;
 using Discord.Commands;
 using FluentValidation;
 using Hainz.Commands.Config;
+using Hainz.Commands.Helpers;
+using Hainz.Commands.Helpers.Help;
+using Hainz.Commands.Helpers.Help.Builders;
 using Hainz.Commands.TypeReaders;
 using Hainz.Commands.Validation;
-using Hainz.Hosting.Extensions;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,16 +19,37 @@ public static class ServiceCollectionExtensions
         new CommandsConfigValidator().ValidateAndThrow(commandsConfiguration);
         serviceCollection.AddSingleton(commandsConfiguration);
 
-        serviceCollection.AddTransient<CommandPostExecutionHandler>();
-        serviceCollection.AddSingleton(new CommandService(new CommandServiceConfig()
+        serviceCollection.AddSingleton(serviceProvider =>
         {
-            DefaultRunMode = RunMode.Async
-        }));
+            var commandServiceConfig = new CommandServiceConfig()
+            {
+                DefaultRunMode = RunMode.Async
+            };
+
+            var commandService = new CommandService(commandServiceConfig);
+
+            var bootstrapper = serviceProvider.GetRequiredService<CommandModuleBootstrapper>();
+            bootstrapper.Bootstrap(commandService);
+
+            return commandService;
+        });
+        serviceCollection.AddSingleton<HelpRegister>();
+
+        serviceCollection.AddTransient<HelpEntryBuilder>();
+        serviceCollection.AddTransient<SectionHelpEntryBuilder>();
+        serviceCollection.AddTransient<CommandHelpEntryBuilder>();
+        serviceCollection.AddTransient<RootHelpEntryBuilder>();
+
+        serviceCollection.AddTransient<HelpCommandInvocationResolver>();
+        serviceCollection.AddTransient<HelpRegisterPopulator>();
+        serviceCollection.AddTransient<CommandModuleBootstrapper>();
+        serviceCollection.AddTransient<CommandPrefixResolver>();
+
+        serviceCollection.AddTransient<CommandPostExecutionHandler>();
+        serviceCollection.AddTransient<CommandHandler>();
 
         serviceCollection.AddTransient<TypeReaderBase, ActivityTypeTypeReader>();
         serviceCollection.AddTransient<TypeReaderBase, UserStatusTypeReader>();
-
-        serviceCollection.AddGatewayService<CommandHandler>();
 
         var currentAssembly = Assembly.GetExecutingAssembly();
         serviceCollection.AddMediatR(currentAssembly);

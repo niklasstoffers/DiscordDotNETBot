@@ -1,68 +1,31 @@
-using System.Reflection;
 using Discord.Commands;
 using Discord.WebSocket;
-using Hainz.Commands.Config;
-using Hainz.Commands.TypeReaders;
-using Hainz.Common.Helpers;
-using Hainz.Data.Queries.Guild.Commands;
+using Hainz.Commands.Helpers;
 using Hainz.Events.Notifications.Messages;
-using Hainz.Hosting;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Hainz.Commands;
 
-public sealed class CommandHandler : GatewayServiceBase, INotificationHandler<MessageReceived>
+public sealed class CommandHandler : INotificationHandler<MessageReceived>
 {
     private readonly DiscordSocketClient _client;
     private readonly CommandService _commandService;
-    private readonly CommandsConfig _config;
-    private readonly IMediator _mediator;
-    private readonly IEnumerable<TypeReaderBase> _typeReaders;
+    private readonly CommandPrefixResolver _prefixResolver;
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<CommandHandler> _logger;
 
     public CommandHandler(DiscordSocketClient client, 
                           CommandService commands,
-                          CommandsConfig config,
-                          IMediator mediator,
-                          IEnumerable<TypeReaderBase> typeReaders,
+                          CommandPrefixResolver prefixResolver,
                           IServiceProvider serviceProvider,
                           ILogger<CommandHandler> logger)
     {
         _client = client;
         _commandService = commands;
-        _config = config;
-        _mediator = mediator;
-        _typeReaders = typeReaders;
+        _prefixResolver = prefixResolver;
         _serviceProvider = serviceProvider;
         _logger = logger;
-    }
-
-    public override async Task SetupAsync()
-    {
-        _logger.LogTrace("Adding type readers");
-        AddTypeReaders();
-
-        try 
-        {
-            _logger.LogTrace("Adding command modules");
-            await _commandService.AddModulesAsync(assembly: Assembly.GetExecutingAssembly(), 
-                                                  services: _serviceProvider);
-        }
-        catch (Exception ex) 
-        {
-            _logger.LogError(ex, "Error while trying to add command modules");
-        }
-    }
-
-    private void AddTypeReaders()
-    {
-        foreach (var typeReader in _typeReaders)
-        {
-            _logger.LogTrace("Adding type reader {name} for type {type}", typeReader.GetType().FullName, typeReader.ForType.FullName);
-            _commandService.AddTypeReader(typeReader.ForType, typeReader);
-        }
     }
 
     public async Task Handle(MessageReceived notification, CancellationToken cancellationToken)
@@ -70,40 +33,41 @@ public sealed class CommandHandler : GatewayServiceBase, INotificationHandler<Me
         var message = notification.Message;
         _logger.LogTrace("Received message \"{message}\" from \"{user}\"", message.Content, message.Author.Username);
 
-        if (message is not SocketUserMessage userMessage)
-            return;
-
-        ulong guildId = 0;
-        int argPos = 0;
-
-        if (userMessage.Channel is SocketGuildChannel guildChannel)
-            guildId = guildChannel.Guild.Id;
-
-        char commandPrefix = await TryWrapper.TryAsync(
-            async () => await _mediator.Send(new GetCommandPrefixQuery(guildId), cancellationToken),
-            _config.FallbackPrefix,
-            ex => _logger.LogError(ex, "Error while trying to retrieve command prefix from database. Using fallback prefix instead")
-        );
-
-        if (!(userMessage.HasCharPrefix(commandPrefix, ref argPos) || 
-            userMessage.HasMentionPrefix(_client.CurrentUser, ref argPos)) ||
-            userMessage.Author.IsBot)
-            return;
-
-        _logger.LogInformation("Received command \"{command}\" from \"{user}\"", message.Content, message.Author.Username);
-        var context = new SocketCommandContext(_client, userMessage);
-
-        try 
+        (SocketUserMessage? commandMessage, int argPos) = await TryParseCommand(message);
+        if (commandMessage != null)
         {
-            _logger.LogTrace("Executing command");
-            await _commandService.ExecuteAsync(
-                context: context, 
-                argPos: argPos,
-                services: _serviceProvider);
+            _logger.LogInformation("Received command \"{command}\" from \"{user}\"", message.Content, message.Author.Username);
+            var context = new SocketCommandContext(_client, commandMessage);
+
+            try 
+            {
+                _logger.LogTrace("Executing command");
+                await _commandService.ExecuteAsync(
+                    context: context, 
+                    argPos: argPos,
+                    services: _serviceProvider);
+            }
+            catch (Exception ex) 
+            {
+                _logger.LogError(ex, "Exception during command execution");
+            }   
         }
-        catch (Exception ex) 
+    }
+
+    private async Task<(SocketUserMessage? commandMessage, int argPos)> TryParseCommand(SocketMessage message)
+    {
+        if (message is SocketUserMessage userMessage)
         {
-            _logger.LogError(ex, "Exception during command execution");
+            int argPos = 0;
+            char commandPrefix = await _prefixResolver.GetPrefix(message.Channel);
+
+            if (userMessage.HasCharPrefix(commandPrefix, ref argPos) &&
+                !userMessage.Author.IsBot)
+            {
+                return (userMessage, argPos);
+            }
         }
+
+        return (null, 0);
     }
 }

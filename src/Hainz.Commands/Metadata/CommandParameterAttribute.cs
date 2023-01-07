@@ -5,11 +5,9 @@ public sealed class CommandParameterAttribute : Attribute
 {
     public string Name { get; init; }
     public string Description { get; init; }
-    public CommandParameterType Type { get; init; }
 
-    public CommandParameterAttribute(CommandParameterType type, string name, string description)
+    public CommandParameterAttribute(string name, string description)
     {
-        Type = type;
         Name = name;
         Description = description;
     }

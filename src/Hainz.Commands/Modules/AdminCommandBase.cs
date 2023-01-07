@@ -1,5 +1,6 @@
-using Discord.Commands;
+using Hainz.Commands.Metadata;
 
 namespace Hainz.Commands.Modules;
 
-public class AdminCommandBase : ModuleBase<SocketCommandContext> { }
+[CommandSection("admin", "administration related commands")]
+public class AdminCommandBase : SocketCommandModuleBase { }

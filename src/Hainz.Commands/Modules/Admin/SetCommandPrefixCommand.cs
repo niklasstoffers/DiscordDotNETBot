@@ -1,12 +1,15 @@
 using Discord;
 using Discord.Commands;
 using Hainz.Commands.Helpers;
+using Hainz.Commands.Metadata;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Hainz.Commands.Modules.Admin;
 
 [RequireUserPermission(GuildPermission.Administrator)]
+[CommandName("setcommandprefix")]
+[Summary("sets a guild specific command prefix")]
 public class SetCommandPrefixCommand : AdminCommandBase
 {
     private readonly IMediator _mediator;
@@ -19,7 +22,7 @@ public class SetCommandPrefixCommand : AdminCommandBase
     }
 
     [Command("setcommandprefix")]
-    public async Task SetCommandPrefixAsync(char prefix)
+    public async Task SetCommandPrefixAsync([CommandParameter("prefix", "prefix to use")] char prefix)
     {
         var isValidPrefix = CommandPrefixValidator.IsValidPrefix(prefix);
         if (!isValidPrefix)

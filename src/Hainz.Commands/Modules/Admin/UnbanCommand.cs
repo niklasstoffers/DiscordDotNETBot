@@ -1,11 +1,14 @@
 using Discord;
 using Discord.Commands;
+using Hainz.Commands.Metadata;
 using Hainz.Core.Services.Guild;
 
 namespace Hainz.Commands.Modules.Admin;
 
 [RequireUserPermission(GuildPermission.BanMembers)]
 [RequireBotPermission(GuildPermission.BanMembers)]
+[CommandName("unban")]
+[Summary("unbans a user from the guild")]
 public sealed class UnbanCommand : AdminCommandBase
 {
     private readonly BanService _banService;
@@ -16,7 +19,7 @@ public sealed class UnbanCommand : AdminCommandBase
     }
 
     [Command("unban")]
-    public async Task UnbanAsync(ulong userId)
+    public async Task UnbanAsync([CommandParameter("userid", "id of the user to unban")] ulong userId)
     {
         if (await _banService.UnbanAsync(Context.Guild, userId))
         {
