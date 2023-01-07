@@ -1,6 +1,7 @@
 using Hainz.Infrastructure.Logging;
 using Hainz.Data.Helpers;
 using Microsoft.Extensions.Logging;
+using Hainz.Config;
 
 namespace Hainz.Helpers;
 
@@ -24,8 +25,15 @@ public sealed class HostStartup
 
     public async Task ApplyMigrationsAsync()
     {
-        _logger.LogInformation("Applying database migrations");
-        var numMigrationsApplied = await _migrationHelper.ApplyMigrationsAsync();
-        _logger.LogInformation("Applied migrations: {numMigrations}", numMigrationsApplied);
+        if (EnvironmentVariable.GetPreventMigrations())
+        {
+            _logger.LogInformation("Skipping database migrations because prevent migrations is enabled");
+        }
+        else
+        {
+            _logger.LogInformation("Applying database migrations");
+            var numMigrationsApplied = await _migrationHelper.ApplyMigrationsAsync();
+            _logger.LogInformation("Applied migrations: {numMigrations}", numMigrationsApplied);
+        }
     }
 }

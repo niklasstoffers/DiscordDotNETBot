@@ -3,6 +3,7 @@ namespace Hainz.Config;
 public static class EnvironmentVariableName
 {
     public const string DotNetEnvironment = "DOTNET_ENVIRONMENT";
+    public const string PreventMigrations = "PREVENT_MIGRATIONS";
 
     public const string PersistenceHostname = "PERSISTENCE_HOSTNAME";
     public const string PersistencePort = "PERSISTENCE_PORT";
