@@ -1,16 +1,23 @@
 using System.Reflection;
 using Discord.Commands;
 using Hainz.Commands.Metadata;
+using Hainz.Commands.Modules;
 
 namespace Hainz.Commands.Helpers.Help;
 
 public class HelpRegisterPopulator
 {
     private readonly HelpRegister _register;
+    private readonly Type[] _commandModules;
 
     public HelpRegisterPopulator(HelpRegister register)
     {
         _register = register;
+
+        var assembly = Assembly.GetExecutingAssembly();
+        _commandModules = assembly.GetTypes()
+            .Where(t => t.IsAssignableTo(typeof(SocketCommandModuleBase)))
+            .ToArray();
     }
 
     public void Populate(CommandService commandService)
@@ -58,8 +65,10 @@ public class HelpRegisterPopulator
 
             var commandInvocationEntry = new CommandInvocation(commandInvocationName);
             commandEntry.Invocations.Add(commandInvocationEntry);
-
             AddCommandParameters(commandInfo, commandInvocationEntry);
+
+            var commandMethodHandle = GetMethodHandleForInvocation(module, commandInfo);
+            _register.AddInvocation(commandMethodHandle, commandInvocationEntry);
         }
     }
 
@@ -84,5 +93,50 @@ public class HelpRegisterPopulator
                 commandInvocationEntry.Parameters.Add(parameterEntry);
             }
         }
+    }
+
+    private MethodInfo GetMethodHandleForInvocation(ModuleInfo module, CommandInfo command)
+    {
+        var currentAssembly = Assembly.GetExecutingAssembly();
+        var commandModules = _commandModules
+            .Where(m => 
+                string.IsNullOrEmpty(module.Group) ?
+                    m.Name == module.Name :
+                    m.GetCustomAttribute<GroupAttribute>()?.Prefix == module.Group
+            ) ?? throw new Exception($"Could not find module class for module {module.Name}");
+
+        foreach (var commandModule in commandModules)
+        {
+            var methodHandle = commandModule.GetMethods()
+                .SingleOrDefault(m => 
+                    m.GetCustomAttribute<CommandAttribute>() != null &&
+                    IsCommandMethodForInvocation(m, command)
+                );
+
+            if (methodHandle != null)
+                return methodHandle;
+        }
+
+        throw new Exception($"Could not find method handle for command {command.Name}");
+    }
+
+    private static bool IsCommandMethodForInvocation(MethodInfo methodInfo, CommandInfo command)
+    {
+        var commandName = methodInfo.GetCustomAttribute<CommandAttribute>();
+        var methodParameters = methodInfo.GetParameters();
+
+        if (!(methodParameters.Length == command.Parameters.Count &&
+              commandName?.Text == command.Name))
+        {
+            return false;
+        }
+
+        for (int i = 0; i < methodParameters.Length; i++)
+        {
+            if (methodParameters[i].ParameterType != command.Parameters[i].Type)
+                return false;
+        }
+
+        return true;
     }
 }

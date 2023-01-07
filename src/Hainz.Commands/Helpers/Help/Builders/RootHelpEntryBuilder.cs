@@ -1,25 +1,26 @@
 using System.Text;
 using Discord;
 using Discord.Commands;
+using Hainz.Commands.Modules.Misc;
 
 namespace Hainz.Commands.Helpers.Help.Builders;
 
 public class RootHelpEntryBuilder : HelpEntryBuilderBase
 {
     private readonly HelpRegister _helpRegister;
-    private readonly HelpCommandInvocationResolver _helpCommandInvocationResolver;
+    private readonly CommandInvocationResolver _commandInvocationResolver;
 
-    public RootHelpEntryBuilder(HelpRegister helpRegister, HelpCommandInvocationResolver helpCommandInvocationResolver)
+    public RootHelpEntryBuilder(HelpRegister helpRegister, CommandInvocationResolver commandInvocationResolver)
     {
         _helpRegister = helpRegister;
-        _helpCommandInvocationResolver = helpCommandInvocationResolver;
+        _commandInvocationResolver = commandInvocationResolver;
     }
 
     public async Task<Embed> Build(SocketCommandContext context)
     {
         var embedBuilder = CreateBaseEmbed(context);
         var contentBuilder = new StringBuilder();
-        string helpCommandSearchInvocation = await _helpCommandInvocationResolver.GetSearchInvocation(context.Channel);
+        string helpCommandSearchInvocation = await _commandInvocationResolver.GetInvocation<HelpCommand>(m => m.SearchHelpAsync, context);
 
         contentBuilder.AppendLine($"Welcome to Hainz Help! Below is a list of topics to get you started.");
         contentBuilder.AppendLine();
