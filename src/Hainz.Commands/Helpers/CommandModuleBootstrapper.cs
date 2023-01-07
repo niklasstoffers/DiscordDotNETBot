@@ -29,6 +29,7 @@ public sealed class CommandModuleBootstrapper
         AddTypeReaders(commandService);
         AddCommandModules(commandService);
         
+        _logger.LogInformation("Populating help register");
         _helpRegisterPopulator.Populate(commandService);
     }
 
