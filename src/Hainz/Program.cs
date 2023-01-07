@@ -28,7 +28,7 @@ try
         rootLogger.LogInformation("Performing host startup");
 
         var hostStartup = startupProviderScope.ServiceProvider.GetRequiredService<HostStartup>();
-        hostStartup.ReloadLogging();
+        hostStartup.ReloadLogging(host.Services);
         await hostStartup.ApplyMigrationsAsync();
     }
 

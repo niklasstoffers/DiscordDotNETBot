@@ -7,22 +7,19 @@ namespace Hainz.Helpers;
 public sealed class HostStartup
 {
     private readonly DbMigrationHelper _migrationHelper;
-    private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<HostStartup> _logger;
 
     public HostStartup(DbMigrationHelper migrationHelper, 
-                       IServiceProvider serviceProvider, 
                        ILogger<HostStartup> logger)
     {
         _migrationHelper = migrationHelper;
-        _serviceProvider = serviceProvider;
         _logger = logger;
     }
 
-    public void ReloadLogging()
+    public void ReloadLogging(IServiceProvider serviceProvider)
     {
         _logger.LogInformation("Reloading logging with host service provider");
-        LoggingServiceProviderConfigurator.ReloadConfigWithServiceProvider(_serviceProvider);
+        LoggingServiceProviderConfigurator.ReloadConfigWithServiceProvider(serviceProvider);
     }
 
     public async Task ApplyMigrationsAsync()
