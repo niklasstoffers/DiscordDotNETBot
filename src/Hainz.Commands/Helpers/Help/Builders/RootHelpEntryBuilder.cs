@@ -21,11 +21,14 @@ public class RootHelpEntryBuilder : HelpEntryBuilderBase
         var contentBuilder = new StringBuilder();
         string helpCommandSearchInvocation = await _helpCommandInvocationResolver.GetSearchInvocation(context.Channel);
 
-        contentBuilder.AppendLine($"Below is a list of command sections. To get help for a specific section or command, type {Format.Code(helpCommandSearchInvocation)}");
+        contentBuilder.AppendLine($"Welcome to Hainz Help! Below is a list of topics to get you started.");
         contentBuilder.AppendLine();
         
         foreach (var section in _helpRegister.Sections)
             contentBuilder.AppendLine($"{Format.Bold(section.Name)} {section.Description}");
+
+        contentBuilder.AppendLine();
+        contentBuilder.AppendLine($"{Format.Italics("To get help for a specific topic or command, type")} {Format.Code(helpCommandSearchInvocation)}");
 
         embedBuilder.Description = contentBuilder.ToString();
 

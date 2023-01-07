@@ -17,11 +17,14 @@ public class SectionHelpEntryBuilder : HelpEntryBuilderBase<SectionHelpEntry>
     {
         var contentBuilder = new StringBuilder();
         var helpSearchInvocation = await _helpCommandInvocationResolver.GetSearchInvocation(context.Channel);
-        contentBuilder.AppendLine($"Below is a list of commands for \"{entry.Name}\". To get help for a specific command, type {Format.Code(helpSearchInvocation)}");
+        contentBuilder.AppendLine(Format.Underline(entry.Description));
         contentBuilder.AppendLine();
 
         foreach (var command in entry.Commands)
             contentBuilder.AppendLine($"{Format.Bold(command.Name)} {command.Description}");
+
+        contentBuilder.AppendLine();
+        contentBuilder.Append($"{Format.Italics("To get help for a specific command, type")} {Format.Code(helpSearchInvocation)}");
 
         builder.Description = contentBuilder.ToString();
     }

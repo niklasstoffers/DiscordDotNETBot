@@ -26,7 +26,7 @@ public sealed class HelpCommand : MiscCommandBase
     }
 
     [Command("help")]
-    public async Task HelpAsync([Remainder] string search)
+    public async Task HelpAsync([Remainder, CommandParameter("search", "search term")] string search)
     {
         var helpEntry = _helpRegister.GetEntry(search, out var wasFuzzyMatch);
 
