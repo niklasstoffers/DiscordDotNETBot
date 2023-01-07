@@ -21,31 +21,11 @@ public class CommandHelpEntryBuilder : HelpEntryBuilderBase<CommandHelpEntry>
         var contentBuilder = new StringBuilder();
 
         contentBuilder.AppendLine(Format.Underline(entry.Description));
-
         contentBuilder.AppendLine();
+
         foreach (var invocation in entry.Invocations)
         {
-            string parameterList = BuildParameterList(invocation);
-            var invocationBuilder = new StringBuilder();
-
-            if (invocation.Parameters.Count > 0)
-            {
-                invocationBuilder.AppendLine(Format.Bold("Command:"));
-                invocationBuilder.AppendLine();
-            }
-            else
-                invocationBuilder.Append(Format.Bold("Command: "));
-
-            invocationBuilder.AppendLine($"{Format.Code($"{prefix}{invocation.Name} {parameterList}".TrimEnd())}");
-
-            if (invocation.Parameters.Count > 0)
-            {
-                invocationBuilder.AppendLine();
-                invocationBuilder.AppendLine(BuildParameterDescriptions(invocation));
-                contentBuilder.Append(Format.Quote(invocationBuilder.ToString()));
-            }
-            else 
-                contentBuilder.Append(invocationBuilder);
+            contentBuilder.AppendLine(BuildInvocation(invocation, prefix));
 
             if (entry.Invocations.Count > 1)
                 contentBuilder.AppendLine();
@@ -61,6 +41,31 @@ public class CommandHelpEntryBuilder : HelpEntryBuilderBase<CommandHelpEntry>
         }
 
         builder.Description = contentBuilder.ToString();
+    }
+
+    private static string BuildInvocation(CommandInvocation invocation, char prefix)
+    {
+        string parameterList = BuildParameterList(invocation);
+        var invocationBuilder = new StringBuilder();
+
+        if (invocation.Parameters.Count > 0)
+        {
+            invocationBuilder.AppendLine(Format.Bold("Command:"));
+            invocationBuilder.AppendLine();
+        }
+        else
+            invocationBuilder.Append(Format.Bold("Command: "));
+
+        invocationBuilder.AppendLine($"{Format.Code($"{prefix}{invocation.Name} {parameterList}".TrimEnd())}");
+
+        if (invocation.Parameters.Count > 0)
+        {
+            invocationBuilder.AppendLine();
+            invocationBuilder.AppendLine(BuildParameterDescriptions(invocation));
+            return Format.Quote(invocationBuilder.ToString());
+        }
+
+        return invocationBuilder.ToString();
     }
 
     private static string BuildParameterList(CommandInvocation invocation) =>

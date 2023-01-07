@@ -34,46 +34,54 @@ public class HelpRegisterPopulator
             }
 
             if (module.Attributes.SingleOrDefault(attr => attr is CommandNameAttribute) is CommandNameAttribute commandNameAttribute)
+                AddCommandEntry(module, sectionEntry, commandNameAttribute);
+        }
+    }
+
+    private void AddCommandEntry(ModuleInfo module, SectionHelpEntry sectionEntry, CommandNameAttribute commandNameAttribute)
+    {
+        string commandName = commandNameAttribute.Name;
+
+        if (!string.IsNullOrEmpty(module.Group))
+            commandName = $"{module.Group} {commandName}";
+
+        var commandEntry = new CommandHelpEntry(commandName, module.Summary, module.Remarks);
+        sectionEntry.Commands.Add(commandEntry);
+        _register.AddCommand(commandEntry);
+
+        foreach (var commandInfo in module.Commands)
+        {
+            string commandInvocationName = commandInfo.Name;
+
+            if (!string.IsNullOrEmpty(module.Group))
+                commandInvocationName = $"{module.Group} {commandInvocationName}";
+
+            var commandInvocationEntry = new CommandInvocation(commandInvocationName);
+            commandEntry.Invocations.Add(commandInvocationEntry);
+
+            AddCommandParameters(commandInfo, commandInvocationEntry);
+        }
+    }
+
+    private static void AddCommandParameters(CommandInfo commandInfo, CommandInvocation commandInvocationEntry)
+    {
+        foreach (var parameter in commandInfo.Parameters)
+        {
+            var isNamedParameter = parameter.Type.GetCustomAttribute<NamedArgumentTypeAttribute>() != null;
+            if (isNamedParameter)
             {
-                string commandName = commandNameAttribute.Name;
-
-                if (!string.IsNullOrEmpty(module.Group))
-                    commandName = $"{module.Group} {commandName}";
-
-                var commandEntry = new CommandHelpEntry(commandName, module.Summary, module.Remarks);
-                sectionEntry.Commands.Add(commandEntry);
-                _register.AddCommand(commandEntry);
-
-                foreach (var commandInvocation in module.Commands)
+                foreach (var parameterProperty in parameter.Type.GetProperties())
                 {
-                    string commandInvocationName = commandInvocation.Name;
-
-                    if (!string.IsNullOrEmpty(module.Group))
-                        commandInvocationName = $"{module.Group} {commandInvocationName}";
-
-                    var commandInvocationEntry = new CommandInvocation(commandInvocationName);
-                    commandEntry.Invocations.Add(commandInvocationEntry);
-
-                    foreach (var parameter in commandInvocation.Parameters)
-                    {
-                        var isNamedParameter = parameter.Type.GetCustomAttribute<NamedArgumentTypeAttribute>() != null;
-                        if (isNamedParameter)
-                        {
-                            foreach (var parameterProperty in parameter.Type.GetProperties())
-                            {
-                                var namedParameterAttribute = parameterProperty.GetCustomAttribute<NamedCommandParameterAttribute>()!;
-                                var namedParameterEntry = new NamedCommandParameter(parameterProperty.Name.ToLower(), namedParameterAttribute.Placeholder, namedParameterAttribute.Description);
-                                commandInvocationEntry.Parameters.Add(namedParameterEntry);
-                            }
-                        }
-                        else
-                        {
-                            var parameterAttribute = (CommandParameterAttribute)parameter.Attributes.Single(attr => attr is CommandParameterAttribute);
-                            var parameterEntry = new CommandParameter(parameterAttribute.Name, parameterAttribute.Description, parameter.IsOptional);
-                            commandInvocationEntry.Parameters.Add(parameterEntry);
-                        }
-                    }
+                    var namedParameterAttribute = parameterProperty.GetCustomAttribute<NamedCommandParameterAttribute>()!;
+                    var namedParameterEntry = new NamedCommandParameter(parameterProperty.Name.ToLower(), namedParameterAttribute.Placeholder, namedParameterAttribute.Description);
+                    commandInvocationEntry.Parameters.Add(namedParameterEntry);
                 }
+            }
+            else
+            {
+                var parameterAttribute = (CommandParameterAttribute)parameter.Attributes.Single(attr => attr is CommandParameterAttribute);
+                var parameterEntry = new CommandParameter(parameterAttribute.Name, parameterAttribute.Description, parameter.IsOptional);
+                commandInvocationEntry.Parameters.Add(parameterEntry);
             }
         }
     }
