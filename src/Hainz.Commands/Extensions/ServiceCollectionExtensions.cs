@@ -2,6 +2,7 @@ using System.Reflection;
 using Discord.Commands;
 using FluentValidation;
 using Hainz.Commands.Config;
+using Hainz.Commands.Embeds;
 using Hainz.Commands.Helpers;
 using Hainz.Commands.Helpers.Help;
 using Hainz.Commands.Helpers.Help.Builders;
@@ -44,6 +45,7 @@ public static class ServiceCollectionExtensions
         serviceCollection.AddTransient<HelpRegisterPopulator>();
         serviceCollection.AddTransient<CommandModuleBootstrapper>();
         serviceCollection.AddTransient<CommandPrefixResolver>();
+        serviceCollection.AddTransient<DefaultEmbedTemplateBuilder>();
 
         serviceCollection.AddTransient<CommandPostExecutionHandler>();
         serviceCollection.AddTransient<CommandHandler>();

@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 namespace Hainz.Core.Services.Logging;
 
 [RequireGatewayConnection]
-public sealed class DiscordChannelLoggerService : GatewayServiceBase
+public sealed class DiscordChannelLoggerService : GatewayServiceBase, IDisposable
 {
     private readonly BufferBlock<string> _logQueue;
     private readonly DiscordSocketClient _client;
@@ -138,5 +138,10 @@ public sealed class DiscordChannelLoggerService : GatewayServiceBase
 
             _currentLogMessages![logChannel.Id] = await logChannel.SendMessageAsync(logMessage, messageReference: oldLogMessageReference);   
         }
+    }
+
+    public void Dispose()
+    {
+        _stopCTS?.Dispose();
     }
 }

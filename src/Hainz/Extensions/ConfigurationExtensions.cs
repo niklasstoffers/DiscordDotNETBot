@@ -15,6 +15,9 @@ public static class ConfigurationExtensions
 
     public static CommandsConfig GetCommandsConfiguration(this IConfiguration configuration) =>
         configuration.GetConfiguration<CommandsConfig>(SectionKey.Commands);
+
+    public static HealthChecksConfiguration GetHealthChecksConfiguration(this IConfiguration configuration) =>
+        configuration.GetConfiguration<HealthChecksConfiguration>(SectionKey.HealthChecks);
     
     public static PersistenceConfiguration GetPersistenceConfiguration(this IConfiguration configuration) => 
         configuration.GetConfiguration<PersistenceConfiguration>(

@@ -1,5 +1,6 @@
 using Discord;
 using Discord.Commands;
+using Hainz.Commands.Extensions;
 
 namespace Hainz.Commands.Helpers.Help.Builders;
 
@@ -11,11 +12,7 @@ public abstract class HelpEntryBuilderBase
 
         embedBuilder
             .WithTitle("Hainz Help!")
-            .WithFooter(builder =>
-            {
-                builder.Text = context.Client.CurrentUser.Username;
-                builder.IconUrl = context.Client.CurrentUser.GetAvatarUrl();
-            })
+            .WithUser(context.Client.CurrentUser)
             .WithCurrentTimestamp();
 
         return embedBuilder;
