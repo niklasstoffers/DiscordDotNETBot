@@ -29,6 +29,9 @@ public static class ServiceCollectionExtensions
                .AddInterceptors(serviceProvider.GetRequiredService<SecondLevelCacheInterceptor>()));
         serviceCollection.AddCaching(cachingConfiguration);
 
+        serviceCollection.AddSingleton(persistenceConfigurartion);
+        serviceCollection.AddSingleton(cachingConfiguration);
+
         serviceCollection.AddTransient<DbMigrationHelper>();
         serviceCollection.AddTransient<DbInitializer>();
         serviceCollection.AddTransient<GuildService>();

@@ -32,9 +32,10 @@ public static class HostBuilderExtensions
             var commandsConfiguration = hostBuilder.Configuration.GetCommandsConfiguration();
             var persistenceConfiguration = hostBuilder.Configuration.GetPersistenceConfiguration();
             var cachingConfiguration = hostBuilder.Configuration.GetCachingConfiguration();
+            var healthChecksConfiguration = hostBuilder.Configuration.GetHealthChecksConfiguration();
 
             serviceCollection.AddEvents();
-            serviceCollection.AddCore(botConfiguration);
+            serviceCollection.AddCore(botConfiguration, healthChecksConfiguration);
             serviceCollection.AddInfrastructure();
             serviceCollection.AddCommands(commandsConfiguration);
             serviceCollection.AddPersistence(persistenceConfiguration, cachingConfiguration);

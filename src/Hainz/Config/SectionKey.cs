@@ -7,4 +7,5 @@ public static class SectionKey
     public const string Commands = $"{Hainz}:Commands";
     public const string Persistence = $"{Hainz}:Persistence";
     public const string Caching = $"{Hainz}:Caching";
+    public const string HealthChecks = $"{Hainz}:Healthchecks";
 }
