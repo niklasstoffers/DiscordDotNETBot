@@ -14,9 +14,14 @@ public static class HostBuilderExtensions
 {
     public static IHostBuilder AddAppSettings(this IHostBuilder hostBuilder, bool isOptional = true)
     {
-        hostBuilder.ConfigureAppConfiguration(configurationBuilder => 
+        hostBuilder.ConfigureAppConfiguration((hostingContext, configurationBuilder) => 
         {
             configurationBuilder.AddJsonFile("appsettings.json", optional: isOptional);
+
+            if (hostingContext.HostingEnvironment.IsDevelopment())
+            {
+                configurationBuilder.AddUserSecrets<Program>(true);
+            }
         });
 
         return hostBuilder;
