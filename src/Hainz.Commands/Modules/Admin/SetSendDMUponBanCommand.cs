@@ -25,7 +25,7 @@ public sealed class SetSendDMUponBanCommand : AdminCommandBase
     {
         try
         {
-            var command = new Data.Commands.Guild.Bans.SetSendDMUponBanCommand(Context.Guild.Id, enable);
+            var command = new Data.Commands.Guild.Bans.SetSendDMUponBan.SetSendDMUponBanCommand(Context.Guild.Id, enable);
             await _mediator.Send(command);
 
             if (enable)

@@ -5,12 +5,12 @@ using Hainz.Commands.Metadata;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace Hainz.Commands.Modules.Admin;
+namespace Hainz.Commands.Modules.Admin.CommandPrefix;
 
 [RequireUserPermission(GuildPermission.Administrator)]
-[CommandName("setcommandprefix")]
+[CommandName("set")]
 [Summary("sets a guild specific command prefix")]
-public class SetCommandPrefixCommand : AdminCommandBase
+public class SetCommandPrefixCommand : CommandPrefixCommandBase
 {
     private readonly IMediator _mediator;
     private readonly ILogger<SetCommandPrefixCommand> _logger;
@@ -21,7 +21,7 @@ public class SetCommandPrefixCommand : AdminCommandBase
         _logger = logger;
     }
 
-    [Command("setcommandprefix")]
+    [Command("set")]
     public async Task SetCommandPrefixAsync([CommandParameter("prefix", "prefix to use")] char prefix)
     {
         var isValidPrefix = CommandPrefixValidator.IsValidPrefix(prefix);
@@ -34,7 +34,7 @@ public class SetCommandPrefixCommand : AdminCommandBase
 
         try
         {
-            var command = new Data.Commands.Guild.Commands.SetCommandPrefixCommand(Context.Guild.Id, prefix);
+            var command = new Data.Commands.Guild.Commands.SetCommandPrefix.SetCommandPrefixCommand(Context.Guild.Id, prefix);
             await _mediator.Send(command);
             await ReplyAsync("Command prefix successfully updated");
         }
