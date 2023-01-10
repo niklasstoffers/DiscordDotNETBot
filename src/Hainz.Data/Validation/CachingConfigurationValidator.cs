@@ -7,12 +7,13 @@ public sealed class CachingConfigurationValidator : AbstractValidator<CachingCon
 {
     public CachingConfigurationValidator()
     {
-        RuleFor(config => config.CacheKeyPrefix).NotEmpty();
-        RuleFor(config => config.ProviderName).NotEmpty();
-        RuleFor(config => config.TimeoutSeconds).GreaterThan(0);
+        RuleFor(config => config.CacheKeyPrefix).NotEmpty().WithMessage("Cache key prefix may not be empty");
+        RuleFor(config => config.ProviderName).NotEmpty().WithMessage("Provider name may not be empty");
+        RuleFor(config => config.TimeoutSeconds).GreaterThan(0).WithMessage("Timeout seconds must be greater than 0");
 
         RuleFor(config => config.Redis)
             .NotNull()
-            .SetValidator(new RedisConfigurationValidator());
+            .SetValidator(new RedisConfigurationValidator())
+            .WithMessage("Redis configuration may not be null");
     }
 }

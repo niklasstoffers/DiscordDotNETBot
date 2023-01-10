@@ -9,6 +9,7 @@ public sealed class CommandsConfigValidator : AbstractValidator<CommandsConfig>
     public CommandsConfigValidator()
     {
         RuleFor(config => config.FallbackPrefix)
-            .Must(prefix => CommandPrefixValidator.IsValidPrefix(prefix));
+            .Must(prefix => CommandPrefixValidator.IsValidPrefix(prefix))
+            .WithMessage($"Configured fallback prefix is invalid. Valid prefixes: [{string.Join(", ", CommandPrefixValidator.ValidPrefixes)}]");
     }
 }
