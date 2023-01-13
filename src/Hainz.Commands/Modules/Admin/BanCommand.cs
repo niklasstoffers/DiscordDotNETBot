@@ -8,6 +8,7 @@ using Hainz.Core.Services.Guild;
 
 namespace Hainz.Commands.Modules.Admin;
 
+[OnlyInGuild]
 [RequireUserPermission(GuildPermission.BanMembers)]
 [RequireBotPermission(GuildPermission.BanMembers)]
 [CommandName("ban")]

@@ -1,12 +1,14 @@
 using Discord;
 using Discord.Commands;
 using Hainz.Commands.Metadata;
+using Hainz.Commands.Preconditions;
 using Hainz.Data.Commands.Guild.Commands.RemoveCommandPrefix;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Hainz.Commands.Modules.Admin.CommandPrefix;
 
+[OnlyInGuild]
 [RequireUserPermission(GuildPermission.Administrator)]
 [CommandName("remove")]
 [Summary("removes a guild specific command prefix")]

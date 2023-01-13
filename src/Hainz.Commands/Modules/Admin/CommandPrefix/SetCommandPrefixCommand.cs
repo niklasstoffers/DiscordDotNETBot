@@ -2,11 +2,13 @@ using Discord;
 using Discord.Commands;
 using Hainz.Commands.Helpers;
 using Hainz.Commands.Metadata;
+using Hainz.Commands.Preconditions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Hainz.Commands.Modules.Admin.CommandPrefix;
 
+[OnlyInGuild]
 [RequireUserPermission(GuildPermission.Administrator)]
 [CommandName("set")]
 [Summary("sets a guild specific command prefix")]

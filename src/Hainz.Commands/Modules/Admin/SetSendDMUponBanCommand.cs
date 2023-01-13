@@ -1,11 +1,13 @@
 using Discord;
 using Discord.Commands;
 using Hainz.Commands.Metadata;
+using Hainz.Commands.Preconditions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Hainz.Commands.Modules.Admin;
 
+[OnlyInGuild]
 [RequireUserPermission(GuildPermission.Administrator)]
 [CommandName("setsenddmuponban")]
 [Summary("sets whether banned users should receive a ban dm")]
