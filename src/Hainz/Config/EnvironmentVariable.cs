@@ -16,7 +16,6 @@ public static class EnvironmentVariable
     public static string? GetCacheHostname() => Get(EnvironmentVariableName.CacheHostname);
     public static int? GetCachePort() => Get<int>(EnvironmentVariableName.CachePort);
 
-
     [return: NotNullIfNotNull("defaultValue")]
     public static string? Get(string variableName, string? defaultValue = null) =>
         Environment.GetEnvironmentVariable(variableName) ?? defaultValue;
