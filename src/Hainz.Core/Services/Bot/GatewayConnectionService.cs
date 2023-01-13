@@ -1,6 +1,7 @@
 using Discord;
 using Discord.WebSocket;
 using Hainz.Core.Config;
+using Hainz.Core.Events;
 using Hainz.Hosting;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -11,14 +12,17 @@ public sealed class GatewayConnectionService : GatewayServiceBase
 {
     private readonly DiscordSocketClient _client;
     private readonly BotConfig _config;
+    private readonly IMediator _mediator;
     private readonly ILogger<GatewayConnectionService> _logger;
 
     public GatewayConnectionService(DiscordSocketClient client,
                                     BotConfig config,
+                                    IMediator mediator,
                                     ILogger<GatewayConnectionService> logger)
     {
         _client = client;
         _config = config;
+        _mediator = mediator;
         _logger = logger;
     }
 
@@ -33,6 +37,7 @@ public sealed class GatewayConnectionService : GatewayServiceBase
         }
         catch (Exception ex)
         {
+            await _mediator.Publish(new ApplicationShutdownRequest());
             _logger.LogCritical(ex, "Error while trying to establish gateway connection");
         }
     }
