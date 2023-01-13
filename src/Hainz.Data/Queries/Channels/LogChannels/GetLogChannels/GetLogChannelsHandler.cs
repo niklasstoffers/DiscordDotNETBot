@@ -14,7 +14,7 @@ public class GetLogChannelsHandler : IRequestHandler<GetLogChannelsQuery, IEnume
 
     public Task<IEnumerable<ChannelDTO>> Handle(GetLogChannelsQuery request, CancellationToken cancellationToken)
     {
-        return Task.FromResult(_dbContext.Channels.Where(x => (x.ChannelFlags & DTOs.ChannelFlags.LogChannel) != 0)
+        return Task.FromResult(_dbContext.Channels.AsEnumerable().Where(channel => channel.IsLogChannel())
             .Select(x => new ChannelDTO(x.DiscordChannelId))
             .AsEnumerable());
     }

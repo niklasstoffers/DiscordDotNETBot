@@ -18,10 +18,10 @@ public class AddLogChannelHandler : IRequestHandler<AddLogChannelCommand, AddLog
     {
         var channel = await _channelService.GetOrCreateByDiscordId(request.ChannelId);
         
-        if ((channel.ChannelFlags & DTOs.ChannelFlags.LogChannel) != 0)
+        if (channel.IsLogChannel())
             return AddLogChannelResult.AlreadyALogChannel;
 
-        channel.ChannelFlags |= DTOs.ChannelFlags.LogChannel;
+        channel.MakeLogChannel();
         
         await _dbContext.SaveChangesAsync(cancellationToken);
         return AddLogChannelResult.Success;
