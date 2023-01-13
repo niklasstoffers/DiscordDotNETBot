@@ -3,7 +3,7 @@ using Hainz.Data.Services.Guild;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace Hainz.Data.Commands.Guild.Commands;
+namespace Hainz.Data.Commands.Guild.Commands.SetCommandPrefix;
 
 public class SetCommandPrefixHandler : IRequestHandler<SetCommandPrefixCommand, Unit>
 {

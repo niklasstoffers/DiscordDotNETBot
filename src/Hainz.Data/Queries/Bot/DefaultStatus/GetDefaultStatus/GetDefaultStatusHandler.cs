@@ -3,7 +3,7 @@ using MediatR;
 using Discord;
 using Hainz.Data.DTOs;
 
-namespace Hainz.Data.Queries.Bot.DefaultStatus;
+namespace Hainz.Data.Queries.Bot.DefaultStatus.GetDefaultStatus;
 
 public class GetDefaultStatusHandler : IRequestHandler<GetDefaultStatusQuery, UserStatus>
 {

@@ -17,7 +17,7 @@ public static class ConfigurationExtensions
         configuration.GetConfiguration<CommandsConfig>(SectionKey.Commands);
 
     public static HealthChecksConfiguration GetHealthChecksConfiguration(this IConfiguration configuration) =>
-        configuration.GetConfiguration<HealthChecksConfiguration>(SectionKey.HealthChecks);
+        configuration.GetConfiguration<HealthChecksConfiguration>(SectionKey.HealthChecks, defaultValue: new HealthChecksConfiguration());
     
     public static PersistenceConfiguration GetPersistenceConfiguration(this IConfiguration configuration) => 
         configuration.GetConfiguration<PersistenceConfiguration>(
@@ -36,12 +36,13 @@ public static class ConfigurationExtensions
                       .Bind(config => config.Redis.Port, EnvironmentVariable.GetCachePort())    
         );
 
-    private static T GetConfiguration<T>(this IConfiguration configuration, string sectionName, Func<BindingOptions<T>, BindingOptions<T>>? bindingOptionsConfig = null) where T : class
+    private static T GetConfiguration<T>(this IConfiguration configuration, string sectionName, Func<BindingOptions<T>, BindingOptions<T>>? bindingOptionsConfig = null, T? defaultValue = null) where T : class
     {
         var bindingOptions = new BindingOptions<T>();
         bindingOptionsConfig?.Invoke(bindingOptions);
 
         var sectionConfig = configuration.GetSection(sectionName).Get<T>(opt => opt.ErrorOnUnknownConfiguration = true) ?? 
+                            defaultValue ??
                             throw new ArgumentException($"Invalid configuration for section \"{sectionName}\"");
 
         Binder.Bind(sectionConfig, bindingOptions);

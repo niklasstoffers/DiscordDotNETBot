@@ -3,7 +3,7 @@ using System.Threading.Tasks.Dataflow;
 using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
-using Hainz.Data.Queries.Channels.LogChannels;
+using Hainz.Data.Queries.Channels.LogChannels.GetLogChannels;
 using Hainz.Hosting;
 using MediatR;
 using Microsoft.Extensions.Logging;

@@ -4,7 +4,7 @@ using Hainz.Data.Services.Guild;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace Hainz.Data.Commands.Guild.Bans;
+namespace Hainz.Data.Commands.Guild.Bans.SetSendDMUponBan;
 
 public class SetSendDMUponBanHandler : IRequestHandler<SetSendDMUponBanCommand, Unit>
 {

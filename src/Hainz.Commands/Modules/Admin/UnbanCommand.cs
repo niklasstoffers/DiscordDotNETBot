@@ -1,10 +1,12 @@
 using Discord;
 using Discord.Commands;
 using Hainz.Commands.Metadata;
+using Hainz.Commands.Preconditions;
 using Hainz.Core.Services.Guild;
 
 namespace Hainz.Commands.Modules.Admin;
 
+[OnlyInGuild]
 [RequireUserPermission(GuildPermission.BanMembers)]
 [RequireBotPermission(GuildPermission.BanMembers)]
 [CommandName("unban")]

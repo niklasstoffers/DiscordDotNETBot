@@ -20,10 +20,10 @@ public class RemoveLogChannelHandler : IRequestHandler<RemoveLogChannelCommand, 
             cancellationToken
         );
 
-        if (channel == null || (channel.ChannelFlags & DTOs.ChannelFlags.LogChannel) == 0)
+        if (channel == null || !channel.IsLogChannel())
             return RemoveLogChannelResult.NotALogChannel;
         
-        channel.ChannelFlags &= ~DTOs.ChannelFlags.LogChannel;
+        channel.RemoveLogChannel();
         
         await _dbContext.SaveChangesAsync(cancellationToken);
         return RemoveLogChannelResult.Success;

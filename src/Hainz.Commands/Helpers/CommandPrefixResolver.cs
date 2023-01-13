@@ -2,7 +2,7 @@ using Discord;
 using Discord.WebSocket;
 using Hainz.Commands.Config;
 using Hainz.Common.Helpers;
-using Hainz.Data.Queries.Guild.Commands;
+using Hainz.Data.Queries.Guild.Commands.GetCommandPrefix;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

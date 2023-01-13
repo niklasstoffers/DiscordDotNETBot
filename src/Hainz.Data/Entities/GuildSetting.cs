@@ -1,6 +1,6 @@
 namespace Hainz.Data.Entities;
 
-public class GuildSetting : BaseEntity
+public partial class GuildSetting : BaseEntity
 {
     public Guild Guild { get; set; } = null!;
     public string Name { get; set; } = null!;

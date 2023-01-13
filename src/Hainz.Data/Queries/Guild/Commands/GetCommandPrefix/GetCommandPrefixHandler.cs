@@ -2,7 +2,7 @@ using Hainz.Data.DTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace Hainz.Data.Queries.Guild.Commands;
+namespace Hainz.Data.Queries.Guild.Commands.GetCommandPrefix;
 
 public class GetCommandPrefixHandler : IRequestHandler<GetCommandPrefixQuery, char>
 {
