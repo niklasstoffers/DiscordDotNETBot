@@ -7,6 +7,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Hainz.Helpers;
+using MediatR;
+using System.Reflection;
 
 namespace Hainz.Extensions;
 
@@ -47,6 +49,9 @@ public static class HostBuilderExtensions
 
             serviceCollection.AddTransient<HostStartup>();
             serviceCollection.AddHostedService<ApplicationHost>();
+
+            var currentAssembly = Assembly.GetExecutingAssembly();
+            serviceCollection.AddMediatR(currentAssembly);
         });
 
         return hostBuilder;
