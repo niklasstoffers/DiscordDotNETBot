@@ -1,24 +1,32 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Hainz.Config;
 
 public static class EnvironmentVariable
 {
-    public static string GetDotNetEnvironment() => Environment.GetEnvironmentVariable(EnvironmentVariableName.DotNetEnvironment) ?? EnvironmentName.Default;
-    public static bool GetPreventMigrations() => GetEnvironmentVariable(EnvironmentVariableName.PreventMigrations, bool.Parse) ?? false;
+    public static string GetDotNetEnvironment() => Get(EnvironmentVariableName.DotNetEnvironment, EnvironmentName.Default);
+    public static bool GetPreventMigrations() => Get<bool>(EnvironmentVariableName.PreventMigrations, false).Value;
 
-    public static int? GetPersistencePort() => GetEnvironmentVariable(EnvironmentVariableName.PersistencePort, int.Parse);
-    public static string? GetPersistenceHostname() => Environment.GetEnvironmentVariable(EnvironmentVariableName.PersistenceHostname);
-    public static string? GetPersistenceUsername() => Environment.GetEnvironmentVariable(EnvironmentVariableName.PersistenceUsername);
-    public static string? GetPersistencePassword() => Environment.GetEnvironmentVariable(EnvironmentVariableName.PersistencePassword);
-    public static string? GetPersistenceDatabase() => Environment.GetEnvironmentVariable(EnvironmentVariableName.PersistenceDatabase);
+    public static int? GetPersistencePort() => Get<int>(EnvironmentVariableName.PersistencePort);
+    public static string? GetPersistenceHostname() => Get(EnvironmentVariableName.PersistenceHostname);
+    public static string? GetPersistenceUsername() => Get(EnvironmentVariableName.PersistenceUsername);
+    public static string? GetPersistencePassword() => Get(EnvironmentVariableName.PersistencePassword);
+    public static string? GetPersistenceDatabase() => Get(EnvironmentVariableName.PersistenceDatabase);
 
-    public static string? GetCacheHostname() => Environment.GetEnvironmentVariable(EnvironmentVariableName.CacheHostname);
-    public static int? GetCachePort() => GetEnvironmentVariable(EnvironmentVariableName.CachePort, int.Parse);
+    public static string? GetCacheHostname() => Get(EnvironmentVariableName.CacheHostname);
+    public static int? GetCachePort() => Get<int>(EnvironmentVariableName.CachePort);
 
-    private static T? GetEnvironmentVariable<T>(string variableName, Func<string, T> converter) where T : struct
+
+    [return: NotNullIfNotNull("defaultValue")]
+    public static string? Get(string variableName, string? defaultValue = null) =>
+        Environment.GetEnvironmentVariable(variableName) ?? defaultValue;
+
+    [return: NotNullIfNotNull("defaultValue")]
+    public static T? Get<T>(string variableName, T? defaultValue = null) where T : struct
     {
         string? variableValue = Environment.GetEnvironmentVariable(variableName);
         if (!string.IsNullOrEmpty(variableValue))
-            return converter(variableValue);
-        return null;
+            return (T)Convert.ChangeType(variableValue, typeof(T));
+        return defaultValue;
     }
 }
