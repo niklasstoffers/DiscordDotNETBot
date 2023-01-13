@@ -1,6 +1,6 @@
 using Hainz.Core.Services.Status;
-using Hainz.Data.Queries.Bot.DefaultActivity;
-using Hainz.Data.Queries.Bot.DefaultStatus;
+using Hainz.Data.Queries.Bot.DefaultActivity.GetDefaultActivity;
+using Hainz.Data.Queries.Bot.DefaultStatus.GetDefaultStatus;
 using Hainz.Events.Notifications.Connection;
 using MediatR;
 using Microsoft.Extensions.Logging;

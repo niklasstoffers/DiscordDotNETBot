@@ -1,7 +1,7 @@
 using Hainz.Data.DTOs.Discord;
 using MediatR;
 
-namespace Hainz.Data.Queries.Channels.LogChannels;
+namespace Hainz.Data.Queries.Channels.LogChannels.GetLogChannels;
 
 public class GetLogChannelsHandler : IRequestHandler<GetLogChannelsQuery, IEnumerable<ChannelDTO>>
 {

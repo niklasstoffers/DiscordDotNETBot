@@ -2,7 +2,7 @@ using Discord;
 using Discord.WebSocket;
 using Hainz.Common.Helpers;
 using Hainz.Core.Services.Messages;
-using Hainz.Data.Queries.Guild.Bans;
+using Hainz.Data.Queries.Guild.Bans.SendDMUponBan;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

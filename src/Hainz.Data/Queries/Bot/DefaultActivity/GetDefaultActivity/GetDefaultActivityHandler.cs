@@ -4,7 +4,7 @@ using Hainz.Data.DTOs;
 using MediatR;
 using Discord;
 
-namespace Hainz.Data.Queries.Bot.DefaultActivity;
+namespace Hainz.Data.Queries.Bot.DefaultActivity.GetDefaultActivity;
 
 public class GetDefaultActivityHandler : IRequestHandler<GetDefaultActivityQuery, ActivityDTO>
 {

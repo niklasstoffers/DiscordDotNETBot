@@ -3,7 +3,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace Hainz.Data.Queries.Guild.Bans;
+namespace Hainz.Data.Queries.Guild.Bans.SendDMUponBan;
 
 public class SendDMUponBanHandler : IRequestHandler<SendDMUponBanQuery, bool>
 {
