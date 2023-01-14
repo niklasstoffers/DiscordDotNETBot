@@ -1,6 +1,7 @@
 using Discord.Commands;
 using Discord.WebSocket;
 using Hainz.Commands.Metadata;
+using Hainz.Core.Services.Logging;
 using Hainz.Data.Commands.Channel.AddLogChannel;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -12,11 +13,15 @@ namespace Hainz.Commands.Modules.Bot.LogChannel;
 public class AddLogChannelCommand : LogChannelCommandBase
 {
     private readonly IMediator _mediator;
+    private readonly DiscordChannelLoggerService _loggerService;
     private readonly ILogger<AddLogChannelCommand> _logger;
 
-    public AddLogChannelCommand(IMediator mediator, ILogger<AddLogChannelCommand> logger)
+    public AddLogChannelCommand(IMediator mediator, 
+                                DiscordChannelLoggerService loggerService, 
+                                ILogger<AddLogChannelCommand> logger)
     {
         _mediator = mediator;
+        _loggerService = loggerService;
         _logger = logger;
     }
 
@@ -28,12 +33,13 @@ public class AddLogChannelCommand : LogChannelCommandBase
             var command = new Data.Commands.Channel.AddLogChannel.AddLogChannelCommand(channel.Id);
             var result = await _mediator.Send(command);
 
-            await (result switch 
+            if (result == AddLogChannelResult.AlreadyALogChannel)
+                await ReplyAsync("This channel is already a log channel");
+            else if(result == AddLogChannelResult.Success)
             {
-                AddLogChannelResult.AlreadyALogChannel => ReplyAsync("This channel is already a log channel"),
-                AddLogChannelResult.Success => ReplyAsync("Added channel to log channels"),
-                _ => Task.CompletedTask
-            });
+                await _loggerService.Reload();
+                await ReplyAsync("Added channel to log channels");
+            }
         }
         catch (Exception ex)
         {
