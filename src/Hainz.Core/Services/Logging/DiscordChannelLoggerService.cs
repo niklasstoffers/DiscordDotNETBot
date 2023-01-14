@@ -17,6 +17,7 @@ public sealed class DiscordChannelLoggerService : GatewayServiceBase, IDisposabl
     private readonly DiscordSocketClient _client;
     private readonly IMediator _mediator;
     private readonly ILogger<DiscordChannelLoggerService> _logger;
+    private readonly SemaphoreSlim _channelLoadLock;
     private Task? _loggerTask;
     private bool _isEnabled = true;
     private CancellationTokenSource? _stopCTS;
@@ -31,6 +32,7 @@ public sealed class DiscordChannelLoggerService : GatewayServiceBase, IDisposabl
         _mediator = mediator;
         _logger = logger;
 
+        _channelLoadLock = new SemaphoreSlim(1, 1);
         _logQueue = new();
     }
 
@@ -44,24 +46,10 @@ public sealed class DiscordChannelLoggerService : GatewayServiceBase, IDisposabl
     {
         _logger.LogInformation("Starting DiscordChannelLoggerService");
         
-        _logChannels = new();
         _currentLogMessages = new();
+        await ReloadLogChannels();
 
-        var logChannelDTOs = await _mediator.Send(new GetLogChannelsQuery());
-        await Parallel.ForEachAsync(logChannelDTOs, async (channel, cancellationToken) =>
-        {
-            if (await _client.GetChannelAsync(channel.ChannelId) is SocketTextChannel logChannel)
-            {
-                _logChannels.Add(logChannel);
-                _logger.LogTrace("Using channel with id {id} for logging", channel.ChannelId);
-            }
-            else
-                _logger.LogInformation("Skipping channel with id {id} because it could not be converted to a text channel", channel.ChannelId);
-        });
-
-        _logger.LogInformation("Number of log channels: {num}", _logChannels.Count);
-
-        if (!_logChannels.IsEmpty)
+        if (!_logChannels!.IsEmpty)
         {
             _logger.LogInformation("Starting channel logger task");
             _isEnabled = true;
@@ -82,6 +70,37 @@ public sealed class DiscordChannelLoggerService : GatewayServiceBase, IDisposabl
         await (_loggerTask ?? Task.CompletedTask);
     }
 
+    public async Task Reload() => await ReloadLogChannels();
+
+    private async Task ReloadLogChannels()
+    {
+        try
+        {
+            _logger.LogInformation("Reloading log channels");
+            
+            await _channelLoadLock.WaitAsync();
+            _logChannels = new();
+
+            var logChannelDTOs = await _mediator.Send(new GetLogChannelsQuery());
+            await Parallel.ForEachAsync(logChannelDTOs, async (channel, cancellationToken) =>
+            {
+                if (await _client.GetChannelAsync(channel.ChannelId) is SocketTextChannel logChannel)
+                {
+                    _logChannels.Add(logChannel);
+                    _logger.LogTrace("Using channel with id {id} for logging", channel.ChannelId);
+                }
+                else
+                    _logger.LogInformation("Skipping channel with id {id} because it could not be converted to a text channel", channel.ChannelId);
+            });
+
+            _logger.LogInformation("Number of log channels: {num}", _logChannels.Count);
+        }
+        finally
+        {
+            _channelLoadLock.Release();
+        }
+    }
+
     private async Task LogWriterAsync(CancellationToken ct) 
     {
         while(!ct.IsCancellationRequested) 
@@ -90,8 +109,16 @@ public sealed class DiscordChannelLoggerService : GatewayServiceBase, IDisposabl
             {
                 await foreach (var logMessage in _logQueue.ReceiveAllAsync(ct)) 
                 {
-                    foreach (var logChannel in _logChannels!)
-                        await AppendToLogAsync(logMessage, logChannel);
+                    try
+                    {
+                        await _channelLoadLock.WaitAsync(ct);
+                        foreach (var logChannel in _logChannels!)
+                            await AppendToLogAsync(logMessage, logChannel);
+                    }
+                    finally
+                    {
+                        _channelLoadLock.Release();
+                    }
                 }
             }
             catch (Exception ex)

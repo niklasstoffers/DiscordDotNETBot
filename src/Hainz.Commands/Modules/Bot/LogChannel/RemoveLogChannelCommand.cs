@@ -1,6 +1,7 @@
 using Discord.Commands;
 using Discord.WebSocket;
 using Hainz.Commands.Metadata;
+using Hainz.Core.Services.Logging;
 using Hainz.Data.Commands.Channel.RemoveLogChannel;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -12,11 +13,15 @@ namespace Hainz.Commands.Modules.Bot.LogChannel;
 public class RemoveLogChannelCommand : LogChannelCommandBase
 {
     private readonly IMediator _mediator;
+    private readonly DiscordChannelLoggerService _loggerService;
     private readonly ILogger<RemoveLogChannelCommand> _logger;
 
-    public RemoveLogChannelCommand(IMediator mediator, ILogger<RemoveLogChannelCommand> logger)
+    public RemoveLogChannelCommand(IMediator mediator, 
+                                   DiscordChannelLoggerService loggerService,
+                                   ILogger<RemoveLogChannelCommand> logger)
     {
         _mediator = mediator;
+        _loggerService = loggerService;
         _logger = logger;
     }
 
@@ -28,12 +33,13 @@ public class RemoveLogChannelCommand : LogChannelCommandBase
             var command = new Data.Commands.Channel.RemoveLogChannel.RemoveLogChannelCommand(channel.Id);
             var result = await _mediator.Send(command);
 
-            await (result switch
+            if (result == RemoveLogChannelResult.NotALogChannel)
+                await ReplyAsync("This channel is not a log channel");
+            else if (result == RemoveLogChannelResult.Success)
             {
-                RemoveLogChannelResult.NotALogChannel => ReplyAsync("This channel is not a log channel"),
-                RemoveLogChannelResult.Success => ReplyAsync("Removed channel from log channels"),
-                _ => Task.CompletedTask
-            });;
+                await _loggerService.Reload();
+                await ReplyAsync("Removed channel from log channels");
+            }
         }
         catch (Exception ex)
         {
