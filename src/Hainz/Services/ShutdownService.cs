@@ -18,7 +18,7 @@ public class ShutdownService : INotificationHandler<ApplicationShutdownRequest>
 
     public Task Handle(ApplicationShutdownRequest notification, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Received application shutdown request");
+        _logger.LogInformation("Received application shutdown request. Requesting application lifetime termination.");
         _appLifetime.StopApplication();
         return Task.CompletedTask;
     }
