@@ -61,13 +61,24 @@ public class CommandHelpEntryBuilder : HelpEntryBuilderBase<CommandHelpEntry>
 
         invocationBuilder.AppendLine($"{Format.Code($"{prefix}{invocation.Name} {parameterList}".TrimEnd())}");
 
+        if (!(invocation.Summary == null && invocation.Remarks == null))
+        {
+            invocationBuilder.AppendLine();
+
+            if (invocation.Summary != null) 
+                invocationBuilder.AppendLine($"{Format.Bold("Summary:")} {invocation.Summary}");
+            if (invocation.Remarks != null)
+                invocationBuilder.AppendLine($"{Format.Bold("Remarks:")} {invocation.Remarks}");
+        }
+
         if (invocation.Parameters.Count > 0)
         {
             invocationBuilder.AppendLine();
             invocationBuilder.AppendLine(BuildParameterDescriptions(invocation));
-            return Format.Quote(invocationBuilder.ToString());
         }
 
+        if (invocation.Parameters.Count > 0 || !(invocation.Summary == null && invocation.Remarks == null))
+            return Format.Quote(invocationBuilder.ToString());
         return invocationBuilder.ToString();
     }
 

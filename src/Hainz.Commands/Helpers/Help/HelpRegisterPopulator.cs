@@ -63,7 +63,12 @@ public class HelpRegisterPopulator
             if (!string.IsNullOrEmpty(module.Group))
                 commandInvocationName = $"{module.Group} {commandInvocationName}";
 
-            var commandInvocationEntry = new CommandInvocation(commandInvocationName);
+            var commandInvocationEntry = new CommandInvocation(commandInvocationName)
+            {
+                Summary = commandInfo.Summary,
+                Remarks = commandInfo.Remarks
+            };
+            
             commandEntry.Invocations.Add(commandInvocationEntry);
             AddCommandParameters(commandInfo, commandInvocationEntry);
 

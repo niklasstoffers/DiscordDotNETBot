@@ -23,7 +23,7 @@ public class WarnCommand : AdminCommandBase
 
     [Command("warn")]
     public async Task WarnAsync(
-        [NotSelfInvokable, CommandParameter("user", "the user to warn")] SocketGuildUser user,
+        [NotSelfInvokable, NoBot, CommandParameter("user", "the user to warn")] SocketGuildUser user,
         [CommandParameter("reason", "reason why user is getting warned")] string? reason = null)
     {
         var embedBuilder = new EmbedBuilder();
