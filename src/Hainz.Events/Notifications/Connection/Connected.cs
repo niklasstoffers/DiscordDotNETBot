@@ -2,4 +2,4 @@ using MediatR;
 
 namespace Hainz.Events.Notifications.Connection;
 
-public class Connected : INotification { }
+public record Connected : INotification;
