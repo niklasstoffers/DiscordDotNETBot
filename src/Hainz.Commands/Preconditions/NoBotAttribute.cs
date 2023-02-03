@@ -16,7 +16,6 @@ public sealed class NoBotAttribute : ParameterPreconditionAttribute
             _ => null
         };
 
-
         if (userId == null)
         {
             return PreconditionResult.FromError("Invalid precondition application");
