@@ -41,11 +41,11 @@ public static class HostBuilderExtensions
             var cachingConfiguration = hostBuilder.Configuration.GetCachingConfiguration();
             var healthChecksConfiguration = hostBuilder.Configuration.GetHealthChecksConfiguration();
 
-            serviceCollection.AddEvents();
             serviceCollection.AddCore(botConfiguration, healthChecksConfiguration);
             serviceCollection.AddInfrastructure();
             serviceCollection.AddCommands(commandsConfiguration);
             serviceCollection.AddPersistence(persistenceConfiguration, cachingConfiguration);
+            serviceCollection.AddEvents();
 
             serviceCollection.AddTransient<HostStartup>();
             serviceCollection.AddHostedService<ApplicationHost>();
